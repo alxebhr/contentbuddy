@@ -662,7 +662,7 @@
 
     function createButton() {
         const button = document.createElement('button');
-        button.innerText = 'ContentBuddy';
+        button.innerText = 'ContentBuddy Sieh an';
         button.id = 'contentBuddyButton'; // Assign an ID for checking existence
         button.style.position = 'fixed';
         button.style.top = '10px';

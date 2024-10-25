@@ -24,33 +24,31 @@
         let text;
         if (outlineText) {
             text = `Nutze dein Wissen zu Kundin, Tonalität und Zielstellung des Textes um die weitere Konversation zu optimieren. 
-                Du bist in der Rolle eines Werbetexters mit tiefem Verständnis für Suchmaschinenoptimierung. Ich will, dass du mir für folgendes Keyword bzw. Thema einen Text nach meinen Vorgaben generierst.
-                Keyword: "${hauptkeyword}"
-                Der Text soll ein Kaufberatertext auf einer Produktlistenseite unterhalb der Produkte sein. Er soll SEO-optimiert und leicht lesbar sein und die Produktlistenseite für Google für das Keyword bzw. Thema optimieren. 
-                Tonalität und Wording:
-                Der Text soll eher informell geschrieben sein. Die Tonalität ist locker, unbeschwert und leicht freundschaftlich. Wird die Kundin angesprochen, dann mit „Sie“. Die Sprache darf auch blumig sein und wie ein Gespräch zwischen zwei Bekannten wirken. 
-                Wenn im Text Situationen und Anlässe aufgegriffen werden, dann zu Freizeitaktivitäten bodenständiger Frau zwischen 50 und 60 Jahren.  
-                Beachte diese Informationen zu Shop und Kundin sowohl bei der Formulierung des Textes als auch beim Setzen inhaltlicher Schwerpunkte.  
-                
-                SEO-Vorgaben:
-                Basierend auf einer gründlichen Keyword-Recherche wurden folgende Haupt- und Nebenkeywords identifiziert: 
-                Hauptkeyword: "${hauptkeyword}"
-                Folgene Nebenkeywords müssen zwingend im Text genannt werden: "${nebenkeywords}"
-                Achte darauf, die Nebenkeywords effektiv in jedem Fall zu integrieren, aber ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein. 
-                Die folgenden Wörter müssen unbedingt auch eingebaut werden: "${proofkeywords}"
-                Inhalt:
-                Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Der Text soll demnach für verschiedene Fragestellung zu dem Thema beraten, welche dem Leser vor einem Kauf helfen können. Der Text soll präzise und knackig sein. Außerdem muss jeder Satz dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge erteilst. Schreibe im Text nichts über folgende Themen: Nachhaltigkeit, Pelz, Kundenmeinung, Zahlungsmöglichkeiten, Marken
-                Achte darauf, dass folgende Fragen im Text beantwortet werden: "${w_fragen}"
-                Struktur:
-                Orientiere dich an folgender Gliederung:
-                "${keyword}"
-                
-                Der Text soll in dieser Struktur aufgebaut sein:
-                ## Überschriften (Formatiere diese als ##)
-                Absätze zu Überschriften (mindestens 100 Tokens lang)
-                Format:
-                Achte auf eine gute Lesbarkeit. Nutze dafür auch Stilelemente wie zum Beispiel Stichpunkte, Aufzählungen in den einzelnen Absätzen.
-                Du sollst bereits im Text wichtige Wörter für den Lesefluss fett markieren. Beschränke dich mit den Fettungen auf maximal drei wichtige Wörter pro Absatz. Wichtige Wörter sind z.B. Eigenschaften, Merkmale oder Produktkategorien.
+                        Du bist in der Rolle eines Werbetexters mit tiefem Verständnis für Suchmaschinenoptimierung. Ich will, dass du mir für folgendes Keyword bzw. Thema einen Text nach meinen Vorgaben generierst.
+                        Keyword: "${hauptkeyword}"
+                        Der Text soll ein Kaufberatertext auf einer Produktlistenseite unterhalb der Produkte sein. Er soll SEO-optimiert und leicht lesbar sein und die Produktlistenseite für Google für das Keyword bzw. Thema optimieren. 
+                        Tonalität und Wording:
+                        Der Text soll eher informell geschrieben sein. Die Tonalität ist locker, unbeschwert und leicht freundschaftlich. Wird die Kundin angesprochen, dann mit „Sie“. Die Sprache darf auch blumig sein und wie ein Gespräch zwischen zwei Bekannten wirken. 
+                        Wenn im Text Situationen und Anlässe aufgegriffen werden, dann zu Freizeitaktivitäten bodenständiger Frau zwischen 50 und 60 Jahren.  
+                        Beachte diese Informationen zu Shop und Kundin sowohl bei der Formulierung des Textes als auch beim Setzen inhaltlicher Schwerpunkte.  
+                        SEO-Vorgaben:
+                        Basierend auf einer gründlichen Keyword-Recherche wurden folgende Haupt- und Nebenkeywords identifiziert: 
+                        Hauptkeyword: "${hauptkeyword}"
+                        Folgene Nebenkeywords müssen zwingend im Text genannt werden: "${nebenkeywords}"
+                        Achte darauf, die Nebenkeywords unbedingt effektiv zu integrieren, aber ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein. 
+                        Die folgenden Wörter müssen unbedingt auch eingebaut werden: "${proofkeywords}"
+                        Inhalt:
+                        Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Der Text soll demnach für verschiedene Fragestellung zu dem Thema beraten, welche dem Leser vor einem Kauf helfen können. Der Text soll präzise und knackig sein. Außerdem muss jeder Satz dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu dem jeweiligen Thema erteilst. Schreibe im Text nichts über folgende Themen: Nachhaltigkeit, Pelz, Kundenmeinung, Zahlungsmöglichkeiten, Marken
+                        Struktur:
+                        Orientiere dich an folgender Gliederung:
+                        "${keyword}"
+                        
+                        Der Text soll in dieser Struktur aufgebaut sein:
+                        ## Überschriften (Formatiere diese als ##)
+                        Absätze zu Überschriften (mindestens 100 Tokens lang)
+                        Format:
+                        Achte auf eine gute Lesbarkeit. Nutze dafür auch Stilelemente wie zum Beispiel Stichpunkte, Aufzählungen in den einzelnen Absätzen.
+                        Du sollst bereits im Text wichtige Wörter für den Lesefluss fett markieren. Beschränke dich mit den Fettungen auf maximal drei wichtige Wörter pro Absatz. Wichtige Wörter sind z.B. Eigenschaften, Merkmale oder Produktkategorien.
                 `;
         } else {
             text = `

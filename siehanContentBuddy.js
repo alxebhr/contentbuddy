@@ -31,16 +31,14 @@
                         Schreibe möglichst unkompliziert und klar, ehrlich und freundlich. Formuliere möglichst einfach. Wenn du die Leser/in direkt ansprichst, dann mit "Sie".
                         Wenn du im Text Situationen und Anlässe aufgreifst, kannst du dich an Alltagssituationen von älteren Damen ab 60 orientieren. Die Szenarien sollen bodenständig sein. 
                         Beachte diese Informationen zu Shop und Kundin sowohl bei der Formulierung des Textes als auch beim Setzen inhaltlicher Schwerpunkte.  
-                        
                         SEO-Vorgaben:
                         Basierend auf einer gründlichen Keyword-Recherche wurden folgende Haupt- und Nebenkeywords identifiziert: 
                         Hauptkeyword: "${hauptkeyword}"
                         Folgene Nebenkeywords müssen zwingend im Text genannt werden: "${nebenkeywords}"
-                        Achte darauf, die Nebenkeywords effektiv in jedem Fall zu integrieren, aber ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein. 
+                        Achte darauf, die Nebenkeywords unbedingt effektiv zu integrieren, aber ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein. 
                         Die folgenden Wörter müssen unbedingt auch eingebaut werden: "${proofkeywords}"
                         Inhalt:
-                        Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Der Text soll demnach für verschiedene Fragestellung zu dem Thema beraten, welche dem Leser vor einem Kauf helfen können. Der Text soll präzise und knackig sein. Außerdem muss jeder Satz dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge erteilst. Schreibe im Text nichts über folgende Themen: Nachhaltigkeit, Pelz, Kundenmeinung, Zahlungsmöglichkeiten, Marken
-                        Achte darauf, dass folgende Fragen im Text beantwortet werden: "${w_fragen}"
+                        Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Der Text soll demnach für verschiedene Fragestellung zu dem Thema beraten, welche dem Leser vor einem Kauf helfen können. Der Text soll präzise und knackig sein. Außerdem muss jeder Satz dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu dem jeweiligen Thema erteilst. Schreibe im Text nichts über folgende Themen: Nachhaltigkeit, Pelz, Kundenmeinung, Zahlungsmöglichkeiten, Marken
                         Struktur:
                         Orientiere dich an folgender Gliederung:
                         "${keyword}"

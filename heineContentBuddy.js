@@ -36,9 +36,10 @@
                         Hauptkeyword: "${hauptkeyword}"
                         Folgene Nebenkeywords müssen zwingend im Text genannt werden: "${nebenkeywords}"
                         Achte darauf, die Nebenkeywords unbedingt effektiv zu integrieren, aber ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein. 
-                        Die folgenden Wörter müssen unbedingt auch eingebaut werden: "${proofkeywords}"
+                        Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: "${proofkeywords}"
                         Inhalt:
-                        Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Der Text soll demnach für verschiedene Fragestellung zu dem Thema beraten, welche dem Leser vor einem Kauf helfen können. Der Text soll präzise und knackig sein. Außerdem muss jeder Satz dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu dem jeweiligen Thema erteilst. Schreibe im Text nichts über folgende Themen: Nachhaltigkeit, Pelz, Kundenmeinung, Zahlungsmöglichkeiten, Marken
+                        Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Der Text soll demnach für verschiedene Fragestellung zu dem Thema beraten, welche dem Leser vor einem Kauf helfen können. Jeder Satz muss dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu dem jeweiligen Thema erteilst. Echten Mehrwert bieten beispielsweise spezifische Kombinationstipps und Outfit-Tipps, Erklärungen zu Materialien und deren Vor- und Nachteile, Passformberatung, Stil- und Outfit-Beratung für verschiedene Anlässe, Pflege- und Aufbewahrungstipps, Eigenschaften und Attribute für besonderen Komfort, Beratung zur Wahl von Farben und Mustern, Hervorheben von besonders schmeichelhaften Schnitten für verschiedene Körpertypen. 
+                        Schreibe im Text nichts über folgende Themen: Nachhaltigkeit, Pelz, Kundenmeinung, Zahlungsmöglichkeiten, Marken
                         Struktur:
                         Orientiere dich an folgender Gliederung:
                         "${keyword}"

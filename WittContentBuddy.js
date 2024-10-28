@@ -36,9 +36,9 @@
                         Hauptkeyword: "${hauptkeyword}"
                         Folgene Nebenkeywords müssen zwingend im Text genannt werden: "${nebenkeywords}"
                         Achte darauf, die Nebenkeywords unbedingt effektiv zu integrieren, aber ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein. 
-                        Die folgenden Wörter müssen unbedingt auch eingebaut werden: "${proofkeywords}"
+                        Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: "${proofkeywords}"
                         Inhalt:
-                        Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Der Text soll demnach für verschiedene Fragestellung zu dem Thema beraten, welche dem Leser vor einem Kauf helfen können. Der Text soll präzise und knackig sein. Außerdem muss jeder Satz dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu dem jeweiligen Thema erteilst. Schreibe im Text nichts über folgende Themen: Nachhaltigkeit, Pelz, Kundenmeinung, Zahlungsmöglichkeiten, Marken
+                        Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Der Text soll demnach für verschiedene Fragestellung zu dem Thema beraten, welche dem Leser vor einem Kauf helfen können. Außerdem muss jeder Satz dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu dem jeweiligen Thema erteilst. Schreibe im Text nichts über folgende Themen: Nachhaltigkeit, Pelz, Kundenmeinung, Zahlungsmöglichkeiten, Marken
                         Struktur:
                         Orientiere dich an folgender Gliederung:
                         "${keyword}"
@@ -74,9 +74,9 @@
                 Überschriften:
                 •	Strukturiere die Themen bereits als ausführliche Überschriften. 
                 •	Schreibe die Überschriften interessant und informativ.
-                •	 Integriere in die Überschriften geschickt Haupt- oder Neben-Keywords. Stelle die Keywords so um, dass in jedem Fall ein grammatikalisch korrekter Satz entsteht. Verwende sie so, dass es sich nach einem natürlichen Sprachgebrauch anhört.
+                •	Integriere in die Überschriften geschickt Haupt- oder Neben-Keywords. Stelle die Keywords so um, dass in jedem Fall ein grammatikalisch korrekter Satz entsteht. Verwende sie so, dass es sich nach einem natürlichen Sprachgebrauch anhört.
                 •	Um die SEO-Relevanz zu steigern, verwende in den Überschriften die folgenden Nebenkeywords: "${nebenkeywords}"
-                •	 Sei kreativ, formuliere abwechslungsreich und emotional.
+                •	Sei kreativ, formuliere abwechslungsreich und emotional.
                 •	Vermeide Formulierungen wie „exklusiv“ oder „luxuriös“. Verwende stattdessen Begriffe wie „feminin“, „chic“, „lässig“, „modern“, „figurschmeichelnd“, „farbenfroh“, „trendstark“ und „selbstbewusst“. 
                 Folgende Text-Beispiele sollen dir helfen, den richtigen Ton zu treffen: 
                 •	Der Herbst bringt Farbe ins Spiel – nicht nur in der Natur, auch im Kleiderschrank. Entdecken Sie unsere Outfit-Ideen für goldene Herbsttage, die alles mitmachen, was Sie so vorhaben.

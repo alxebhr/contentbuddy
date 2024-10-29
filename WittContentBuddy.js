@@ -29,7 +29,7 @@
                         Der Text soll ein Kaufberatertext auf einer Produktlistenseite unterhalb der Produkte sein. Er soll SEO-optimiert und leicht lesbar sein und die Produktlistenseite für Google für das Keyword bzw. Thema optimieren. 
                         Tonalität und Wording:
                         Der Text soll eher informell geschrieben sein. Die Tonalität ist locker, unbeschwert und leicht freundschaftlich. Wird die Kundin angesprochen, dann mit „Sie“. Die Sprache darf auch blumig sein und wie ein Gespräch zwischen zwei Bekannten wirken.
-                        Orientiere dich bei der inhaltlichen Gestaltung, Wording und Tonalität an den hochgeladenen Textbeispielen.
+                        Orientiere dich an den hochgeladenen Textbeispielen.
                         Wenn im Text Situationen und Anlässe aufgegriffen werden, dann zu Freizeitaktivitäten bodenständiger Frau zwischen 50 und 60 Jahren.  
                         Beachte diese Informationen zu Shop und Kundin sowohl bei der Formulierung des Textes als auch beim Setzen inhaltlicher Schwerpunkte.  
                         SEO-Vorgaben:

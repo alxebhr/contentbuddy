@@ -74,7 +74,7 @@
                  
                 Überschriften:
                 •	Strukturiere die Themen bereits als ausführliche Überschriften. Sei kreativ, formuliere besonders abwechslungsreich.
-                •	Um die SEO-Relevanz zu steigern, verwende in den Überschriften die folgenden Nebenkeywords: "${neben-keywords}". Stelle die Keywords so um, dass ein grammatikalisch korrekter Satz entsteht. Verwende sie so, dass es sich nach einem natürlichen Sprachgebrauch anhört. Versuche das, so gut es geht. Nur wenn der Text dadurch unnatürlich wirkt, kannst du einzelne dieser Wörter weglassen.
+                •	Um die SEO-Relevanz zu steigern, verwende in den Überschriften die folgenden Nebenkeywords: ${nebenkeywords}". Stelle die Keywords so um, dass ein grammatikalisch korrekter Satz entsteht. Verwende sie so, dass es sich nach einem natürlichen Sprachgebrauch anhört. Versuche das, so gut es geht. Nur wenn der Text dadurch unnatürlich wirkt, kannst du einzelne dieser Wörter weglassen.
                 •	Vermeide Formulierungen wie „exklusiv“ oder „luxuriös“. Verwende stattdessen Begriffe wie „feminin“, „chic“, „lässig“, „modern“, „figurschmeichelnd“, „farbenfroh“, „trendstark“ und „selbstbewusst“. 
                 Folgende Text-Beispiele sollen dir helfen, den richtigen Ton zu treffen: 
                 •	Der Herbst bringt Farbe ins Spiel – nicht nur in der Natur, auch im Kleiderschrank. Entdecken Sie unsere Outfit-Ideen für goldene Herbsttage, die alles mitmachen, was Sie so vorhaben.

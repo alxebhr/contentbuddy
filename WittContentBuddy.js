@@ -73,11 +73,8 @@
                 •	Schreibe nichts über folgende Themen: Nachhaltigkeit, Pelz, Kundenmeinung, Zahlungsmöglichkeiten, Marken. 
                  
                 Überschriften:
-                •	Strukturiere die Themen bereits als ausführliche Überschriften. 
-                •	Schreibe die Überschriften interessant und informativ.
-                •	Integriere in die Überschriften geschickt Haupt- oder Neben-Keywords. Stelle die Keywords so um, dass in jedem Fall ein grammatikalisch korrekter Satz entsteht. Verwende sie so, dass es sich nach einem natürlichen Sprachgebrauch anhört.
-                •	Um die SEO-Relevanz zu steigern, verwende in den Überschriften die folgenden Nebenkeywords: "${nebenkeywords}"
-                •	Sei kreativ, formuliere abwechslungsreich und emotional.
+                •	Strukturiere die Themen bereits als ausführliche Überschriften. Sei kreativ, formuliere besonders abwechslungsreich.
+                •	Um die SEO-Relevanz zu steigern, verwende in den Überschriften die folgenden Nebenkeywords: schwarzes Kleid für eine Beerdigung, Kleid für eine Trauerfeier, Kleid für eine Beerdigung im Sommer, Kleid für eine Beerdigung im Winter, schwarzes Kleid für ein Begräbnis, Sommerkleid für eine Beerdigung. Stelle die Keywords so um, dass ein grammatikalisch korrekter Satz entsteht. Verwende sie so, dass es sich nach einem natürlichen Sprachgebrauch anhört. Versuche das, so gut es geht. Nur wenn der Text dadurch unnatürlich wirkt, kannst du einzelne dieser Wörter weglassen.
                 •	Vermeide Formulierungen wie „exklusiv“ oder „luxuriös“. Verwende stattdessen Begriffe wie „feminin“, „chic“, „lässig“, „modern“, „figurschmeichelnd“, „farbenfroh“, „trendstark“ und „selbstbewusst“. 
                 Folgende Text-Beispiele sollen dir helfen, den richtigen Ton zu treffen: 
                 •	Der Herbst bringt Farbe ins Spiel – nicht nur in der Natur, auch im Kleiderschrank. Entdecken Sie unsere Outfit-Ideen für goldene Herbsttage, die alles mitmachen, was Sie so vorhaben.

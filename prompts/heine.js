@@ -11,8 +11,7 @@ Folgene Nebenkeywords müssen zwingend im Text genannt werden: " \${nebenkeyword
 Achte darauf, die Nebenkeywords unbedingt effektiv zu integrieren, aber ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein. 
 Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: " \${proofkeywords}"
 Inhalt:
-Jeder Satz muss dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu "$ \{hauptkeyword}" erteilst. Echter Mehrwert bedeutet: Spezifische Inhalte abgestimmt auf das jeweilige Thema mit konkreten Tipps in Bezug auf "$ \{hauptkeyword}". Echten Mehrwert bieten beispielsweise spezifische Kombinationstipps und Outfit-Tipps, Erklärungen zu Materialien und deren Vor- und Nachteile, Passformberatung, Stil- und Outfit-Beratung für verschiedene Anlässe, Pflege- und Aufbewahrungstipps, Eigenschaften und Attribute für besonderen Komfort, Beratung zur Wahl von Farben und Mustern, Hervorheben von besonders schmeichelhaften Schnitten für verschiedene Körpertypen. 
-
+Jeder Satz muss dem Leser echten Mehrwert bieten, das heißt: Vermittle in jedem Satz Wissen und Informationen, die dem Leser helfen, eine Kaufentscheidung zu treffen. Erteile praktische Ratschläge ganz speziell zu "$ \{hauptkeyword}"  im Hinblick auf die Materialien und deren Vor- und Nachteile, Outfit-Vorschläge für verschiedene Anlässe, Pflege- und Aufbewahrungstipps, Betonen von Eigenschaften und Attributen für besonderen Komfort, praktische Tipps zur Wirkung von Farben und Mustern, Hervorheben von besonders schmeichelhaften Schnitten für verschiedene Körpertypen. 
 Struktur:
 Orientiere dich an folgender Gliederung: " \${keyword}"
 

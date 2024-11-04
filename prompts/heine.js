@@ -1,23 +1,20 @@
 window.promptTextOutline = `Nutze dein Wissen zu Kundin, Tonalität und Zielstellung des Textes um die weitere Konversation zu optimieren. 
 Du bist in der Rolle eines Werbetexters mit tiefem Verständnis für Suchmaschinenoptimierung. Ich will, dass du mir für folgendes Keyword bzw. Thema einen Text nach meinen Vorgaben generierst.
-Keyword: "\${hauptkeyword}"
-Der Text soll ein Kaufberatertext auf einer Produktlistenseite unterhalb der Produkte sein. Er soll SEO-optimiert und leicht lesbar sein und die Produktlistenseite für Google für das Keyword bzw. Thema optimieren. 
+Keyword: "${hauptkeyword}"
 Tonalität und Wording:
-Der Text soll eher informell geschrieben sein. Die Tonalität ist locker, unbeschwert und leicht freundschaftlich. Wird die Kundin angesprochen, dann mit „Sie“. Die Sprache darf auch blumig sein und wie ein Gespräch zwischen zwei Bekannten wirken.
-Wenn im Text Situationen und Anlässe aufgegriffen werden, dann zu Freizeitaktivitäten bodenständiger Frau zwischen 50 und 60 Jahren.  
-Beachte diese Informationen zu Shop und Kundin sowohl bei der Formulierung des Textes als auch beim Setzen inhaltlicher Schwerpunkte.  
+Schreibe sprachlich versiert (nicht flapsig), natürlich, authentisch, ehrlich, modisch kompetent und wortgewandt. Vermittle Nahbarkeit und Lebensfreude im Text. Er darf Mode-Magazin-Charakter haben. Wenn du die Leser/in direkt ansprichst, dann mit "Sie“. Gib sprachlich das Gefühl, im Kreis Gleichgesinnter zu sein. Sprich mit der Kundin wie mit einer guten Bekannten.
+Wenn du im Text Situationen und Anlässe aufgreifst, darfst du Sehnsuchtsorte kreieren. Verwende eine bildhafte, emotionale Sprache.
 SEO-Vorgaben:
 Basierend auf einer gründlichen Keyword-Recherche wurden folgende Haupt- und Nebenkeywords identifiziert: 
-Hauptkeyword: "\${hauptkeyword}"
-Folgene Nebenkeywords müssen zwingend im Text genannt werden: "\${nebenkeywords}"
+Hauptkeyword: "${hauptkeyword}"
+Folgene Nebenkeywords müssen zwingend im Text genannt werden: "${nebenkeywords}"
 Achte darauf, die Nebenkeywords unbedingt effektiv zu integrieren, aber ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein. 
-Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: "\${proofkeywords}"
+Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: "${proofkeywords}"
 Inhalt:
-Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Der Text soll demnach für verschiedene Fragestellung zu dem Thema beraten, welche dem Leser vor einem Kauf helfen können. Jeder Satz muss dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu dem jeweiligen Thema erteilst. Echten Mehrwert bieten beispielsweise spezifische Kombinationstipps und Outfit-Tipps, Erklärungen zu Materialien und deren Vor- und Nachteile, Passformberatung, Stil- und Outfit-Beratung für verschiedene Anlässe, Pflege- und Aufbewahrungstipps, Eigenschaften und Attribute für besonderen Komfort, Beratung zur Wahl von Farben und Mustern, Hervorheben von besonders schmeichelhaften Schnitten für verschiedene Körpertypen. 
-Schreibe im Text nichts über folgende Themen: Nachhaltigkeit, Pelz, Kundenmeinung, Zahlungsmöglichkeiten, Marken
+Jeder Satz muss dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu "${hauptkeyword}" erteilst. Echter Mehrwert bedeutet: Spezifische Inhalte abgestimmt auf das jeweilige Thema mit konkreten Tipps in Bezug auf "${hauptkeyword}". Echten Mehrwert bieten beispielsweise spezifische Kombinationstipps und Outfit-Tipps, Erklärungen zu Materialien und deren Vor- und Nachteile, Passformberatung, Stil- und Outfit-Beratung für verschiedene Anlässe, Pflege- und Aufbewahrungstipps, Eigenschaften und Attribute für besonderen Komfort, Beratung zur Wahl von Farben und Mustern, Hervorheben von besonders schmeichelhaften Schnitten für verschiedene Körpertypen. 
+
 Struktur:
-Orientiere dich an folgender Gliederung:
-"\${keyword}"
+Orientiere dich an folgender Gliederung: "${keyword}"
 
 Der Text soll in dieser Struktur aufgebaut sein:
 ## Überschriften (Formatiere diese als ##)

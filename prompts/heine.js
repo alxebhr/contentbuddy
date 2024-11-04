@@ -20,8 +20,7 @@ Der Text soll in dieser Struktur aufgebaut sein:
 Absätze zu Überschriften (mindestens 100 Tokens lang)
 Format:
 Achte auf eine gute Lesbarkeit. Nutze dafür auch Stilelemente wie zum Beispiel Stichpunkte, Aufzählungen in den einzelnen Absätzen.
-Du sollst bereits im Text wichtige Wörter für den Lesefluss fett markieren. Setze die Fettungen so, dass Leser nur beim Lesen der Fettungen die Kernaussage verstehen. Bilde Info-Sinn-Ketten mit den Fettungen.
-`;
+Du sollst bereits im Text wichtige Wörter für den Lesefluss fett markieren. Setze die Fettungen so, dass Leser nur beim Lesen der Fettungen die Kernaussage verstehen. Bilde Info-Sinn-Ketten mit den Fettungen. Achte auf eine ausgewogene Verteilung der Fettungen.`;
 
 window.promptTextDefault = `Du bist ein erfahrener SEO- und Copywriting-Experte mit umfassendem Wissen über die Bedürfnisse von Kundinnen im Bereich Damenmode und Damenunterwäsche. Erstelle eine strukturierte Gliederung zum Thema " \${hauptkeyword}" für eine Produktlistenseite eines Online-Shops.
 Ziel: Die Gliederung soll potenziellen Kundinnen wertvolle Informationen bieten, häufig gestellte Fragen zu dem Produkt beantworten und unterstützende Informationen bereitstellen, die eine Kaufentscheidung ermöglichen. Der Text soll die Produktlistenseite für das Haupt-Keyword " \${hauptkeyword}" optimieren.

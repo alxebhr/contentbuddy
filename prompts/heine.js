@@ -9,12 +9,12 @@ Basierend auf einer gründlichen Keyword-Recherche wurden folgende Haupt- und Ne
 Hauptkeyword: "\${hauptkeyword}"
 Folgene Nebenkeywords müssen zwingend im Text genannt werden: "\${nebenkeywords}"
 Achte darauf, die Nebenkeywords unbedingt effektiv zu integrieren, aber ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein. 
-Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: "${proofkeywords}"
+Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: "\${proofkeywords}"
 Inhalt:
-Jeder Satz muss dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu "${hauptkeyword}" erteilst. Echter Mehrwert bedeutet: Spezifische Inhalte abgestimmt auf das jeweilige Thema mit konkreten Tipps in Bezug auf "${hauptkeyword}". Echten Mehrwert bieten beispielsweise spezifische Kombinationstipps und Outfit-Tipps, Erklärungen zu Materialien und deren Vor- und Nachteile, Passformberatung, Stil- und Outfit-Beratung für verschiedene Anlässe, Pflege- und Aufbewahrungstipps, Eigenschaften und Attribute für besonderen Komfort, Beratung zur Wahl von Farben und Mustern, Hervorheben von besonders schmeichelhaften Schnitten für verschiedene Körpertypen. 
+Jeder Satz muss dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu "\${hauptkeyword}" erteilst. Echter Mehrwert bedeutet: Spezifische Inhalte abgestimmt auf das jeweilige Thema mit konkreten Tipps in Bezug auf "${hauptkeyword}". Echten Mehrwert bieten beispielsweise spezifische Kombinationstipps und Outfit-Tipps, Erklärungen zu Materialien und deren Vor- und Nachteile, Passformberatung, Stil- und Outfit-Beratung für verschiedene Anlässe, Pflege- und Aufbewahrungstipps, Eigenschaften und Attribute für besonderen Komfort, Beratung zur Wahl von Farben und Mustern, Hervorheben von besonders schmeichelhaften Schnitten für verschiedene Körpertypen. 
 
 Struktur:
-Orientiere dich an folgender Gliederung: "${keyword}"
+Orientiere dich an folgender Gliederung: "\${keyword}"
 
 Der Text soll in dieser Struktur aufgebaut sein:
 ## Überschriften (Formatiere diese als ##)
@@ -25,7 +25,7 @@ Du sollst bereits im Text wichtige Wörter für den Lesefluss fett markieren. Be
 `;
 
 window.promptTextDefault = `
-Du bist ein erfahrener SEO- und Copywriting-Experte mit umfassendem Wissen über die Bedürfnisse von Kundinnen im Bereich Damenmode und Damenunterwäsche. Erstelle eine strukturierte Gliederung zum Thema "${hauptkeyword}" für eine Produktlistenseite eines Online-Shops.
+Du bist ein erfahrener SEO- und Copywriting-Experte mit umfassendem Wissen über die Bedürfnisse von Kundinnen im Bereich Damenmode und Damenunterwäsche. Erstelle eine strukturierte Gliederung zum Thema "\${hauptkeyword}" für eine Produktlistenseite eines Online-Shops.
 Ziel: Die Gliederung soll potenziellen Kundinnen wertvolle Informationen bieten, häufig gestellte Fragen zu dem Produkt beantworten und unterstützende Informationen bereitstellen, die eine Kaufentscheidung ermöglichen. Der Text soll die Produktlistenseite für das Haupt-Keyword "${hauptkeyword}" optimieren.
 Zielgruppe: Frauen mittleren Alters, die bei heine nach stilvollen Outfits mit dem besonderen Etwas für jeden Anlass suchen. Sie legen Wert auf modische Inspirationen, Trends und Styling.
 Format: Gib mir je Gliederungspunkt eine Überschrift (###), nummeriere diese aber nicht. Packe unter jeden Punkt genau einen Stichpunkt (-) mit kurzen, stichpunktartigen Informationen (formatiere hier nichts **fett**) um was es sich bei dem Gliederungspunkt thematisch handeln soll. Schreibe hinter jeden Stichpunkt außerdem in Klammern () ob dieser Punkt in Form eines Fließtextes oder mit einer Kombination aus Text und Aufzählung abgehandelt werden soll.
@@ -45,7 +45,7 @@ Beachte folgende Anweisungen bei der Erstellung der Gliederung:
 
 Überschriften:
 •	Strukturiere die Themen bereits als ausführliche Überschriften. Schreibe die Überschriften interessant und informativ. 
-•	Um die SEO-Relevanz zu steigern, verwende in den Überschriften die folgenden Nebenkeywords: \${nebenkeywords}. Stelle die Keywords so um, dass ein grammatikalisch korrekter Satz entsteht. Verwende sie so, dass es sich nach einem natürlichen Sprachgebrauch anhört. Versuche das, so gut es geht. Nur wenn der Text dadurch unnatürlich wirkt, kannst du einzelne dieser Wörter weglassen.
+•	Um die SEO-Relevanz zu steigern, verwende in den Überschriften die folgenden Nebenkeywords: "\${nebenkeywords}". Stelle die Keywords so um, dass ein grammatikalisch korrekter Satz entsteht. Verwende sie so, dass es sich nach einem natürlichen Sprachgebrauch anhört. Versuche das, so gut es geht. Nur wenn der Text dadurch unnatürlich wirkt, kannst du einzelne dieser Wörter weglassen.
 •	Vermeide Formulierungen wie „exklusiv“ oder „luxuriös“. Verwende stattdessen Begriffe wie „feminin“, „chic“, „lässig“, „modern“, „figurschmeichelnd“, „farbenfroh“, „trendstark“ und „selbstbewusst“. 
 Folgende Text-Beispiele sollen dir helfen, den richtigen Ton zu treffen: 
 •	Der Herbst bringt Farbe ins Spiel – nicht nur in der Natur, auch im Kleiderschrank

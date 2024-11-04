@@ -46,11 +46,11 @@ Beachte folgende Anweisungen bei der Erstellung der Gliederung:
 •	Um die SEO-Relevanz zu steigern, verwende in den Überschriften die folgenden Nebenkeywords: \${nebenkeywords}. Stelle die Keywords so um, dass ein grammatikalisch korrekter Satz entsteht. Verwende sie so, dass es sich nach einem natürlichen Sprachgebrauch anhört. Versuche das, so gut es geht. Nur wenn der Text dadurch unnatürlich wirkt, kannst du einzelne dieser Wörter weglassen.
 •	Vermeide Formulierungen wie „exklusiv“ oder „luxuriös“. Verwende stattdessen Begriffe wie „feminin“, „chic“, „lässig“, „modern“, „figurschmeichelnd“, „farbenfroh“, „trendstark“ und „selbstbewusst“. 
 Folgende Text-Beispiele sollen dir helfen, den richtigen Ton zu treffen: 
-•	Der Herbst bringt Farbe ins Spiel – nicht nur in der Natur, auch im Kleiderschrank
-•	Spontan mit den Freundinnen in die City?! Gerne, mit diesen Kombikünstlern bin ich ruckzuck fertig!
-•	Diese Streifen will jeder sehen! So wunderbar lässig – fast schon oskarverdächtig!
-•	Hier ist er: superbequem, super lässig, super trendy. Das attraktive Rautenmuster in den schönsten Herbsttönen machen die Strickjacke zum echten Kombi-Liebling. Ein tolles Outfit für Spaziergänge im Park, Café-Dates mit den Freundinnen und einfach alles, was Sie so vorhaben.
-•	Unser Tipp: Longwesten! Denn die schmeicheln perfekt Ihrer Figur, halten warm und verleihen jedem Look einen sportiven Charakter.
-•	Jeans mit Jeans kombinieren? Ja, bitte! Unser Tipp: Durch einen stylischen Farbtupfer wie dem sonnengelben Pullunder kommt ein bisschen Pep ins Mode-Spiel
+•	Basics machen Ihren Look perfekt und Ihr Styling jeden Tag ganz leicht!
+•	Was diesen Style zum Trendfavoriten macht? Sanfte Töne, starke Details und eine hochwertige Qualität.
+•	Feminines Kleid? Modische Hose? Uni oder extravagant gemustert? Egal – Sie machen immer eine gute Figur.
+•	Mäntel zeigen sich von ihrer schönsten Seite – so wie Sie.
+•	Eine Umarmung an kalten Tagen: softe Pullover.
+•	Unbeschreiblich weiblich – farbenfroh geht es schöner durch den Tag.
 
 `;

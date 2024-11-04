@@ -1,13 +1,13 @@
 window.promptTextOutline = `Nutze dein Wissen zu Kundin, Tonalität und Zielstellung des Textes um die weitere Konversation zu optimieren. 
 Du bist in der Rolle eines Werbetexters mit tiefem Verständnis für Suchmaschinenoptimierung. Ich will, dass du mir für folgendes Keyword bzw. Thema einen Text nach meinen Vorgaben generierst.
-Keyword: "${hauptkeyword}"
+Keyword: "\${hauptkeyword}"
 Tonalität und Wording:
 Schreibe sprachlich versiert (nicht flapsig), natürlich, authentisch, ehrlich, modisch kompetent und wortgewandt. Vermittle Nahbarkeit und Lebensfreude im Text. Er darf Mode-Magazin-Charakter haben. Wenn du die Leser/in direkt ansprichst, dann mit "Sie“. Gib sprachlich das Gefühl, im Kreis Gleichgesinnter zu sein. Sprich mit der Kundin wie mit einer guten Bekannten.
 Wenn du im Text Situationen und Anlässe aufgreifst, darfst du Sehnsuchtsorte kreieren. Verwende eine bildhafte, emotionale Sprache.
 SEO-Vorgaben:
 Basierend auf einer gründlichen Keyword-Recherche wurden folgende Haupt- und Nebenkeywords identifiziert: 
-Hauptkeyword: "${hauptkeyword}"
-Folgene Nebenkeywords müssen zwingend im Text genannt werden: "${nebenkeywords}"
+Hauptkeyword: "\${hauptkeyword}"
+Folgene Nebenkeywords müssen zwingend im Text genannt werden: "\${nebenkeywords}"
 Achte darauf, die Nebenkeywords unbedingt effektiv zu integrieren, aber ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein. 
 Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: "${proofkeywords}"
 Inhalt:

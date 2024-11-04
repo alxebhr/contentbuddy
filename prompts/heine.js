@@ -10,8 +10,7 @@ Hauptkeyword: " \${hauptkeyword}"
 Folgene Nebenkeywords müssen zwingend im Text genannt werden: " \${nebenkeywords}"
 Achte darauf, die Nebenkeywords unbedingt effektiv zu integrieren, aber ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein. 
 Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: " \${proofkeywords}"
-Inhalt:
-Jeder Satz muss dem Leser echten Mehrwert bieten, das heißt: Vermittle in jedem Satz Wissen und Informationen, die dem Leser helfen, eine Kaufentscheidung zu treffen. Erteile praktische Ratschläge ganz speziell zu "$ \{hauptkeyword}"  im Hinblick auf die Materialien und deren Vor- und Nachteile, Outfit-Vorschläge für verschiedene Anlässe, Pflege- und Aufbewahrungstipps, Betonen von Eigenschaften und Attributen für besonderen Komfort, praktische Tipps zur Wirkung von Farben und Mustern, Hervorheben von besonders schmeichelhaften Schnitten für verschiedene Körpertypen. 
+Inhalt: Erteile praktische Ratschläge ganz speziell zu "$ \{hauptkeyword}" im Hinblick auf die Materialien und deren Vor- und Nachteile, Outfit-Vorschläge für verschiedene Anlässe, Pflege- und Aufbewahrungstipps, Betonen von besonderen Teils für außergewöhnliche Outfits, praktische Tipps zur Wirkung von Farben und Mustern, Hervorheben von besonders schmeichelhaften Schnitten und modischen Trends. 
 Struktur:
 Orientiere dich an folgender Gliederung: " \${keyword}"
 

@@ -118,7 +118,7 @@
     // Funktion zum Extrahieren der Gliederung
     function extractOutline() {
         // Suche nach allen Elementen mit data-v-Attribut und der Klasse "v-col-md-10 v-col-12 px-0 pt-0 content"
-        const elements = document.querySelectorAll('div[data-v-7e7d456d].v-col-md-10.v-col-12.px-0.pt-0.content');
+        const elements = document.querySelectorAll('div[data-v-4abd6e8c].v-col-md-10.v-col-12.px-0.pt-0.content');
 
         console.log(`Gefundene Elemente mit data-v-7e7d456d und der Klasse "v-col-md-10 v-col-12 px-0.pt-0 content": ${elements.length}`);
 

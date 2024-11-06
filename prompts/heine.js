@@ -1,17 +1,17 @@
-window.promptTextOutline = `Nutze dein Wissen zu Kundin, Tonalität und Zielstellung des Textes um die weitere Konversation zu optimieren. 
-Du bist in der Rolle eines Werbetexters mit tiefem Verständnis für Suchmaschinenoptimierung. Ich will, dass du mir für folgendes Keyword bzw. Thema einen Text nach meinen Vorgaben generierst.
+window.promptTextOutline = `Du bist in der Rolle eines Werbetexters mit tiefem Verständnis für Suchmaschinenoptimierung. Nutze dein Wissen zu Kundin, Wording, Tonailtät und Zielstellung des Textes um die weitere Konversation zu optimieren. Ich will, dass du mir für folgendes Keyword bzw. Thema einen Text nach meinen Vorgaben generierst.
 Keyword: " \${hauptkeyword}"
 Tonalität und Wording:
 Schreibe sprachlich versiert (nicht flapsig), natürlich, authentisch, ehrlich, modisch kompetent und wortgewandt. Vermittle Nahbarkeit und Lebensfreude im Text. Er darf Mode-Magazin-Charakter haben. Wenn du die Leser/in direkt ansprichst, dann mit "Sie“. Gib sprachlich das Gefühl, im Kreis Gleichgesinnter zu sein. Sprich mit der Kundin wie mit einer guten Bekannten.
-Wenn du im Text Situationen und Anlässe aufgreifst, darfst du Sehnsuchtsorte kreieren. Verwende eine bildhafte, emotionale Sprache.
+Wenn du im Text Situationen und Anlässe aufgreifst, darfst du Sehnsuchtsorte kreieren. Verwende eine bildhafte, emotionale Sprache. Beachte diese Informationen zu Shop und Kundin sowohl bei der Formulierung des Textes als auch beim Setzen inhaltlicher Schwerpunkte.  
 SEO-Vorgaben:
 Basierend auf einer gründlichen Keyword-Recherche wurden folgende Haupt- und Nebenkeywords identifiziert: 
 Hauptkeyword: " \${hauptkeyword}"
 Folgene Nebenkeywords müssen zwingend im Text genannt werden: " \${nebenkeywords}"
 Achte darauf, die Nebenkeywords unbedingt effektiv zu integrieren, aber ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein. 
 Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: " \${proofkeywords}"
-Inhalt: 
-Erteile praktische Ratschläge ganz speziell zu "$ \{hauptkeyword}". Achte auf einen hohen Informationsgehalt und praktische Anwendbarkeit: Gebe konkrete, umsetzbare Tipps zu "$ \{hauptkeyword}".
+Inhalt:
+Jeder Satz muss dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu \{hauptkeyword}" erteilst. Das heißt: Vermittle in jedem Satz Wissen und Informationen, die dem Leser helfen, eine Kaufentscheidung zu treffen. Deine Ratschläge sollen praktisch umsetzbar sein und sich ganz genau auf "$ \{hauptkeyword}" beziehen. Vermeide allgemeine Ratschläge sowie Füllsätze ohne Informationsgehalt oder ohne praktischen Tipp. 
+
 Struktur:
 Orientiere dich an folgender Gliederung: " \${keyword}"
 
@@ -26,6 +26,7 @@ Du sollst bereits im Text wichtige Wörter für den Lesefluss fett markieren. Bi
 window.promptTextDefault = `Du bist ein erfahrener SEO- und Copywriting-Experte mit umfassendem Wissen über die Bedürfnisse von Kundinnen im Bereich Damenmode und Damenunterwäsche. Erstelle eine strukturierte Gliederung zum Thema " \${hauptkeyword}" für eine Produktlistenseite eines Online-Shops.
 Ziel: Die Gliederung soll potenziellen Kundinnen wertvolle Informationen bieten, häufig gestellte Fragen zu dem Produkt beantworten und unterstützende Informationen bereitstellen, die eine Kaufentscheidung ermöglichen. Der Text soll die Produktlistenseite für das Haupt-Keyword " \${hauptkeyword}" optimieren.
 Zielgruppe: Der Text ist für einen Onlineshop, der schwerpunktmäßig Mode mit dem besonderen Etwas für Frauen ab 45 anbietet. Die Kundin hat Ihren Stil gefunden und sucht bei heine das perfekte, stilsichere, modische Outfit von Kopf bis Fuß und für jeden Anlass. Sie liebt Inspirationen, ist mode-affin und hat Spaß an Styling und Trends.
+Lege den Schwerpunkt im Text auf Eigenschaften und Merkmale, die für die Kundin relevant sind. Das sind vor allem modische Produkte, Kleidung mit dem besonderen Etwas in trendigen Silhouetten und Looks für alle Anlässe, vom Alltag bis zum Event.
 Format: Gib mir je Gliederungspunkt eine Überschrift (###), nummeriere diese aber nicht. Packe unter jeden Punkt genau einen Stichpunkt (-) mit kurzen, stichpunktartigen Informationen (formatiere hier nichts **fett**) um was es sich bei dem Gliederungspunkt thematisch handeln soll. Schreibe hinter jeden Stichpunkt außerdem in Klammern () ob dieser Punkt in Form eines Fließtextes oder im Listenformat abgehandelt werden soll.
 Inhalt: Inhalt: Schreibe über die, aus deiner Sicht wichtigsten Themen bezogen auf das Haupt-Keyword "\${hauptkeyword}". Berücksichtige bei der Auswahl der Inhalte spezifische Aspekte und Herausforderungen, die typischerweise bei dieser Produktkategorie entstehen, und konzentriere dich darauf, wie du diese in der Gliederung adressieren kannst, um der Leserin einen echten Mehrwert zu bieten. 
 Beantworte spezifische Fragen: "\${w_fragen}"

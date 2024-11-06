@@ -27,9 +27,7 @@ Ziel: Die Gliederung soll potenziellen Kundinnen wertvolle Informationen bieten,
 Zielgruppe: Frauen mittleren Alters, die bei heine nach stilvollen Outfits mit dem besonderen Etwas für jeden Anlass suchen. Sie legen Wert auf modische Inspirationen, Trends und Styling.
 Format: Gib mir je Gliederungspunkt eine Überschrift (###), nummeriere diese aber nicht. Packe unter jeden Punkt genau einen Stichpunkt (-) mit kurzen, stichpunktartigen Informationen (formatiere hier nichts **fett**) um was es sich bei dem Gliederungspunkt thematisch handeln soll. Schreibe hinter jeden Stichpunkt außerdem in Klammern () ob dieser Punkt in Form eines Fließtextes oder mit einer Kombination aus Text und Aufzählung abgehandelt werden soll.
 Inhalt: Inhalt: Schreibe über die, aus deiner Sicht wichtigsten Themen bezogen auf das Haupt-Keyword "\${hauptkeyword}". Berücksichtige bei der Auswahl der Inhalte spezifische Aspekte und Herausforderungen, die typischerweise bei dieser Produktkategorie entstehen, und konzentriere dich darauf, wie du diese in der Gliederung adressieren kannst, um der Leserin einen echten Mehrwert zu bieten 
-Berücksichtige:
-•	Eigenschaften und Merkmale, die der Zielgruppe einen echten Mehrwert bieten, wie Outfit- und Kombinationsideen, Materialeigenschaften und Figurberatung.
-•	Beantworte spezifische Fragen: "\${w_fragen}"
+Beantworte spezifische Fragen: "\${w_fragen}"
 
 Beachte folgende Anweisungen bei der Erstellung der Gliederung:
 •	Starte mit einem kurzen einleitenden Abschnitt
@@ -43,7 +41,8 @@ Beachte folgende Anweisungen bei der Erstellung der Gliederung:
 Überschriften:
 •	Strukturiere die Themen bereits als ausführliche Überschriften. Schreibe die Überschriften interessant und informativ. 
 •	Um die SEO-Relevanz zu steigern, verwende in den Überschriften die folgenden Nebenkeywords: \${nebenkeywords}. Stelle die Keywords so um, dass ein grammatikalisch korrekter Satz entsteht. Verwende sie so, dass es sich nach einem natürlichen Sprachgebrauch anhört. Versuche das, so gut es geht. Nur wenn der Text dadurch unnatürlich wirkt, kannst du einzelne dieser Wörter weglassen.
-•	Vermeide Formulierungen wie „exklusiv“ oder „luxuriös“. Verwende stattdessen Begriffe wie „feminin“, „chic“, „lässig“, „modern“, „figurschmeichelnd“, „farbenfroh“, „trendstark“ und „selbstbewusst“. 
+
+•	Vermeide Formulierungen wie „praktisch“ „günstig“, „flott“, „adrett“, „schmeicheln“, „-Liebling“ „elitär“, „großen Auftritt“. Vermeide lehrmeisterhafte Sätze. Nutze stattdessen Formulierungen wie exklusiv, anspruchsvoll, hochwertig, trendy, elegant, stilbewusst, perfekt gestylt, prima, modisch, selbstbewusst, lebensfroh, verspielt, positiv, natürlich, femininer Charme, sich von seiner besten Seite zeigen, farbenfroh, Leichtigkeit, Lieblings-Pullover, Lieblingslook.
 Folgende Text-Beispiele sollen dir helfen, den richtigen Ton zu treffen: 
 •	Basics machen Ihren Look perfekt und Ihr Styling jeden Tag ganz leicht!
 •	Was diesen Style zum Trendfavoriten macht? Sanfte Töne, starke Details und eine hochwertige Qualität.
@@ -51,5 +50,4 @@ Folgende Text-Beispiele sollen dir helfen, den richtigen Ton zu treffen:
 •	Mäntel zeigen sich von ihrer schönsten Seite – so wie Sie.
 •	Eine Umarmung an kalten Tagen: softe Pullover.
 •	Unbeschreiblich weiblich – farbenfroh geht es schöner durch den Tag.
-
 `;

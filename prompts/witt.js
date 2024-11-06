@@ -2,8 +2,8 @@ window.promptTextOutline = `
 Du bist in der Rolle eines Werbetexters mit tiefem Verständnis für Suchmaschinenoptimierung. Nutze dein Wissen zu Kundin, Wording, Tonailtät und Zielstellung des Textes um die weitere Konversation zu optimieren. Ich will, dass du mir für folgendes Keyword bzw. Thema einen Text nach meinen Vorgaben generierst.
 Keyword: " \${hauptkeyword}"
 Tonalität und Wording:
-Schreibe sprachlich versiert (nicht flapsig), natürlich, authentisch, ehrlich, modisch kompetent und wortgewandt. Vermittle Nahbarkeit und Lebensfreude im Text. Er darf Mode-Magazin-Charakter haben. Wenn du die Leser/in direkt ansprichst, dann mit "Sie“. Gib sprachlich das Gefühl, im Kreis Gleichgesinnter zu sein. Sprich mit der Kundin wie mit einer guten Bekannten.
-Wenn im Text Situationen und Anlässe aufgegriffen werden, dann zu Freizeitaktivitäten bodenständiger Frau zwischen 50 und 60 Jahren.  
+Der Text soll eher informell geschrieben sein. Die Tonalität ist locker, unbeschwert und leicht freundschaftlich. Die Sprache darf auch blumig sein und wie ein Gespräch zwischen zwei Bekannten wirken. 
+Wenn im Text Situationen und Anlässe aufgegriffen werden, dann zu Freizeitaktivitäten bodenständiger Frau zwischen 50 und 60 Jahren. Beachte diese Informationen zu Shop und Kundin sowohl bei der Formulierung des Textes als auch beim Setzen inhaltlicher Schwerpunkte.  
 SEO-Vorgaben:
 Basierend auf einer gründlichen Keyword-Recherche wurden folgende Haupt- und Nebenkeywords identifiziert: 
 Hauptkeyword: " \${hauptkeyword}"

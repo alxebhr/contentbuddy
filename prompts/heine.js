@@ -25,23 +25,23 @@ Du sollst bereits im Text wichtige Wörter für den Lesefluss fett markieren. Bi
 
 window.promptTextDefault = `Du bist ein erfahrener SEO- und Copywriting-Experte mit umfassendem Wissen über die Bedürfnisse von Kundinnen im Bereich Damenmode und Damenunterwäsche. Erstelle eine strukturierte Gliederung zum Thema " \${hauptkeyword}" für eine Produktlistenseite eines Online-Shops.
 Ziel: Die Gliederung soll potenziellen Kundinnen wertvolle Informationen bieten, häufig gestellte Fragen zu dem Produkt beantworten und unterstützende Informationen bereitstellen, die eine Kaufentscheidung ermöglichen. Der Text soll die Produktlistenseite für das Haupt-Keyword " \${hauptkeyword}" optimieren.
-Zielgruppe: Frauen mittleren Alters, die bei heine nach stilvollen Outfits mit dem besonderen Etwas für jeden Anlass suchen. Sie legen Wert auf modische Inspirationen, Trends und Styling.
-Format: Gib mir je Gliederungspunkt eine Überschrift (###), nummeriere diese aber nicht. Packe unter jeden Punkt genau einen Stichpunkt (-) mit kurzen, stichpunktartigen Informationen (formatiere hier nichts **fett**) um was es sich bei dem Gliederungspunkt thematisch handeln soll. Schreibe hinter jeden Stichpunkt außerdem in Klammern () ob dieser Punkt in Form eines Fließtextes oder im Listenformat abgehandelt werden soll.Inhalt: Inhalt: Schreibe über die, aus deiner Sicht wichtigsten Themen bezogen auf das Haupt-Keyword "\${hauptkeyword}". Berücksichtige bei der Auswahl der Inhalte spezifische Aspekte und Herausforderungen, die typischerweise bei dieser Produktkategorie entstehen, und konzentriere dich darauf, wie du diese in der Gliederung adressieren kannst, um der Leserin einen echten Mehrwert zu bieten 
+Zielgruppe: Der Text ist für einen Onlineshop, der schwerpunktmäßig Mode mit dem besonderen Etwas für Frauen ab 45 anbietet. Die Kundin hat Ihren Stil gefunden und sucht bei heine das perfekte, stilsichere, modische Outfit von Kopf bis Fuß und für jeden Anlass. Sie liebt Inspirationen, ist mode-affin und hat Spaß an Styling und Trends.
+Format: Gib mir je Gliederungspunkt eine Überschrift (###), nummeriere diese aber nicht. Packe unter jeden Punkt genau einen Stichpunkt (-) mit kurzen, stichpunktartigen Informationen (formatiere hier nichts **fett**) um was es sich bei dem Gliederungspunkt thematisch handeln soll. Schreibe hinter jeden Stichpunkt außerdem in Klammern () ob dieser Punkt in Form eines Fließtextes oder im Listenformat abgehandelt werden soll.
+Inhalt: Inhalt: Schreibe über die, aus deiner Sicht wichtigsten Themen bezogen auf das Haupt-Keyword "\${hauptkeyword}". Berücksichtige bei der Auswahl der Inhalte spezifische Aspekte und Herausforderungen, die typischerweise bei dieser Produktkategorie entstehen, und konzentriere dich darauf, wie du diese in der Gliederung adressieren kannst, um der Leserin einen echten Mehrwert zu bieten. 
 Beantworte spezifische Fragen: "\${w_fragen}"
 
 Beachte folgende Anweisungen bei der Erstellung der Gliederung:
 •	Starte mit einem kurzen einleitenden Abschnitt
-•	Vermeide Wiederholungen und halte die Gliederung kompakt.
+•	Vermeide unbedingt Wiederholungen und halte die Gliederung kompakt. Beschränke dich auf die wichtigsten Inhalte.
 •	Keine Verweise auf Kundenerfahrungen, Bewertungen oder FAQ-Bereich.
-•	Wenn du die Leser/in direkt ansprichst, dann mit "Sie".
 •	Gestalte die Inhalte informativ und beratend (nicht: werblich)
 •	Verzichte auf ein Fazit oder eine Zusammenfassung am Schluss.
 •	Schreibe nichts über folgende Themen: Nachhaltigkeit, Pelz, Kundenmeinung, Zahlungsmöglichkeiten, Marken, Preis, Rückgaberecht, Preis-Leistungsverhältnis
 
 Überschriften:
+•	Wenn du die Leser/in direkt ansprichst, dann mit "Sie".
 •	Strukturiere die Themen bereits als ausführliche Überschriften. Schreibe die Überschriften interessant und informativ. 
 •	Um die SEO-Relevanz zu steigern, verwende in den Überschriften die folgenden Nebenkeywords: \${nebenkeywords}. Stelle die Keywords so um, dass ein grammatikalisch korrekter Satz entsteht. Verwende sie so, dass es sich nach einem natürlichen Sprachgebrauch anhört. Versuche das, so gut es geht. Nur wenn der Text dadurch unnatürlich wirkt, kannst du einzelne dieser Wörter weglassen.
-
 •	Vermeide Formulierungen wie „praktisch“ „günstig“, „flott“, „adrett“, „schmeicheln“, „-Liebling“ „elitär“, „großen Auftritt“. Vermeide lehrmeisterhafte Sätze. Nutze stattdessen Formulierungen wie exklusiv, anspruchsvoll, hochwertig, trendy, elegant, stilbewusst, perfekt gestylt, prima, modisch, selbstbewusst, lebensfroh, verspielt, positiv, natürlich, femininer Charme, sich von seiner besten Seite zeigen, farbenfroh, Leichtigkeit, Lieblings-Pullover, Lieblingslook.
 Folgende Text-Beispiele sollen dir helfen, den richtigen Ton zu treffen: 
 •	Basics machen Ihren Look perfekt und Ihr Styling jeden Tag ganz leicht!

@@ -20,7 +20,7 @@ Der Text soll in dieser Struktur aufgebaut sein:
 Absätze zu Überschriften (mindestens 100 Tokens lang)
 Format:
 Achte auf eine gute Lesbarkeit. Nutze dafür auch Stilelemente wie zum Beispiel Stichpunkte, Aufzählungen in den einzelnen Absätzen.
-Du sollst bereits im Text wichtige Wörter für den Lesefluss fett markieren. Setze die Fettungen so, dass Leser nur beim Lesen der Fettungen die Kernaussage verstehen. Fette maximal 2 Wörter pro Satz. 
+Du sollst bereits im Text wichtige Wörter für den Lesefluss fett markieren. Bitte markiere im Text Schlüsselbegriffe, die für das Verständnis essenziell sind, fett. Konzentriere dich dabei auf Begriffe, die Eigenschaften, spezifische Merkmale, Produktkategorien oder andere relevante Aspekte hervorheben, die für die Leserin von besonderem Interesse sein könnten.
 `;
 
 window.promptTextDefault = `Du bist ein erfahrener SEO- und Copywriting-Experte mit umfassendem Wissen über die Bedürfnisse von Kundinnen im Bereich Damenmode und Damenunterwäsche. Erstelle eine strukturierte Gliederung zum Thema " \${hauptkeyword}" für eine Produktlistenseite eines Online-Shops.

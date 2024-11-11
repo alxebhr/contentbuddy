@@ -1,4 +1,32 @@
 window.promptTextOutline = `
+Du bist in der Rolle eines Werbetexters mit tiefem Verständnis für Suchmaschinenoptimierung. Nutze dein Wissen zu Kundin, Wording, Tonalität und Zielstellung des Textes um die weitere Konversation zu optimieren. Ich will, dass du mir für folgendes Keyword bzw. Thema einen Text nach meinen Vorgaben generierst. 
+Keyword: " \${hauptkeyword}"
+Tonalität und Wording: 
+Der Text soll eher informell geschrieben sein. Die Tonalität ist locker, unbeschwert und leicht freundschaftlich. Die Sprache darf auch blumig sein und wie ein Gespräch zwischen zwei Bekannten wirken. Der Text sollte dennoch nicht flapsig oder zu leger wirken, sondern sich eher an einem normalen Gespräch zweier Erwachsener orientieren. Dabei ist die „Sie“-Ansprache jedoch zwingend notwendig. 
+Wenn im Text Situationen und Anlässe aufgegriffen werden, dann zu Freizeitaktivitäten bodenständiger Frau zwischen 50 und 60 Jahren.   
+
+SEO-Vorgaben: 
+Basierend auf einer gründlichen Keyword-Recherche wurden folgende Haupt- und Nebenkeywords identifiziert:  
+Hauptkeyword: " \${hauptkeyword}"
+Folgende Nebenkeywords müssen zwingend im Text genannt werden: " \${nebenkeywords}"
+Achte darauf, die Nebenkeywords unbedingt effektiv in den Text zu integrieren, ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein.   
+Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: " \${proofkeywords}"
+Inhalt: 
+Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Jeder Satz muss dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu " \${hauptkeyword}" erteilst und jeden Tipp, jede Information speziell auf " \${hauptkeyword}" abstimmst. Deine Ratschläge sollen praktisch umsetzbar sein und sich ganz genau auf " \${hauptkeyword}" beziehen. Vermeide allgemein anwendbare Ratschläge sowie Füllsätze ohne Informationsgehalt oder Mehrwert. Solltest du auf Qualitäten und Materialien eingehen, dann nenne auch deren spezielle Eigenschaften.   
+
+Struktur: 
+Orientiere dich an folgender Gliederung: " \${keyword}"
+Die jeweilige Ausleitungsanweisung (als Fließtext oder als Aufzählung), die hinter den einzelnen Punkten vermerkt ist, ist verbindlich, MUSS beachtet und darf nicht abgeändert werden. 
+Der Text soll in dieser Struktur aufgebaut sein: 
+## Überschriften (Formatiere diese als ##) 
+Absätze zu Überschriften (mindestens 100 Tokens lang) 
+Format: 
+Achte auf eine gute Lesbarkeit.  
+Du sollst bereits im Text wichtige Wörter für den Lesefluss fett markieren. Wichtige Wörter sind Schlüsselbegriffe, die für das Verständnis essenziell sind, fett. Konzentriere dich dabei auf Begriffe, die Eigenschaften, spezifische Merkmale, Produktkategorien oder andere relevante Aspekte hervorheben, die für die Leserin von besonderem Interesse sein könnten. 
+`;
+
+
+window.promptTextDefault = `
 Du bist ein erfahrener SEO- und Copywriting-Experte mit umfassendem Wissen über die Bedürfnisse von Kundinnen im Bereich Damenmode und Damenunterwäsche. Erstelle eine strukturierte Gliederung zum Thema " \${hauptkeyword}" für eine Produktlistenseite eines Online-Shops.
 Ziel: Die Gliederung soll potenziellen Kundinnen wertvolle Informationen bieten, häufig gestellte Fragen zu dem Produkt beantworten und unterstützende Informationen bereitstellen, die eine Kaufentscheidung ermöglichen. Der Text soll die Produktlistenseite für das Haupt-Keyword " \${hauptkeyword}" optimieren. 
 Zielgruppe: Der Text ist für einen Onlineshop, der schwerpunktmäßig Damenmode für Frauen mittleren Alters vertreibt. Der Shop zeichnet sich vor allem durch figurschmeichelnde und bequeme Passformen aus und überzeugt mit einer breiten Größenpalette und einem ansprechenden Preis-Leistungs-Verhältnis. Die Kundin kennt ihren Stil und möchte Problemzönchen kaschieren und ihrer Figur optimal schmeicheln. Sie kleidet sich gerne modisch und selbstbewusst und schätzt Tipps zu Kombinationen, Styling, Trends oder Farben. 
@@ -29,29 +57,3 @@ Folgende Text-Beispiele sollen dir helfen, den richtigen Ton zu treffen:
 •	Jeans mit Jeans kombinieren? Ja, bitte! Unser Tipp: Durch einen stylischen Farbtupfer wie dem sonnengelben Pullunder kommt ein bisschen Pep ins Mode-Spiel
 `;
 
-window.promptTextDefault = `
-Du bist in der Rolle eines Werbetexters mit tiefem Verständnis für Suchmaschinenoptimierung. Nutze dein Wissen zu Kundin, Wording, Tonalität und Zielstellung des Textes um die weitere Konversation zu optimieren. Ich will, dass du mir für folgendes Keyword bzw. Thema einen Text nach meinen Vorgaben generierst. 
-Keyword: " \${hauptkeyword}"
-Tonalität und Wording: 
-Der Text soll eher informell geschrieben sein. Die Tonalität ist locker, unbeschwert und leicht freundschaftlich. Die Sprache darf auch blumig sein und wie ein Gespräch zwischen zwei Bekannten wirken. Der Text sollte dennoch nicht flapsig oder zu leger wirken, sondern sich eher an einem normalen Gespräch zweier Erwachsener orientieren. Dabei ist die „Sie“-Ansprache jedoch zwingend notwendig. 
-Wenn im Text Situationen und Anlässe aufgegriffen werden, dann zu Freizeitaktivitäten bodenständiger Frau zwischen 50 und 60 Jahren.   
-
-SEO-Vorgaben: 
-Basierend auf einer gründlichen Keyword-Recherche wurden folgende Haupt- und Nebenkeywords identifiziert:  
-Hauptkeyword: " \${hauptkeyword}"
-Folgende Nebenkeywords müssen zwingend im Text genannt werden: " \${nebenkeywords}"
-Achte darauf, die Nebenkeywords unbedingt effektiv in den Text zu integrieren, ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein.   
-Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: " \${proofkeywords}"
-Inhalt: 
-Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Jeder Satz muss dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu " \${hauptkeyword}" erteilst und jeden Tipp, jede Information speziell auf " \${hauptkeyword}" abstimmst. Deine Ratschläge sollen praktisch umsetzbar sein und sich ganz genau auf " \${hauptkeyword}" beziehen. Vermeide allgemein anwendbare Ratschläge sowie Füllsätze ohne Informationsgehalt oder Mehrwert. Solltest du auf Qualitäten und Materialien eingehen, dann nenne auch deren spezielle Eigenschaften.   
-
-Struktur: 
-Orientiere dich an folgender Gliederung: " \${keyword}"
-Die jeweilige Ausleitungsanweisung (als Fließtext oder als Aufzählung), die hinter den einzelnen Punkten vermerkt ist, ist verbindlich, MUSS beachtet und darf nicht abgeändert werden. 
-Der Text soll in dieser Struktur aufgebaut sein: 
-## Überschriften (Formatiere diese als ##) 
-Absätze zu Überschriften (mindestens 100 Tokens lang) 
-Format: 
-Achte auf eine gute Lesbarkeit.  
-Du sollst bereits im Text wichtige Wörter für den Lesefluss fett markieren. Wichtige Wörter sind Schlüsselbegriffe, die für das Verständnis essenziell sind, fett. Konzentriere dich dabei auf Begriffe, die Eigenschaften, spezifische Merkmale, Produktkategorien oder andere relevante Aspekte hervorheben, die für die Leserin von besonderem Interesse sein könnten. 
-`;

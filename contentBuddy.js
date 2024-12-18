@@ -5,23 +5,28 @@
 
     let loadingIndicator;
     let firstTime = true; // Track the first time the text is inserted
-    let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
+    let initialized = false; // Stellt sicher, dass nur einmal initialisiert wird
+    let hasTextInserted = false; // Verhindert mehrfaches Einfügen des Textes
 
     function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, outlineText = false) {
-        // Versuche zuerst den Quill-Editor zu finden
+        // Prüfen, ob bereits Text eingefügt wurde
+        if (hasTextInserted) {
+            console.warn('Text wurde bereits eingefügt, breche ab.');
+            return;
+        }
+        hasTextInserted = true; // Markiere, dass Text nun eingefügt wird
+
         let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
         console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
 
         let textAreaElement;
 
-        // Falls der Quill-Editor nicht gefunden wird, suche das Textarea-Element
         if (!quillEditorContainer) {
             console.log('Erstes Element ".v-ql-textarea.ql-container" nicht gefunden. Versuche, "textarea.v-field__input" zu verwenden.');
             textAreaElement = document.querySelector('textarea.v-field__input');
             console.log('Versuche, "textarea.v-field__input" zu finden:', textAreaElement);
         }
 
-        // Text für den Editor erstellen
         let text;
         if (outlineText) {
             text = window.promptTextOutline;
@@ -29,13 +34,11 @@
             text = window.promptTextDefault;
         }
 
-        // Überprüfen, ob der Prompt-Text vorhanden ist
         if (!text) {
-            console.error('Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
+            console.error('Prompt-Text nicht gefunden. Bitte sicherstellen, dass die Prompt-Dateien korrekt geladen sind.');
             return;
         }
 
-        // Ersetzen der Platzhalter im Text
         text = text.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
                    .replace(/\$\{keyword\}/g, keyword)
                    .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
@@ -44,47 +47,36 @@
 
         console.log('Text, der eingefügt werden soll:', text);
 
-        // Wenn ein Quill-Editor gefunden wurde, Text einfügen
         if (quillEditorContainer) {
             let editorElement = quillEditorContainer.querySelector('.ql-editor');
             console.log('Editor gefunden:', editorElement);
-            editorElement.innerHTML = text;  // Verwende innerHTML für den Quill-Editor
+            editorElement.innerHTML = text;
             console.log('Text im Quill-Editor eingefügt:', editorElement.innerHTML);
-            simulateEnterPress(editorElement); // Simuliere Enter-Taste
-        }
-        // Wenn ein Textarea-Element gefunden wird, führe die spezielle Logik für Textarea aus
-        else if (textAreaElement) {
-            insertTextInTextareaAndSubmit(textAreaElement, text); // Text und Logik für Textarea verwenden
+            simulateEnterPress(editorElement);
+        } else if (textAreaElement) {
+            insertTextInTextareaAndSubmit(textAreaElement, text);
         } else {
             console.error('Kein passendes Editor-Container-Element oder Textarea gefunden.');
         }
     }
 
-    // Funktion zum Einfügen von Text in die Textarea und Absenden
     function insertTextInTextareaAndSubmit(chatbox, text) {
-        // Simuliere einen Klick auf die Textarea
         chatbox.click();
         console.log('Klick in die Textarea simuliert.');
-
-        // Text in die Textarea einfügen
         chatbox.value = text;
         console.log('Text in die Textarea eingefügt:', chatbox.value);
 
-        // Erstelle ein Input-Event, um die Änderung im Text zu registrieren
         let inputEvent = new Event('input', { bubbles: true });
         chatbox.dispatchEvent(inputEvent);
 
-        // Erstelle ein Change-Event, um sicherzustellen, dass jede Änderung erkannt wird
         let changeEvent = new Event('change', { bubbles: true });
         chatbox.dispatchEvent(changeEvent);
 
-        // Simuliere Enter-Taste nach einer kleinen Verzögerung
         setTimeout(() => {
             simulateEnterPress(chatbox);
-        }, 10); // Kleine Verzögerung, um sicherzustellen, dass der Text zuerst eingefügt wird
+        }, 10);
     }
 
-    // Funktion zum Simulieren des Drückens der Enter-Taste
     function simulateEnterPress(element) {
         const event = new KeyboardEvent('keydown', {
             key: 'Enter',
@@ -97,42 +89,33 @@
         element.dispatchEvent(event);
     }
 
-    // Funktion zum Neuladen der Seite (zum vollständigen Zurücksetzen des Skripts)
     function reloadPage() {
-        location.reload(); // Neuladen der Seite
+        location.reload();
     }
 
-    // Funktion zum Überwachen des "Neuer Chat"-Buttons
     function monitorResetButton() {
-        const resetButton = document.querySelector('.v-btn.v-btn--size-x-large'); // Finde den "Neuer Chat"-Button
-
+        const resetButton = document.querySelector('.v-btn.v-btn--size-x-large');
         if (resetButton) {
             resetButton.addEventListener('click', function() {
-                reloadPage(); // Seite neu laden und Skript komplett neu starten
+                reloadPage();
             });
             console.log("Reset-Button gefunden und EventListener hinzugefügt.");
         } else {
-            console.error("Reset-Button nicht gefunden.");
+            console.warn("Reset-Button nicht gefunden.");
         }
     }
 
-    // Funktion zum Extrahieren der Gliederung
     function extractOutline() {
-        // HIER MUSS MEISTENS DAS ELEMENT INNERHALB DES DIV AUSGETAUSCHT WERDEN
         const elements = document.querySelectorAll('div[data-v-00234d5a].v-col-md-10.v-col-12.px-0.pt-0.content');
-
-        console.log(`Gefundene Elemente mit data-v-4abd6e8c und der Klasse "v-col-md-10 v-col-12 px-0.pt-0 content": ${elements.length}`);
+        console.log(`Gefundene Elemente: ${elements.length}`);
 
         let sourceElement;
         if (elements.length >= 3) {
             sourceElement = elements[2];
-            console.log('Drittes Element ausgewählt.');
         } else if (elements.length >= 2) {
             sourceElement = elements[1];
-            console.log('Weniger als drei Elemente gefunden. Zweites Element ausgewählt.');
         } else if (elements.length >= 1) {
             sourceElement = elements[0];
-            console.log('Weniger als zwei Elemente gefunden. Erstes Element ausgewählt.');
         } else {
             console.error('Es wurden keine passenden Elemente gefunden.');
             return null;
@@ -143,18 +126,15 @@
         console.log(`Gefundene <h3>-Überschriften: ${headings.length}`);
 
         if (headings.length === 0) {
-            console.error('Keine <h3>-Tags im ausgewählten Element gefunden.');
+            console.error('Keine <h3>-Tags gefunden.');
             return null;
         }
 
         headings.forEach((heading, index) => {
             const point = { title: '', content: [] };
-
-            // Extrahiere den Titel des <h3>-Tags
             point.title = heading.innerText.trim();
             console.log(`Extrahierter Titel #${index + 1}: "${point.title}"`);
 
-            // Prüfe das nächste Element auf <ul>
             let nextElement = heading.nextElementSibling;
             while (nextElement && nextElement.tagName !== 'UL') {
                 nextElement = nextElement.nextElementSibling;
@@ -175,7 +155,7 @@
                             }
                         }
                         content.push(listItemText);
-                        console.log(`Hinzugefügter Listeneintrag: "${listItemText}"`);
+                        console.log(`Hinzugefügter Eintrag: "${listItemText}"`);
                     });
 
                     return content;
@@ -184,13 +164,11 @@
                 const items = processList(nextElement);
                 point.content.push(...items);
             } else {
-                console.warn(`Kein <ul>-Element nach <h3> "${point.title}" gefunden.`);
+                console.warn(`Kein <ul> nach <h3> "${point.title}" gefunden.`);
             }
 
             if (point.content.length > 0) {
                 outline.push(point);
-            } else {
-                console.warn(`Leerer Punkt nach <h3> "${point.title}" wurde übersprungen.`);
             }
         });
 
@@ -200,11 +178,11 @@
 
     function createOutlineBoxes(outline, container) {
         console.log("Creating Outline Boxes...");
-        outline.forEach((point, index) => {
+        outline.forEach((point) => {
             const box = document.createElement('div');
             box.style.position = 'relative';
             box.style.border = '1px solid #ddd';
-            box.style.padding = '40px 10px 10px 10px'; 
+            box.style.padding = '40px 10px 10px 10px';
             box.style.marginBottom = '10px';
             box.style.borderRadius = '5px';
             box.contentEditable = 'true';
@@ -352,10 +330,11 @@
             console.log('Proofkeywords:', proofkeywords);
             console.log('Subkeywords:', subkeywords);
             console.log('W-Fragen:', w_fragen);
-            insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
-            console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
 
-            // Button deaktivieren, um mehrfache Eingaben zu vermeiden
+            // Hier wird nochmal insertTextAndSend aufgerufen, aber dank hasTextInserted nur einmal.
+            insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
+            console.log('Text wurde eingefügt.');
+
             generateTextButton.style.backgroundColor = '#cccccc';
             generateTextButton.style.cursor = 'not-allowed';
             generateTextButton.disabled = true;
@@ -400,6 +379,80 @@
             }
         `;
         document.head.appendChild(style);
+    }
+
+    // Wenn das folgende Probleme macht, einfach komplett auskommentieren.
+    function monitorConsoleMessages() {
+        const originalConsoleLog = console.log;
+        console.log = function (message) {
+            // Nur einmalig ausführen
+            if (typeof message === 'string' && message.includes('llm generation stream closed') && firstTime) {
+                if (loadingIndicator) {
+                    loadingIndicator.remove();
+                }
+                const outline = extractOutline();
+                if (outline) {
+                    const container = document.querySelector('.text-buddy-content');
+                    if (container) {
+                        createOutlineBoxes(outline, container);
+                    }
+                }
+                firstTime = false; 
+            }
+            originalConsoleLog.apply(console, arguments);
+        };
+    }
+
+    function initializeContentBuddy() {
+        if (initialized) return;
+        initializeOnce();
+        initialized = true;
+    }
+
+    function initializeOnce() {
+        createButton();
+        monitorConsoleMessages();
+        monitorResetButton();
+        console.log('ContentBuddy initialized.');
+    }
+
+    function createButton() {
+        const button = document.createElement('button');
+        button.innerText = 'ContentBuddy ' + (window.selectedOption || '');
+        button.id = 'contentBuddyButton';
+        button.style.position = 'fixed';
+        button.style.top = '10px';
+        button.style.right = '10px';
+        button.style.zIndex = '1000';
+        button.style.padding = '10px';
+        button.style.backgroundColor = '#333333';
+        button.style.color = 'white';
+        button.style.border = 'none';
+        button.style.borderRadius = '5px';
+        button.style.cursor = 'pointer';
+        button.style.transition = 'background-color 0.3s';
+        button.onmouseover = () => {
+            button.style.backgroundColor = '#444444';
+        };
+        button.onmouseout = () => {
+            button.style.backgroundColor = '#333333';
+        };
+        button.onclick = () => {
+            const overlay = document.querySelector('.text-buddy-content')?.parentElement?.parentElement;
+            if (overlay) {
+                overlay.style.display = 'block';
+                setTimeout(() => {
+                    overlay.style.transform = 'translateX(0)';
+                    overlay.style.opacity = '1';
+                }, 10);
+                document.body.style.marginRight = '350px';
+            }
+            button.style.display = 'none';
+        };
+        document.body.appendChild(button);
+
+        // Overlay erstellen
+        createOverlay(button);
     }
 
     function createOverlay(button) {
@@ -461,6 +514,7 @@
         content.style.height = 'calc(100vh - 60px)';
         overlay.appendChild(content);
 
+        // Inputfelder erstellen
         const inputContainer = document.createElement('div');
         inputContainer.style.backgroundColor = '#F7F7F7';
         inputContainer.style.border = '1px solid #B7B5B4';
@@ -608,99 +662,16 @@
             const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
             if (hauptkeyword) {
                 insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-                insertButton.style.display = 'none'; // Button verschwinden lassen
-                createLoadingIndicator(content); // Ladeanimation anzeigen
+                insertButton.style.display = 'none';
+                createLoadingIndicator(content);
             }
         });
         content.appendChild(insertButton);
-
-        return overlay;
     }
 
-    function createButton() {
-        const button = document.createElement('button');
-        button.innerText = 'ContentBuddy ' + (window.selectedOption || '');
-        button.id = 'contentBuddyButton';
-        button.style.position = 'fixed';
-        button.style.top = '10px';
-        button.style.right = '10px';
-        button.style.zIndex = '1000';
-        button.style.padding = '10px';
-        button.style.backgroundColor = '#333333';
-        button.style.color = 'white';
-        button.style.border = 'none';
-        button.style.borderRadius = '5px';
-        button.style.cursor = 'pointer';
-        button.style.transition = 'background-color 0.3s';
-        button.onmouseover = () => {
-            button.style.backgroundColor = '#444444';
-        };
-        button.onmouseout = () => {
-            button.style.backgroundColor = '#333333';
-        };
-        button.onclick = () => {
-            overlay.style.display = 'block';
-            setTimeout(() => {
-                overlay.style.transform = 'translateX(0)';
-                overlay.style.opacity = '1';
-            }, 10);
-            document.body.style.marginRight = '350px';
-            button.style.display = 'none';
-        };
-        document.body.appendChild(button);
-
-        const overlay = createOverlay(button);
-    }
-
-    function monitorConsoleMessages() {
-        const originalConsoleLog = console.log;
-        console.log = function (message) {
-            if (typeof message === 'string' && message.includes('llm generation stream closed')) {
-                if (firstTime) {
-                    if (loadingIndicator) {
-                        loadingIndicator.remove();
-                    }
-                    const outline = extractOutline();
-                    if (outline) {
-                        const container = document.querySelector('.text-buddy-content');
-                        if (container) {
-                            createOutlineBoxes(outline, container);
-                        }
-                    }
-                    firstTime = false; 
-                }
-            }
-            originalConsoleLog.apply(console, arguments);
-        };
-    }
-
-    function initializeContentBuddy() {
-        // Stelle sicher, dass nur einmal initialisiert wird
-        if (initialized) return;
-        if (document.querySelector('#contentBuddyButton')) {
-            return; 
-        }
-
-        createButton();
-        monitorConsoleMessages();
-        monitorResetButton();
-        console.log('ContentBuddy initialized.');
-        initialized = true;
-        
-        // Nach erfolgter Initialisierung Observer deaktivieren, um mehrfaches Triggern zu vermeiden
-        observer.disconnect();
-    }
-
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                initializeContentBuddy();
-            }
-        });
+    // Statt MutationObserver: Einmal nach DOM Load initialisieren
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeContentBuddy();
     });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    initializeContentBuddy();
 
 })();

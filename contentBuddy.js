@@ -5,6 +5,7 @@
 
     let loadingIndicator;
     let firstTime = true; // Track the first time the text is inserted
+    let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
     function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, outlineText = false) {
         // Versuche zuerst den Quill-Editor zu finden
@@ -117,12 +118,11 @@
 
     // Funktion zum Extrahieren der Gliederung
     function extractOutline() {
-        // HIER MUSS MEISTENS DAS ELEMENT INNERHALB DES DIV AUSGETAUSCHT WERDEN div[AUSTAUSCHEN!]
+        // HIER MUSS MEISTENS DAS ELEMENT INNERHALB DES DIV AUSGETAUSCHT WERDEN
         const elements = document.querySelectorAll('div[data-v-00234d5a].v-col-md-10.v-col-12.px-0.pt-0.content');
 
         console.log(`Gefundene Elemente mit data-v-4abd6e8c und der Klasse "v-col-md-10 v-col-12 px-0.pt-0 content": ${elements.length}`);
 
-        // Fallback-Logik: Nimm das dritte Element, wenn verfügbar, sonst das zweite, sonst das erste
         let sourceElement;
         if (elements.length >= 3) {
             sourceElement = elements[2];
@@ -139,8 +139,6 @@
         }
 
         const outline = [];
-
-        // Suche nach allen <h3>-Tags im ausgewählten Element
         const headings = sourceElement.querySelectorAll('h3');
         console.log(`Gefundene <h3>-Überschriften: ${headings.length}`);
 
@@ -169,16 +167,13 @@
 
                     sublistItems.forEach((subitem) => {
                         let listItemText = subitem.firstChild.textContent.trim();
-
-                        // Prüfe, ob das <li> ein verschachteltes <ul> enthält
                         const nestedUl = subitem.querySelector(':scope > ul');
                         if (nestedUl) {
-                            const nestedItems = processList(nestedUl); // Rekursive Verarbeitung
+                            const nestedItems = processList(nestedUl);
                             if (nestedItems.length > 0) {
                                 listItemText = `${listItemText}: ${nestedItems.join(' ')}`;
                             }
                         }
-
                         content.push(listItemText);
                         console.log(`Hinzugefügter Listeneintrag: "${listItemText}"`);
                     });
@@ -192,7 +187,6 @@
                 console.warn(`Kein <ul>-Element nach <h3> "${point.title}" gefunden.`);
             }
 
-            // Füge den Punkt zur Outline hinzu, wenn er nicht leer ist
             if (point.content.length > 0) {
                 outline.push(point);
             } else {
@@ -210,29 +204,27 @@
             const box = document.createElement('div');
             box.style.position = 'relative';
             box.style.border = '1px solid #ddd';
-            box.style.padding = '40px 10px 10px 10px'; // Oberer Padding vergrößert für die Buttons
+            box.style.padding = '40px 10px 10px 10px'; 
             box.style.marginBottom = '10px';
             box.style.borderRadius = '5px';
             box.contentEditable = 'true';
 
-            // --- Container für Verschiebungsschaltflächen ---
             const moveContainer = document.createElement('div');
             moveContainer.style.position = 'absolute';
-            moveContainer.style.top = '10px'; // Anpassung für besseren Abstand
-            moveContainer.style.left = '10px'; // Anpassung für besseren Abstand
+            moveContainer.style.top = '10px';
+            moveContainer.style.left = '10px';
             moveContainer.style.display = 'flex';
-            moveContainer.style.gap = '15px'; // Mehr Abstand zwischen den Buttons
+            moveContainer.style.gap = '15px';
 
-            // Funktion zum Erstellen eines Move-Buttons
             function createMoveButton(symbol) {
                 const button = document.createElement('button');
                 button.innerText = symbol;
                 button.style.width = '25px';
                 button.style.height = '25px';
                 button.style.borderRadius = '3px';
-                button.style.backgroundColor = 'transparent'; // Keine Hintergrundfarbe
-                button.style.color = '#333'; // Pfeilfarbe
-                button.style.border = '1px solid #ccc'; // Leichter Rahmen
+                button.style.backgroundColor = 'transparent';
+                button.style.color = '#333';
+                button.style.border = '1px solid #ccc';
                 button.style.cursor = 'pointer';
                 button.style.fontSize = '14px';
                 button.style.display = 'flex';
@@ -243,7 +235,6 @@
                 return button;
             }
 
-            // Move Up Button ("↑")
             const moveUpButton = createMoveButton('↑');
             moveUpButton.onclick = () => {
                 const previousBox = box.previousElementSibling;
@@ -254,7 +245,6 @@
             };
             moveContainer.appendChild(moveUpButton);
 
-            // Move Down Button ("↓")
             const moveDownButton = createMoveButton('↓');
             moveDownButton.onclick = () => {
                 const nextBox = box.nextElementSibling;
@@ -264,16 +254,13 @@
                 }
             };
             moveContainer.appendChild(moveDownButton);
-
             box.appendChild(moveContainer);
-            // --- Ende des Verschiebungsschaltflächen-Containers ---
 
-            // --- Close-Button ---
             const closeButton = document.createElement('button');
             closeButton.innerText = '✕';
             closeButton.style.position = 'absolute';
-            closeButton.style.top = '10px'; // Anpassung für besseren Abstand
-            closeButton.style.right = '10px'; // Anpassung für besseren Abstand
+            closeButton.style.top = '10px';
+            closeButton.style.right = '10px';
             closeButton.style.backgroundColor = 'transparent';
             closeButton.style.color = '#333';
             closeButton.style.border = 'none';
@@ -286,7 +273,6 @@
                 updateMoveButtons(container);
             };
             box.appendChild(closeButton);
-            // --- Ende des Close-Buttons ---
 
             const title = document.createElement('h4');
             title.innerText = point.title;
@@ -302,7 +288,6 @@
             console.log("Added box for point:", point);
         });
 
-        // Funktion zur Aktualisierung der Move-Buttons (Deaktivieren, wenn keine Bewegung möglich ist)
         function updateMoveButtons(container) {
             const allBoxes = container.querySelectorAll('div[contenteditable="true"]');
             allBoxes.forEach((box, index) => {
@@ -329,12 +314,10 @@
             });
         }
 
-        // Initiales Update nach dem Erstellen aller Boxen
         updateMoveButtons(container);
 
-        // Erstellen des "Text generieren" Buttons im Header
         const header = container.closest('.text-buddy-content').previousElementSibling;
-        console.log('Header gefunden:', header); // Debugging: Überprüfen, ob der Header gefunden wird
+        console.log('Header gefunden:', header);
         const generateTextButton = document.createElement('button');
         generateTextButton.innerText = '🖋️✨';
         generateTextButton.style.width = 'auto';
@@ -354,7 +337,7 @@
         };
         generateTextButton.addEventListener('click', () => {
             const allTextBoxes = Array.from(container.querySelectorAll('div[contenteditable="true"]'));
-            const outlinePoints = allTextBoxes.map((box, index) => {
+            const outlinePoints = allTextBoxes.map((box) => {
                 const titleText = box.querySelector('h4') ? box.querySelector('h4').innerText.trim() : '';
                 const paragraphs = box.querySelectorAll('p');
                 const contentText = Array.from(paragraphs).map(p => p.innerText.trim()).join(' ');
@@ -365,21 +348,21 @@
             const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
             const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
             const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
-            console.log('Mainkeyword:', mainkeyword); // Debugging: Haupt-Keyword überprüfen
-            console.log('Proofkeywords:', proofkeywords); // Debugging: Proof-Keywords überprüfen
-            console.log('Subkeywords:', subkeywords); // Debugging: Neben-Keywords überprüfen
-            console.log('W-Fragen:', w_fragen); // Debugging: W-Fragen überprüfen
+            console.log('Mainkeyword:', mainkeyword);
+            console.log('Proofkeywords:', proofkeywords);
+            console.log('Subkeywords:', subkeywords);
+            console.log('W-Fragen:', w_fragen);
             insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
-            console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen); // Debugging: Text erfolgreich eingefügt?
+            console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
 
-            // Button grau hinterlegen und deaktivieren
+            // Button deaktivieren, um mehrfache Eingaben zu vermeiden
             generateTextButton.style.backgroundColor = '#cccccc';
             generateTextButton.style.cursor = 'not-allowed';
             generateTextButton.disabled = true;
         });
 
         header.insertBefore(generateTextButton, header.querySelector('button'));
-        console.log('Button zum Generieren des Textes hinzugefügt'); // Debugging: Button hinzugefügt?
+        console.log('Button zum Generieren des Textes hinzugefügt');
     }
 
     function createLoadingIndicator(container) {
@@ -478,7 +461,6 @@
         content.style.height = 'calc(100vh - 60px)';
         overlay.appendChild(content);
 
-        // Container für die Eingabefelder mit gewünschtem Styling
         const inputContainer = document.createElement('div');
         inputContainer.style.backgroundColor = '#F7F7F7';
         inputContainer.style.border = '1px solid #B7B5B4';
@@ -536,7 +518,6 @@
         proofKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
         inputContainer.appendChild(proofKeywordInput);
 
-        // W-Fragen Section
         const wFragenContainer = document.createElement('div');
         wFragenContainer.className = 'w-fragen-container';
         wFragenContainer.style.border = '1px solid #ddd';
@@ -575,7 +556,7 @@
             const wFrageInput = document.createElement('input');
             wFrageInput.type = 'text';
             wFrageInput.placeholder = 'W-Frage eingeben';
-            wFrageInput.style.width = 'calc(100% - 40px)'; // Anpassung für Platz des Remove-Buttons
+            wFrageInput.style.width = 'calc(100% - 40px)';
             wFrageInput.style.padding = '10px';
             wFrageInput.style.borderRadius = '5px';
             wFrageInput.style.border = '1px solid #ddd';
@@ -638,8 +619,8 @@
 
     function createButton() {
         const button = document.createElement('button');
-        button.innerText = 'ContentBuddy ' + window.selectedOption;
-        button.id = 'contentBuddyButton'; // Assign an ID for checking existence
+        button.innerText = 'ContentBuddy ' + (window.selectedOption || '');
+        button.id = 'contentBuddyButton';
         button.style.position = 'fixed';
         button.style.top = '10px';
         button.style.right = '10px';
@@ -686,26 +667,30 @@
                             createOutlineBoxes(outline, container);
                         }
                     }
-                    firstTime = false; // Ensure the text is inserted only the first time
+                    firstTime = false; 
                 }
             }
             originalConsoleLog.apply(console, arguments);
         };
     }
 
-    // Funktion zur Initialisierung des Skripts
     function initializeContentBuddy() {
-        // Überprüfe, ob der ContentBuddy-Button bereits existiert
+        // Stelle sicher, dass nur einmal initialisiert wird
+        if (initialized) return;
         if (document.querySelector('#contentBuddyButton')) {
-            return; // Button existiert bereits, keine erneute Initialisierung nötig
+            return; 
         }
+
         createButton();
         monitorConsoleMessages();
         monitorResetButton();
         console.log('ContentBuddy initialized.');
+        initialized = true;
+        
+        // Nach erfolgter Initialisierung Observer deaktivieren, um mehrfaches Triggern zu vermeiden
+        observer.disconnect();
     }
 
-    // Verwende MutationObserver, um Änderungen im DOM zu überwachen
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -714,10 +699,8 @@
         });
     });
 
-    // Beginne mit der Beobachtung des Body für hinzugefügte Knoten
     observer.observe(document.body, { childList: true, subtree: true });
 
-    // Initialer Aufruf zur Einrichtung des ContentBuddy
     initializeContentBuddy();
 
 })();

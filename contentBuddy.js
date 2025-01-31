@@ -606,10 +606,28 @@
             const nebenkeywords = subKeywordInput.value.trim();
             const proofkeywords = proofKeywordInput.value.trim();
             const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
+            
             if (hauptkeyword) {
                 insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
                 insertButton.style.display = 'none'; // Button verschwinden lassen
                 createLoadingIndicator(content); // Ladeanimation anzeigen
+
+                // NEU: Spätestens nach 20 Sekunden ebenfalls extractOutline aufrufen, falls noch nicht geschehen
+                setTimeout(() => {
+                    if (firstTime) {
+                        if (loadingIndicator) {
+                            loadingIndicator.remove();
+                        }
+                        const outline = extractOutline();
+                        if (outline) {
+                            const container = document.querySelector('.text-buddy-content');
+                            if (container) {
+                                createOutlineBoxes(outline, container);
+                            }
+                        }
+                        firstTime = false;
+                    }
+                }, 20000);
             }
         });
         content.appendChild(insertButton);

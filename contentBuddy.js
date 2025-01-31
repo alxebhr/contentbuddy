@@ -655,13 +655,13 @@
 
     /**
      * Überwacht die Console-Logs, um u.a. auf "llm generation stream closed" zu reagieren.
-     * Zusätzlich startet nach 6 Sekunden ein Fallback, falls "llm generation stream closed"
+     * Zusätzlich startet nach 10 Sekunden ein Fallback, falls "llm generation stream closed"
      * nicht vorher eingetreten ist.
      */
     function monitorConsoleMessages() {
         const originalConsoleLog = console.log;
 
-        // Nach 6 Sekunden: Fallback-Auslösung, falls extractOutline() nicht schon ausgeführt wurde
+        // Nach 10 Sekunden: Fallback-Auslösung, falls extractOutline() nicht schon ausgeführt wurde
         setTimeout(() => {
             if (firstTime) {
                 if (loadingIndicator) {
@@ -676,7 +676,7 @@
                 }
                 firstTime = false;
             }
-        }, 6000);
+        }, 10000);
 
         // Ersetzt console.log durch eine eigene Funktion, um auf bestimmte Nachrichten zu reagieren.
         console.log = function (message) {

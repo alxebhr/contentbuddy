@@ -606,28 +606,11 @@
             const nebenkeywords = subKeywordInput.value.trim();
             const proofkeywords = proofKeywordInput.value.trim();
             const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
-            
+
             if (hauptkeyword) {
                 insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
                 insertButton.style.display = 'none'; // Button verschwinden lassen
                 createLoadingIndicator(content); // Ladeanimation anzeigen
-
-                // NEU: Spätestens nach 20 Sekunden ebenfalls extractOutline aufrufen, falls noch nicht geschehen
-                setTimeout(() => {
-                    if (firstTime) {
-                        if (loadingIndicator) {
-                            loadingIndicator.remove();
-                        }
-                        const outline = extractOutline();
-                        if (outline) {
-                            const container = document.querySelector('.text-buddy-content');
-                            if (container) {
-                                createOutlineBoxes(outline, container);
-                            }
-                        }
-                        firstTime = false;
-                    }
-                }, 20000);
             }
         });
         content.appendChild(insertButton);
@@ -670,8 +653,32 @@
         const overlay = createOverlay(button);
     }
 
+    /**
+     * Überwacht die Console-Logs, um u.a. auf "llm generation stream closed" zu reagieren.
+     * Zusätzlich startet nach 20 Sekunden ein Fallback, falls "llm generation stream closed"
+     * nicht vorher eingetreten ist.
+     */
     function monitorConsoleMessages() {
         const originalConsoleLog = console.log;
+
+        // Nach 20 Sekunden: Fallback-Auslösung, falls extractOutline() nicht schon ausgeführt wurde
+        setTimeout(() => {
+            if (firstTime) {
+                if (loadingIndicator) {
+                    loadingIndicator.remove();
+                }
+                const outline = extractOutline();
+                if (outline) {
+                    const container = document.querySelector('.text-buddy-content');
+                    if (container) {
+                        createOutlineBoxes(outline, container);
+                    }
+                }
+                firstTime = false;
+            }
+        }, 20000);
+
+        // Ersetzt console.log durch eine eigene Funktion, um auf bestimmte Nachrichten zu reagieren.
         console.log = function (message) {
             if (typeof message === 'string' && message.includes('llm generation stream closed')) {
                 if (firstTime) {
@@ -688,6 +695,7 @@
                     firstTime = false; 
                 }
             }
+            // Ruft das ursprüngliche console.log auf, damit nichts verloren geht.
             originalConsoleLog.apply(console, arguments);
         };
     }

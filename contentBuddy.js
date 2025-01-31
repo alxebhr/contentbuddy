@@ -119,9 +119,9 @@
     // Funktion zum Extrahieren der Gliederung
     function extractOutline() {
         // HIER MUSS MEISTENS DAS ELEMENT INNERHALB DES DIV AUSGETAUSCHT WERDEN
-        const elements = document.querySelectorAll('div[data-v-a4a85357].v-col-md-10.v-col-12.px-0.pt-0.content');
+        const elements = document.querySelectorAll('div[data-v-3029cbf4].v-col-md-10.v-col-12.px-0.pt-0.content');
 
-        console.log(`Gefundene Elemente mit data-v-a4a85357 und der Klasse "v-col-md-10 v-col-12 px-0.pt-0 content": ${elements.length}`);
+        console.log(`Gefundene Elemente mit data-v-3029cbf4 und der Klasse "v-col-md-10 v-col-12 px-0.pt-0 content": ${elements.length}`);
 
         let sourceElement;
         if (elements.length >= 3) {

@@ -676,7 +676,7 @@
                 }
                 firstTime = false;
             }
-        }, 20000);
+        }, 10000);
 
         // Ersetzt console.log durch eine eigene Funktion, um auf bestimmte Nachrichten zu reagieren.
         console.log = function (message) {

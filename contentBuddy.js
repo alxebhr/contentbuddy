@@ -118,10 +118,10 @@
 
     // Funktion zum Extrahieren der Gliederung
     function extractOutline() {
+        console.log("extractOutline() wurde aufgerufen. Versuche die Gliederung zu extrahieren...");
         // HIER MUSS MEISTENS DAS ELEMENT INNERHALB DES DIV AUSGETAUSCHT WERDEN
         const elements = document.querySelectorAll('div[data-v-3029cbf4].v-col-md-10.v-col-12.px-0.pt-0.content');
-
-        console.log(`Gefundene Elemente mit data-v-3029cbf4 und der Klasse "v-col-md-10 v-col-12 px-0.pt-0 content": ${elements.length}`);
+        console.log(`Gefundene Elemente: ${elements.length}`);
 
         let sourceElement;
         if (elements.length >= 3) {
@@ -149,10 +149,10 @@
 
         headings.forEach((heading, index) => {
             const point = { title: '', content: [] };
+            console.log(`Verarbeite Überschrift Nr. ${index+1}: ${heading.innerText.trim()}`);
 
             // Extrahiere den Titel des <h3>-Tags
             point.title = heading.innerText.trim();
-            console.log(`Extrahierter Titel #${index + 1}: "${point.title}"`);
 
             // Prüfe das nächste Element auf <ul>
             let nextElement = heading.nextElementSibling;
@@ -161,6 +161,7 @@
             }
 
             if (nextElement && nextElement.tagName === 'UL') {
+                console.log('UL gefunden. Lese Listenpunkte aus.');
                 const processList = (ulElement) => {
                     const sublistItems = ulElement.querySelectorAll(':scope > li');
                     const content = [];
@@ -175,7 +176,7 @@
                             }
                         }
                         content.push(listItemText);
-                        console.log(`Hinzugefügter Listeneintrag: "${listItemText}"`);
+                        console.log(`    Listenpunkt: "${listItemText}"`);
                     });
 
                     return content;
@@ -190,7 +191,7 @@
             if (point.content.length > 0) {
                 outline.push(point);
             } else {
-                console.warn(`Leerer Punkt nach <h3> "${point.title}" wurde übersprungen.`);
+                console.warn(`Leerer Punkt nach <h3> "${point.title}" wird nicht hinzugefügt.`);
             }
         });
 
@@ -199,8 +200,9 @@
     }
 
     function createOutlineBoxes(outline, container) {
-        console.log("Creating Outline Boxes...");
+        console.log("Erstelle Outline Boxes...");
         outline.forEach((point, index) => {
+            console.log(`Box #${index+1} wird erstellt mit Titel: "${point.title}"`);
             const box = document.createElement('div');
             box.style.position = 'relative';
             box.style.border = '1px solid #ddd';
@@ -285,7 +287,7 @@
             });
 
             container.appendChild(box);
-            console.log("Added box for point:", point);
+            console.log(`Box #${index+1} mit Titel "${point.title}" hinzugefügt`);
         });
 
         function updateMoveButtons(container) {
@@ -336,11 +338,13 @@
             generateTextButton.style.backgroundColor = '#ffffff';
         };
         generateTextButton.addEventListener('click', () => {
+            console.log("Button zum Generieren des Textes wurde geklickt.");
             const allTextBoxes = Array.from(container.querySelectorAll('div[contenteditable="true"]'));
-            const outlinePoints = allTextBoxes.map((box) => {
+            const outlinePoints = allTextBoxes.map((box, i) => {
                 const titleText = box.querySelector('h4') ? box.querySelector('h4').innerText.trim() : '';
                 const paragraphs = box.querySelectorAll('p');
                 const contentText = Array.from(paragraphs).map(p => p.innerText.trim()).join(' ');
+                console.log(`Outline Box #${i+1} => Titel: "${titleText}", Inhalt: "${contentText}"`);
                 return `${titleText}\n${contentText}`;
             }).filter(text => text);
             const outlineText = outlinePoints.join('\n\n');
@@ -366,6 +370,7 @@
     }
 
     function createLoadingIndicator(container) {
+        console.log("Erstelle Loading-Indicator...");
         loadingIndicator = document.createElement('div');
         loadingIndicator.style.position = 'fixed';
         loadingIndicator.style.top = '50%';
@@ -400,9 +405,11 @@
             }
         `;
         document.head.appendChild(style);
+        console.log("Loading-Indicator erstellt.");
     }
 
     function createOverlay(button) {
+        console.log("Erstelle Overlay...");
         const overlay = document.createElement('div');
         overlay.style.position = 'fixed';
         overlay.style.right = '0';
@@ -548,6 +555,7 @@
         addWFrageButton.style.cursor = 'pointer';
         addWFrageButton.style.fontSize = '20px';
         addWFrageButton.onclick = () => {
+            console.log("W-Frage hinzufügen angeklickt.");
             const wFrageBox = document.createElement('div');
             wFrageBox.className = 'w-frage-box';
             wFrageBox.style.position = 'relative';
@@ -575,6 +583,7 @@
             removeWFrageButton.style.cursor = 'pointer';
             removeWFrageButton.style.fontSize = '14px';
             removeWFrageButton.onclick = () => {
+                console.log("W-Frage entfernt.");
                 wFrageBox.remove();
             };
             wFrageBox.appendChild(removeWFrageButton);
@@ -602,15 +611,50 @@
             insertButton.style.backgroundColor = '#333333';
         };
         insertButton.addEventListener('click', () => {
+            console.log("Gliederung abfragen geklickt.");
             const hauptkeyword = mainKeywordInput.value.trim();
             const nebenkeywords = subKeywordInput.value.trim();
             const proofkeywords = proofKeywordInput.value.trim();
-            const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
+            const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
+                .map(input => input.value.trim())
+                .filter(value => value)
+                .join(', ');
+
+            console.log("Hauptkeyword:", hauptkeyword);
+            console.log("Nebenkeywords:", nebenkeywords);
+            console.log("Proofkeywords:", proofkeywords);
+            console.log("W-Fragen:", w_fragen);
 
             if (hauptkeyword) {
                 insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+                console.log("Prompt zum Generieren der Gliederung gesendet. Verberge Insert-Button und zeige Ladeindikator.");
                 insertButton.style.display = 'none'; // Button verschwinden lassen
                 createLoadingIndicator(content); // Ladeanimation anzeigen
+
+                // NUR JETZT startet der 10-Sekunden-Fallback
+                setTimeout(() => {
+                    console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Gliederung abfragen'...");
+                    if (firstTime) {
+                        console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
+                        if (loadingIndicator) {
+                            loadingIndicator.remove();
+                        }
+                        const outline = extractOutline();
+                        if (outline) {
+                            const container = document.querySelector('.text-buddy-content');
+                            if (container) {
+                                createOutlineBoxes(outline, container);
+                            } else {
+                                console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
+                            }
+                        } else {
+                            console.log("outline war null, also keine Boxes.");
+                        }
+                        firstTime = false;
+                    } else {
+                        console.log("Fallback nicht nötig, da firstTime bereits false ist.");
+                    }
+                }, 10000);
             }
         });
         content.appendChild(insertButton);
@@ -619,6 +663,7 @@
     }
 
     function createButton() {
+        console.log("Erstelle Haupt-Button für ContentBuddy...");
         const button = document.createElement('button');
         button.innerText = 'ContentBuddy ' + (window.selectedOption || '');
         button.id = 'contentBuddyButton';
@@ -655,44 +700,41 @@
 
     /**
      * Überwacht die Console-Logs, um u.a. auf "llm generation stream closed" zu reagieren.
-     * Zusätzlich startet nach 10 Sekunden ein Fallback, falls "llm generation stream closed"
-     * nicht vorher eingetreten ist.
+     * Anders als vorher KEIN Timer hier, da wir wollen, dass der 10-Sekunden-Fallback
+     * erst nach Klick auf "Gliederung abfragen" startet.
      */
     function monitorConsoleMessages() {
+        console.log("monitorConsoleMessages() gestartet.");
         const originalConsoleLog = console.log;
-
-        // Nach 10 Sekunden: Fallback-Auslösung, falls extractOutline() nicht schon ausgeführt wurde
-        setTimeout(() => {
-            if (firstTime) {
-                if (loadingIndicator) {
-                    loadingIndicator.remove();
-                }
-                const outline = extractOutline();
-                if (outline) {
-                    const container = document.querySelector('.text-buddy-content');
-                    if (container) {
-                        createOutlineBoxes(outline, container);
-                    }
-                }
-                firstTime = false;
-            }
-        }, 10000);
 
         // Ersetzt console.log durch eine eigene Funktion, um auf bestimmte Nachrichten zu reagieren.
         console.log = function (message) {
-            if (typeof message === 'string' && message.includes('llm generation stream closed')) {
-                if (firstTime) {
-                    if (loadingIndicator) {
-                        loadingIndicator.remove();
-                    }
-                    const outline = extractOutline();
-                    if (outline) {
-                        const container = document.querySelector('.text-buddy-content');
-                        if (container) {
-                            createOutlineBoxes(outline, container);
+            if (typeof message === 'string') {
+                // Debug-Ausgabe, um zu sehen, welche Log-Messages ankommen
+                originalConsoleLog("[monitorConsoleMessages] - Intercepted:", message);
+
+                if (message.includes('llm generation stream closed')) {
+                    console.log("Die Nachricht enthält 'llm generation stream closed'.");
+                    if (firstTime) {
+                        console.log("firstTime ist noch true. Entferne loadingIndicator und führe extractOutline() aus...");
+                        if (loadingIndicator) {
+                            loadingIndicator.remove();
                         }
+                        const outline = extractOutline();
+                        if (outline) {
+                            const container = document.querySelector('.text-buddy-content');
+                            if (container) {
+                                createOutlineBoxes(outline, container);
+                            } else {
+                                console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
+                            }
+                        } else {
+                            console.log("outline war null, also keine Boxes.");
+                        }
+                        firstTime = false; 
+                    } else {
+                        console.log("firstTime war bereits false, daher keine Aktion.");
                     }
-                    firstTime = false; 
                 }
             }
             // Ruft das ursprüngliche console.log auf, damit nichts verloren geht.
@@ -702,8 +744,12 @@
 
     function initializeContentBuddy() {
         // Stelle sicher, dass nur einmal initialisiert wird
-        if (initialized) return;
+        if (initialized) {
+            console.log("initializeContentBuddy() abgebrochen, da schon initialized = true.");
+            return;
+        }
         if (document.querySelector('#contentBuddyButton')) {
+            console.log("initializeContentBuddy() abgebrochen, Button existiert bereits.");
             return; 
         }
 

@@ -22,6 +22,8 @@
     let text;
     if (outlineText) {
       text = window.promptTextOutline;
+    } else if (keyword === "Meta-Daten") {
+      text = window.promptMetas; // Verwende den Prompt für Metadaten
     } else {
       text = window.promptTextDefault;
     }

@@ -64,3 +64,4 @@ Don’ts bei der Erstellung der Gliederung:
 - Schreibe nichts über folgende Themen: Nachhaltigkeit, Pelz, Kundenmeinung, Zahlungsmöglichkeiten, Marken, Preis, Rückgaberecht, Preis-Leistungsverhältnis.  
 - Vermeide Formulierungen wie „exklusiv“ oder „luxuriös“. Verwende stattdessen Begriffe wie „feminin“, „chic“, „lässig“, „modern“, „figurschmeichelnd“, „farbenfroh“, „trendstark“ und „selbstbewusst“.  
 `;
+window.promptMetas = `Generiere aussagekräftige Metadaten für die Kategorie`;

@@ -4,10 +4,9 @@
     console.log('ContentBuddy script is running');
 
     let loadingIndicator;
-    let firstTime = true; // Track the first time the text is inserted
     let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
-    function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, outlineText = false) {
+    function insertTextAndSend(text) {
         // Versuche zuerst den Quill-Editor zu finden
         let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
         console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
@@ -20,29 +19,6 @@
             textAreaElement = document.querySelector('textarea.v-field__input');
             console.log('Versuche, "textarea.v-field__input" zu finden:', textAreaElement);
         }
-
-        // Text für den Editor erstellen
-        let text;
-        if (outlineText) {
-            text = window.promptTextOutline;
-        } else {
-            text = window.promptTextDefault;
-        }
-
-        // Überprüfen, ob der Prompt-Text vorhanden ist
-        if (!text) {
-            console.error('Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
-            return;
-        }
-
-        // Ersetzen der Platzhalter im Text
-        text = text.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-                   .replace(/\$\{keyword\}/g, keyword)
-                   .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-                   .replace(/\$\{proofkeywords\}/g, proofkeywords)
-                   .replace(/\$\{w_fragen\}/g, w_fragen);
-
-        console.log('Text, der eingefügt werden soll:', text);
 
         // Wenn ein Quill-Editor gefunden wurde, Text einfügen
         if (quillEditorContainer) {
@@ -382,7 +358,7 @@
             const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
 
             const bText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
-            insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen, false);
+            insertTextAndSend(bText); // B-Text direkt einfügen
             console.log('B-Text wurde eingefügt:', bText);
         });
 

@@ -384,7 +384,6 @@
     }
 
     function generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
-        // Verwende den richtigen Prompt für B-Text
         let text = window.promptBText || ''; // Sicherstellen, dass der Prompt existiert
         return text
             .replace(/\$\{hauptkeyword\}/g, hauptkeyword)

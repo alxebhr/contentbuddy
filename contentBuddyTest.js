@@ -372,7 +372,6 @@
             const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
             const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
             const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
-
             const generatedText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
             insertTextAndSend(mainkeyword, generatedText, subkeywords, proofkeywords, w_fragen, false);
             console.log('Text wurde eingefügt für B-Text:', mainkeyword, generatedText, subkeywords, proofkeywords, w_fragen);
@@ -384,8 +383,7 @@
     }
 
     function generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
-        let text = window.promptBText || ''; // Sicherstellen, dass der Prompt existiert
-        return text
+        return window.promptBText
             .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
             .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
             .replace(/\$\{proofkeywords\}/g, proofkeywords)

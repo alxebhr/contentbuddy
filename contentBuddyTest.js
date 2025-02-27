@@ -347,10 +347,10 @@
     console.log('Proofkeywords:', proofkeywords);
     console.log('Subkeywords:', subkeywords);
     console.log('W-Fragen:', w_fragen);
-
     const textType = document.querySelector('select').value; // Auswahl des Texttyps
     if (textType === 'A') {
-        insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
+        const finalText = generateFinalText(mainkeyword, subkeywords, proofkeywords, w_fragen, outlinePoints);
+        insertTextAndSend(mainkeyword, finalText, subkeywords, proofkeywords, w_fragen);
     } else if (textType === 'B') {
         const bText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
         insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen);
@@ -646,12 +646,20 @@
     console.log("Proofkeywords:", proofkeywords);
     console.log("W-Fragen:", w_fragen);
 
+    const textType = textTypeSelect.value; // Auswahl des Texttyps
     if (hauptkeyword) {
-        const outlineText = generateOutline(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-        // Hier wird nur die Gliederung generiert und nicht direkt gesendet
-        console.log("Gliederung generiert:", outlineText);
-        createLoadingIndicator(content); // Ladeanimation anzeigen
-        setTimeout(() => handleFallbackForOutline(), 10000);
+        if (textType === 'A') {
+            const outlineText = generateOutline(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+            insertTextAndSend(hauptkeyword, outlineText, nebenkeywords, proofkeywords, w_fragen);
+            console.log("Prompt zum Generieren der Gliederung gesendet.");
+            insertButton.style.display = 'none'; // Button verschwinden lassen
+            createLoadingIndicator(content); // Ladeanimation anzeigen
+            setTimeout(() => handleFallbackForOutline(), 10000);
+        } else if (textType === 'B') {
+            const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+            insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen);
+            console.log("B-Text generiert.");
+        }
     }
     });
 

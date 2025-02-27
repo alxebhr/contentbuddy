@@ -73,9 +73,58 @@
     element.dispatchEvent(event);
   }
 
+  function createOverlay() {
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.right = '0';
+    overlay.style.top = '0';
+    overlay.style.width = '350px';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = '#ffffff';
+    overlay.style.color = '#333333';
+    overlay.style.zIndex = '1000';
+    overlay.style.borderRadius = '0 10px 10px 0';
+    overlay.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+    overlay.style.padding = '20px';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.overflowY = 'auto';
+    document.body.appendChild(overlay);
+
+    const header = document.createElement('div');
+    header.style.backgroundColor = '#333333';
+    header.style.color = '#ffffff';
+    header.style.padding = '10px';
+    header.style.borderRadius = '0 10px 0 0';
+    header.style.display = 'flex';
+    header.style.justifyContent = 'space-between';
+    header.style.alignItems = 'center';
+    overlay.appendChild(header);
+
+    const headerTitle = document.createElement('h2');
+    headerTitle.innerText = 'ContentBuddy';
+    headerTitle.style.margin = '0';
+    headerTitle.style.fontSize = '1.2em';
+    header.appendChild(headerTitle);
+
+    const closeButton = document.createElement('button');
+    closeButton.innerText = '✕';
+    closeButton.style.backgroundColor = 'transparent';
+    closeButton.style.color = '#ffffff';
+    closeButton.style.border = 'none';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.fontSize = '1.2em';
+    closeButton.onclick = () => {
+      document.body.removeChild(overlay);
+    };
+    header.appendChild(closeButton);
+
+    return overlay;
+  }
+
   function createInputField(labelText, placeholder) {
-    const container = document.createElement('div');
-    container.style.marginBottom = '10px';
+    const inputContainer = document.createElement('div');
+    inputContainer.style.marginBottom = '20px';
 
     const label = document.createElement('label');
     label.innerText = labelText;
@@ -83,7 +132,7 @@
     label.style.fontSize = '0.9em';
     label.style.color = '#4F4F4F';
     label.style.marginBottom = '5px';
-    container.appendChild(label);
+    inputContainer.appendChild(label);
 
     const input = document.createElement('input');
     input.type = 'text';
@@ -93,9 +142,9 @@
     input.style.borderRadius = '5px';
     input.style.border = '1px solid #ddd';
     input.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
-    container.appendChild(input);
+    inputContainer.appendChild(input);
 
-    return { container, input };
+    return { inputContainer, input };
   }
 
   function createButton() {
@@ -121,28 +170,15 @@
       button.style.backgroundColor = '#333333';
     };
     button.onclick = () => {
-      const overlay = document.createElement('div');
-      overlay.style.position = 'fixed';
-      overlay.style.right = '0';
-      overlay.style.top = '0';
-      overlay.style.width = '350px';
-      overlay.style.height = '100vh';
-      overlay.style.backgroundColor = '#ffffff';
-      overlay.style.color = '#333333';
-      overlay.style.zIndex = '1000';
-      overlay.style.display = 'flex';
-      overlay.style.flexDirection = 'column';
-      overlay.style.padding = '20px';
-      overlay.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
-      document.body.appendChild(overlay);
+      const overlay = createOverlay();
 
-      const { container: mainKeywordContainer, input: mainKeywordInput } = createInputField('Haupt-Keyword', 'Hauptkeyword eingeben');
+      const { inputContainer: mainKeywordContainer, input: mainKeywordInput } = createInputField('Haupt-Keyword', 'Hauptkeyword eingeben');
       overlay.appendChild(mainKeywordContainer);
 
-      const { container: subKeywordContainer, input: subKeywordInput } = createInputField('Neben-Keywords', 'Nebenkeyword eingeben');
+      const { inputContainer: subKeywordContainer, input: subKeywordInput } = createInputField('Neben-Keywords', 'Nebenkeyword eingeben');
       overlay.appendChild(subKeywordContainer);
 
-      const { container: proofKeywordContainer, input: proofKeywordInput } = createInputField('Proof-Keywords', 'Proofkeyword eingeben');
+      const { inputContainer: proofKeywordContainer, input: proofKeywordInput } = createInputField('Proof-Keywords', 'Proofkeyword eingeben');
       overlay.appendChild(proofKeywordContainer);
 
       const insertButton = document.createElement('button');

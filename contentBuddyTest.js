@@ -614,20 +614,6 @@
         wFragenContainer.appendChild(addWFrageButton);
         inputContainer.appendChild(wFragenContainer);
 
-        const insertButton = document.createElement('button');
-        insertButton.innerText = 'Gliederung abfragen';
-        insertButton.style.width = '100%';
-        insertButton.style.padding = '10px';
-        insertButton.style.backgroundColor = '#333333';
-        insertButton.style.color = 'white';
-        insertButton.style.border = 'none';
-        insertButton.style.borderRadius = '5px';
-        insertButton.style.cursor = 'pointer';
-        insertButton.style.marginBottom = '10px';
-        insertButton.style.transition = 'background-color 0.3s';
-        insertButton.onmouseover = () => {
-            insertButton.style.backgroundColor = '#444444';
-        };
         insertButton.onmouseout = () => {
             insertButton.style.backgroundColor = '#333333';
         };

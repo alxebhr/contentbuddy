@@ -26,8 +26,8 @@
   const textType = document.querySelector('select').value; // Texttyp auswählen
 
   if (textType === 'A') {
-   // Verwende den Prompt für die Gliederung
-   text = window.promptTextDefault.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+   // Verwende den richtigen Prompt für die Textgenerierung
+   text = window.promptTextOutline.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
                    .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
                    .replace(/\$\{proofkeywords\}/g, proofkeywords)
                    .replace(/\$\{w_fragen\}/g, w_fragen);
@@ -363,16 +363,22 @@
    const textType = document.querySelector('select').value; // Texttyp auswählen
 
    if (textType === 'A') {
-    insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
-    console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
+     // Hier wird der Text für den A-Text generiert
+     const aText = window.promptTextOutline
+      .replace(/\$\{hauptkeyword\}/g, mainkeyword)
+      .replace(/\$\{nebenkeywords\}/g, subkeywords)
+      .replace(/\$\{proofkeywords\}/g, proofkeywords)
+      .replace(/\$\{w_fragen\}/g, w_fragen);
+     insertTextAndSend(mainkeyword, aText, subkeywords, proofkeywords, w_fragen);
+     console.log('A-Text wurde eingefügt:', aText);
    } else if (textType === 'B') {
-    const bText = window.promptBText
-     .replace(/\$\{hauptkeyword\}/g, mainkeyword)
-     .replace(/\$\{nebenkeywords\}/g, subkeywords)
-     .replace(/\$\{proofkeywords\}/g, proofkeywords)
-     .replace(/\$\{w_fragen\}/g, w_fragen);
-    insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen);
-    console.log('B-Text wurde eingefügt:', bText);
+     const bText = window.promptBText
+      .replace(/\$\{hauptkeyword\}/g, mainkeyword)
+      .replace(/\$\{nebenkeywords\}/g, subkeywords)
+      .replace(/\$\{proofkeywords\}/g, proofkeywords)
+      .replace(/\$\{w_fragen\}/g, w_fragen);
+     insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen);
+     console.log('B-Text wurde eingefügt:', bText);
    }
 
    // Button deaktivieren, um mehrfache Eingaben zu vermeiden
@@ -658,35 +664,14 @@
 
    if (hauptkeyword) {
     if (textType === 'A') {
-     insertTextAndSend(hauptkeyword, '', nebenkeywords, proofkeywords, w_fragen); // Leeres Keyword für A-Text
-     console.log("Prompt zum Generieren der Gliederung gesendet.");
-     insertButton.style.display = 'none'; // Button verschwinden lassen
-     createLoadingIndicator(content); // Ladeanimation anzeigen
-
-     // NUR JETZT startet der 10-Sekunden-Fallback
-     setTimeout(() => {
-      console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Generieren'...");
-      if (firstTime) {
-       console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
-       if (loadingIndicator) {
-        loadingIndicator.remove();
-       }
-       const outline = extractOutline();
-       if (outline) {
-        const container = document.querySelector('.text-buddy-content');
-        if (container) {
-         createOutlineBoxes(outline, container);
-        } else {
-         console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
-        }
-       } else {
-        console.log("outline war null, also keine Boxes.");
-       }
-       firstTime = false;
-      } else {
-       console.log("Fallback nicht nötig, da firstTime bereits false ist.");
-      }
-     }, 10000);
+     // Hier wird der Text für den A-Text generiert
+     const aText = window.promptTextOutline
+      .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+      .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+      .replace(/\$\{proofkeywords\}/g, proofkeywords)
+      .replace(/\$\{w_fragen\}/g, w_fragen);
+     insertTextAndSend(hauptkeyword, aText, nebenkeywords, proofkeywords, w_fragen);
+     console.log('A-Text wurde eingefügt:', aText);
     } else if (textType === 'B') {
      const bText = window.promptBText
       .replace(/\$\{hauptkeyword\}/g, hauptkeyword)

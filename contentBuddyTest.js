@@ -4,8 +4,8 @@
   console.log('ContentBuddy script is running');
 
   let loadingIndicator;
-  let firstTime = true; 
-  let initialized = false; 
+  let firstTime = true; // Track the first time the text is inserted
+  let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
   function insertTextAndSend(hauptkeyword, text, nebenkeywords, proofkeywords, w_fragen) {
     let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
@@ -179,7 +179,7 @@
       .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
       .replace(/\$\{proofkeywords\}/g, proofkeywords)
       .replace(/\$\{w_fragen\}/g, w_fragen)
-      .replace(/\$\{outline\}/g, outline); 
+      .replace(/\$\{outline\}/g, outline); // Hier wird die Gliederung verwendet
   }
 
   function generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
@@ -346,10 +346,16 @@
       console.log('Proofkeywords:', proofkeywords);
       console.log('Subkeywords:', subkeywords);
       console.log('W-Fragen:', w_fragen);
-      const aText = generateFinalText(mainkeyword, subkeywords, proofkeywords, w_fragen, outlinePoints);
-      insertTextAndSend(mainkeyword, aText, subkeywords, proofkeywords, w_fragen);
+      const textType = document.querySelector('select').value; // Auswahl des Texttyps
+      if (textType === 'A') {
+        insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
+      } else if (textType === 'B') {
+        const bText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
+        insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen);
+      }
       console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
 
+      // Button deaktivieren, um mehrfache Eingaben zu vermeiden
       generateTextButton.style.backgroundColor = '#cccccc';
       generateTextButton.style.cursor = 'not-allowed';
       generateTextButton.disabled = true;
@@ -638,14 +644,14 @@
       console.log("Proofkeywords:", proofkeywords);
       console.log("W-Fragen:", w_fragen);
 
-      const textType = textTypeSelect.value; 
+      const textType = textTypeSelect.value; // Auswahl des Texttyps
       if (hauptkeyword) {
         if (textType === 'A') {
           const outlineText = generateOutline(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
           insertTextAndSend(hauptkeyword, outlineText, nebenkeywords, proofkeywords, w_fragen);
           console.log("Prompt zum Generieren der Gliederung gesendet.");
-          insertButton.style.display = 'none'; 
-          createLoadingIndicator(content); 
+          insertButton.style.display = 'none'; // Button verschwinden lassen
+          createLoadingIndicator(content); // Ladeanimation anzeigen
           setTimeout(() => handleFallbackForOutline(), 10000);
         } else if (textType === 'B') {
           const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
@@ -672,6 +678,7 @@
         const container = document.querySelector('.text-buddy-content');
         if (container) {
           createOutlineBoxes(outline, container);
+          // A-Text generieren
           const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
           const nebenkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
           const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();

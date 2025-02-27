@@ -6,11 +6,21 @@
  let loadingIndicator;
  let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
- function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords) {
-  let textAreaElement = document.querySelector('textarea.v-field__input');
-  console.log('Versuche, "textarea.v-field__input" zu finden:', textAreaElement);
+ function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen) {
+  let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
+  console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
+
+  let textAreaElement;
+
+  if (!quillEditorContainer) {
+   console.log('Erstes Element ".v-ql-textarea.ql-container" nicht gefunden. Versuche, "textarea.v-field__input" zu verwenden.');
+   textAreaElement = document.querySelector('textarea.v-field__input');
+   console.log('Versuche, "textarea.v-field__input" zu finden:', textAreaElement);
+  }
 
   let text = window.promptBText; // Verwende den neuen Prompt für den Text
+  console.log('Text für die Generierung:', text); // Debugging
+
   if (!text) {
    console.error('Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
    return;
@@ -19,14 +29,21 @@
   text = text.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
     .replace(/\$\{keyword\}/g, keyword)
     .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-    .replace(/\$\{proofkeywords\}/g, proofkeywords);
+    .replace(/\$\{proofkeywords\}/g, proofkeywords)
+    .replace(/\$\{w_fragen\}/g, w_fragen);
 
   console.log('Text, der eingefügt werden soll:', text);
 
-  if (textAreaElement) {
+  if (quillEditorContainer) {
+   let editorElement = quillEditorContainer.querySelector('.ql-editor');
+   console.log('Editor gefunden:', editorElement);
+   editorElement.innerHTML = text; // Verwende innerHTML für den Quill-Editor
+   console.log('Text im Quill-Editor eingefügt:', editorElement.innerHTML);
+   simulateEnterPress(editorElement);
+  } else if (textAreaElement) {
    insertTextInTextareaAndSubmit(textAreaElement, text);
   } else {
-   console.error('Kein passendes Textarea gefunden.');
+   console.error('Kein passendes Editor-Container-Element oder Textarea gefunden.');
   }
  }
 
@@ -76,17 +93,17 @@
   button.style.borderRadius = '5px';
   button.style.cursor = 'pointer';
   button.style.transition = 'background-color 0.3s';
-  button.onmouseover = () => {
-    button.style.backgroundColor = '#444444';
-  };
-  button.onmouseout = () => {
-    button.style.backgroundColor = '#333333';
-  };
   button.onclick = () => {
     const hauptkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
     const nebenkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
     const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
-    insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords);
+    const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
+
+    console.log("Hauptkeyword:", hauptkeyword);
+    console.log("Nebenkeywords:", nebenkeywords);
+    console.log("Proofkeywords:", proofkeywords);
+    console.log("W-Fragen:", w_fragen);
+    insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
   };
   document.body.appendChild(button);
  }

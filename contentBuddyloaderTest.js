@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name     ContentBuddy Loader
+// @name     ContentBuddy Test
 // @namespace  http://tampermonkey.net/
 // @version   1.6
 // @description Load and execute ContentBuddy script from GitHub with selection

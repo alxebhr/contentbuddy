@@ -635,7 +635,7 @@
 
             if (hauptkeyword) {
                 if (textType === 'A') {
-                    // Generiere Text für Typ A
+                    // Generiere Text für Typ A mit dem Outline-Prompt
                     const outlineText = generateOutlineText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
                     insertTextAndSend(hauptkeyword, outlineText, nebenkeywords, proofkeywords, w_fragen);
                     console.log("Prompt zum Generieren der Gliederung gesendet.");
@@ -658,7 +658,7 @@
 
     // Funktion zur Generierung des A-Textes
     function generateOutlineText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
-        return window.promptTextDefault
+        return window.promptTextOutline // Hier wird der Outline-Prompt verwendet
             .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
             .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
             .replace(/\$\{proofkeywords\}/g, proofkeywords)

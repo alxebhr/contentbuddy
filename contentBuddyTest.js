@@ -366,6 +366,7 @@
   metaDataButton.addEventListener('click', () => {
    console.log("Meta-Daten generieren geklickt.");
    const promptText = window.promptMetas; // Zugriff auf den Prompt-Text für Metadaten
+   console.log('Prompt-Text für Metadaten:', promptText); // Debugging
    if (promptText) {
     insertTextAndSend("Meta-Daten", promptText, "", "", "", false); // Anpassen der Parameter nach Bedarf
    } else {

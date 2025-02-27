@@ -6,7 +6,6 @@
   let loadingIndicator;
   let firstTime = true; // Track the first time the text is inserted
   let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
-  let outline; // Variable für die Gliederung
 
   function insertTextAndSend(hauptkeyword, text, nebenkeywords, proofkeywords, w_fragen) {
     let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
@@ -308,6 +307,68 @@
     }
 
     updateMoveButtons(container);
+
+    const header = container.closest('.text-buddy-content').previousElementSibling;
+    console.log('Header gefunden:', header);
+    const generateATextButton = document.createElement('button');
+    generateATextButton.innerText = 'A-Text generieren';
+    generateATextButton.style.width = '100%';
+    generateATextButton.style.padding = '10px';
+    generateATextButton.style.backgroundColor = '#333333';
+    generateATextButton.style.color = 'white';
+    generateATextButton.style.border = 'none';
+    generateATextButton.style.borderRadius = '5px';
+    generateATextButton.style.cursor = 'pointer';
+    generateATextButton.style.marginBottom = '10px';
+
+    const generateBTextButton = document.createElement('button');
+    generateBTextButton.innerText = 'B-Text generieren';
+    generateBTextButton.style.width = '100%';
+    generateBTextButton.style.padding = '10px';
+    generateBTextButton.style.backgroundColor = '#333333';
+    generateBTextButton.style.color = 'white';
+    generateBTextButton.style.border = 'none';
+    generateBTextButton.style.borderRadius = '5px';
+    generateBTextButton.style.cursor = 'pointer';
+    generateBTextButton.style.marginBottom = '10px';
+
+    header.insertBefore(generateATextButton, header.querySelector('button'));
+    header.insertBefore(generateBTextButton, header.querySelector('button'));
+
+    generateATextButton.addEventListener('click', () => {
+      console.log("A-Text generieren geklickt.");
+      const hauptkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
+      const nebenkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
+      const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
+      const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
+        .map(input => input.value.trim())
+        .filter(value => value)
+        .join(', ');
+
+      if (hauptkeyword) {
+        const outlineText = generateOutline(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+        insertTextAndSend(hauptkeyword, outlineText, nebenkeywords, proofkeywords, w_fragen);
+        console.log("A-Text generiert und gesendet.");
+        createLoadingIndicator(container); // Ladeanimation anzeigen
+      }
+    });
+
+    generateBTextButton.addEventListener('click', () => {
+      console.log("B-Text generieren geklickt.");
+      const hauptkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
+      const nebenkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
+      const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
+      const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
+        .map(input => input.value.trim())
+        .filter(value => value)
+        .join(', ');
+
+      if (hauptkeyword) {
+        const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+        insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen);
+        console.log("B-Text generiert und gesendet.");
+      }
+    });
   }
 
   function createLoadingIndicator(container) {
@@ -409,212 +470,6 @@
     content.style.height = 'calc(100vh - 60px)';
     overlay.appendChild(content);
 
-    const inputContainer = document.createElement('div');
-    inputContainer.style.backgroundColor = '#F7F7F7';
-    inputContainer.style.border = '1px solid #B7B5B4';
-    inputContainer.style.borderRadius = '10px';
-    inputContainer.style.padding = '15px';
-    inputContainer.style.marginBottom = '20px';
-    content.appendChild(inputContainer);
-
-    // Texttyp auswählen
-    const textTypeLabel = document.createElement('label');
-    textTypeLabel.innerText = 'Texttyp wählen';
-    textTypeLabel.style.display = 'block';
-    textTypeLabel.style.fontSize = '0.9em';
-    textTypeLabel.style.color = '#4F4F4F';
-    textTypeLabel.style.marginBottom = '5px';
-    inputContainer.appendChild(textTypeLabel);
-
-    // Haupt-Keyword
-    const mainKeywordLabel = document.createElement('label');
-    mainKeywordLabel.innerText = 'Haupt-Keyword';
-    inputContainer.appendChild(mainKeywordLabel);
-    const mainKeywordInput = document.createElement('input');
-    mainKeywordInput.type = 'text';
-    mainKeywordInput.placeholder = 'Hauptkeyword eingeben';
-    mainKeywordInput.style.width = '100%';
-    mainKeywordInput.style.padding = '10px';
-    mainKeywordInput.style.marginBottom = '10px';
-    mainKeywordInput.style.borderRadius = '5px';
-    mainKeywordInput.style.border = '1px solid #ddd';
-    mainKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
-    inputContainer.appendChild(mainKeywordInput);
-
-    // Neben-Keywords
-    const subKeywordLabel = document.createElement('label');
-    subKeywordLabel.innerText = 'Neben-Keywords';
-    inputContainer.appendChild(subKeywordLabel);
-    const subKeywordInput = document.createElement('input');
-    subKeywordInput.type = 'text';
-    subKeywordInput.placeholder = 'Nebenkeyword eingeben';
-    subKeywordInput.style.width = '100%';
-    subKeywordInput.style.padding = '10px';
-    subKeywordInput.style.marginBottom = '10px';
-    subKeywordInput.style.borderRadius = '5px';
-    subKeywordInput.style.border = '1px solid #ddd';
-    subKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
-    inputContainer.appendChild(subKeywordInput);
-
-    // Proof-Keywords
-    const proofKeywordLabel = document.createElement('label');
-    proofKeywordLabel.innerText = 'Proof-Keywords';
-    inputContainer.appendChild(proofKeywordLabel);
-    const proofKeywordInput = document.createElement('input');
-    proofKeywordInput.type = 'text';
-    proofKeywordInput.placeholder = 'Proofkeyword eingeben';
-    proofKeywordInput.style.width = '100%';
-    proofKeywordInput.style.padding = '10px';
-    proofKeywordInput.style.marginBottom = '10px';
-    proofKeywordInput.style.borderRadius = '5px';
-    proofKeywordInput.style.border = '1px solid #ddd';
-    proofKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
-    inputContainer.appendChild(proofKeywordInput);
-
-    // W-Fragen
-    const wFragenContainer = document.createElement('div');
-    wFragenContainer.className = 'w-fragen-container';
-    wFragenContainer.style.border = '1px solid #ddd';
-    wFragenContainer.style.padding = '10px';
-    wFragenContainer.style.borderRadius = '5px';
-    wFragenContainer.style.marginBottom = '10px';
-    wFragenContainer.style.position = 'relative';
-
-    const wFragenLabel = document.createElement('label');
-    wFragenLabel.innerText = 'W-Fragen';
-    wFragenLabel.style.display = 'block';
-    wFragenLabel.style.fontSize = '0.98em';
-    wFragenLabel.style.color = '#353535';
-    wFragenLabel.style.marginBottom = '5px';
-    wFragenContainer.appendChild(wFragenLabel);
-
-    const addWFrageButton = document.createElement('button');
-    addWFrageButton.innerText = '+';
-    addWFrageButton.style.position = 'absolute';
-    addWFrageButton.style.top = '5px';
-    addWFrageButton.style.right = '5px';
-    addWFrageButton.style.backgroundColor = '#000000';
-    addWFrageButton.style.color = '#ffffff';
-    addWFrageButton.style.border = 'none';
-    addWFrageButton.style.borderRadius = '50%';
-    addWFrageButton.style.width = '30px';
-    addWFrageButton.style.height = '30px';
-    addWFrageButton.style.cursor = 'pointer';
-    addWFrageButton.style.fontSize = '20px';
-    addWFrageButton.onclick = () => {
-      console.log("W-Frage hinzufügen angeklickt.");
-      const wFrageBox = document.createElement('div');
-      wFrageBox.className = 'w-frage-box';
-      wFrageBox.style.position = 'relative';
-      wFrageBox.style.marginBottom = '10px';
-
-      const wFrageInput = document.createElement('input');
-      wFrageInput.type = 'text';
-      wFrageInput.placeholder = 'W-Frage eingeben';
-      wFrageInput.style.width = 'calc(100% - 40px)';
-      wFrageInput.style.padding = '10px';
-      wFrageInput.style.borderRadius = '5px';
-      wFrageInput.style.border = '1px solid #ddd';
-      wFrageInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
-      wFrageBox.appendChild(wFrageInput);
-
-      const removeWFrageButton = document.createElement('button');
-      removeWFrageButton.innerText = '✕';
-      removeWFrageButton.style.position = 'absolute';
-      removeWFrageButton.style.top = '50%';
-      removeWFrageButton.style.right = '5px';
-      removeWFrageButton.style.transform = 'translateY(-50%)';
-      removeWFrageButton.style.backgroundColor = 'transparent';
-      removeWFrageButton.style.color = '#333';
-      removeWFrageButton.style.border = 'none';
-      removeWFrageButton.style.cursor = 'pointer';
-      removeWFrageButton.style.fontSize = '14px';
-      removeWFrageButton.onclick = () => {
-        console.log("W-Frage entfernt.");
-        wFrageBox.remove();
-      };
-      wFrageBox.appendChild(removeWFrageButton);
-
-      wFragenContainer.appendChild(wFrageBox);
-    };
-    wFragenContainer.appendChild(addWFrageButton);
-    inputContainer.appendChild(wFragenContainer);
-
-    // A-Text Button
-    const aTextButton = document.createElement('button');
-    aTextButton.innerText = 'A-Text';
-    aTextButton.style.width = '100%';
-    aTextButton.style.padding = '10px';
-    aTextButton.style.backgroundColor = '#333333';
-    aTextButton.style.color = 'white';
-    aTextButton.style.border = 'none';
-    aTextButton.style.borderRadius = '5px';
-    aTextButton.style.cursor = 'pointer';
-    aTextButton.style.marginBottom = '10px';
-    aTextButton.style.transition = 'background-color 0.3s';
-    aTextButton.onmouseover = () => {
-      aTextButton.style.backgroundColor = '#444444';
-    };
-    aTextButton.onmouseout = () => {
-      aTextButton.style.backgroundColor = '#333333';
-    };
-    aTextButton.addEventListener('click', () => {
-      console.log("A-Text Button geklickt.");
-      const hauptkeyword = mainKeywordInput.value.trim();
-      const nebenkeywords = subKeywordInput.value.trim();
-      const proofkeywords = proofKeywordInput.value.trim();
-      const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
-        .map(input => input.value.trim())
-        .filter(value => value)
-        .join(', ');
-
-      if (hauptkeyword) {
-        outline = extractOutline();
-        if (outline) {
-          const container = document.querySelector('.text-buddy-content');
-          if (container) {
-            createOutlineBoxes(outline, container);
-          }
-          createLoadingIndicator(content); // Ladeanimation anzeigen
-        }
-      }
-    });
-    inputContainer.appendChild(aTextButton);
-
-    // B-Text Button
-    const bTextButton = document.createElement('button');
-    bTextButton.innerText = 'B-Text';
-    bTextButton.style.width = '100%';
-    bTextButton.style.padding = '10px';
-    bTextButton.style.backgroundColor = '#333333';
-    bTextButton.style.color = 'white';
-    bTextButton.style.border = 'none';
-    bTextButton.style.borderRadius = '5px';
-    bTextButton.style.cursor = 'pointer';
-    bTextButton.style.transition = 'background-color 0.3s';
-    bTextButton.onmouseover = () => {
-      bTextButton.style.backgroundColor = '#444444';
-    };
-    bTextButton.onmouseout = () => {
-      bTextButton.style.backgroundColor = '#333333';
-    };
-    bTextButton.addEventListener('click', () => {
-      console.log("B-Text Button geklickt.");
-      const hauptkeyword = mainKeywordInput.value.trim();
-      const nebenkeywords = subKeywordInput.value.trim();
-      const proofkeywords = proofKeywordInput.value.trim();
-      const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
-        .map(input => input.value.trim())
-        .filter(value => value)
-        .join(', ');
-
-      if (hauptkeyword) {
-        const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-        insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen);
-      }
-    });
-    inputContainer.appendChild(bTextButton);
-
     return overlay;
   }
 
@@ -635,74 +490,6 @@
     initialized = true;
 
     observer.disconnect();
-  }
-
-  function createButton() {
-    console.log("Erstelle Haupt-Button für ContentBuddy...");
-    const button = document.createElement('button');
-    button.innerText = 'ContentBuddy';
-    button.id = 'contentBuddyButton';
-    button.style.position = 'fixed';
-    button.style.top = '10px';
-    button.style.right = '10px';
-    button.style.zIndex = '1000';
-    button.style.padding = '10px';
-    button.style.backgroundColor = '#333333';
-    button.style.color = 'white';
-    button.style.border = 'none';
-    button.style.borderRadius = '5px';
-    button.style.cursor = 'pointer';
-    button.style.transition = 'background-color 0.3s';
-    button.onmouseover = () => {
-      button.style.backgroundColor = '#444444';
-    };
-    button.onmouseout = () => {
-      button.style.backgroundColor = '#333333';
-    };
-    button.onclick = () => {
-      overlay.style.display = 'block';
-      setTimeout(() => {
-        overlay.style.transform = 'translateX(0)';
-        overlay.style.opacity = '1';
-      }, 10);
-      document.body.style.marginRight = '350px';
-      button.style.display = 'none';
-    };
-    document.body.appendChild(button);
-
-    const overlay = createOverlay(button);
-  }
-
-  function monitorConsoleMessages() {
-    console.log("monitorConsoleMessages() gestartet.");
-    const originalConsoleLog = console.log;
-
-    console.log = function (message) {
-      if (typeof message === 'string') {
-        originalConsoleLog("[monitorConsoleMessages] - Intercepted:", message);
-
-        if (message.includes('llm generation stream closed')) {
-          console.log("Die Nachricht enthält 'llm generation stream closed'.");
-          if (firstTime) {
-            console.log("firstTime ist noch true. Entferne loadingIndicator und führe extractOutline() aus...");
-            if (loadingIndicator) {
-              loadingIndicator.remove();
-            }
-            const outline = extractOutline();
-            if (outline) {
-              const container = document.querySelector('.text-buddy-content');
-              if (container) {
-                createOutlineBoxes(outline, container);
-              }
-            }
-            firstTime = false;
-          } else {
-            console.log("firstTime war bereits false, daher keine Aktion.");
-          }
-        }
-      }
-      originalConsoleLog.apply(console, arguments);
-    };
   }
 
   const observer = new MutationObserver((mutations) => {

@@ -1,222 +1,138 @@
 (function() {
-  'use strict';
+ 'use strict';
 
-  console.log('ContentBuddy script is running');
+ console.log('ContentBuddy script is running');
 
-  let loadingIndicator;
-  let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
+ let loadingIndicator;
+ let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
-  function insertTextAndSend(hauptkeyword, nebenkeywords, proofkeywords) {
-    let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
-    console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
+ function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen) {
+ let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
+ console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
 
-    let textAreaElement;
+ let textAreaElement;
 
-    if (!quillEditorContainer) {
-      console.log('Erstes Element ".v-ql-textarea.ql-container" nicht gefunden. Versuche, "textarea.v-field__input" zu verwenden.');
-      textAreaElement = document.querySelector('textarea.v-field__input');
-      console.log('Versuche, "textarea.v-field__input" zu finden:', textAreaElement);
-    }
+ if (!quillEditorContainer) {
+  console.log('Erstes Element ".v-ql-textarea.ql-container" nicht gefunden. Versuche, "textarea.v-field__input" zu verwenden.');
+  textAreaElement = document.querySelector('textarea.v-field__input');
+  console.log('Versuche, "textarea.v-field__input" zu finden:', textAreaElement);
+ }
 
-    let text = window.promptBText; // Verwende den neuen Prompt
-    if (!text) {
-      console.error('Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
-      return;
-    }
+ let text = window.promptBText; // Verwende den neuen Prompt für die Textgenerierung
+ console.log('Text für die Generierung:', text); // Debugging
 
-    text = text.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-      .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-      .replace(/\$\{proofkeywords\}/g, proofkeywords);
+ if (!text) {
+  console.error('Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
+  return;
+ }
 
-    console.log('Text, der eingefügt werden soll:', text);
+ text = text.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+   .replace(/\$\{keyword\}/g, keyword)
+   .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+   .replace(/\$\{proofkeywords\}/g, proofkeywords)
+   .replace(/\$\{w_fragen\}/g, w_fragen);
 
-    if (quillEditorContainer) {
-      let editorElement = quillEditorContainer.querySelector('.ql-editor');
-      console.log('Editor gefunden:', editorElement);
-      editorElement.innerHTML = text; // Verwende innerHTML für den Quill-Editor
-      console.log('Text im Quill-Editor eingefügt:', editorElement.innerHTML);
-      simulateEnterPress(editorElement);
-    } else if (textAreaElement) {
-      insertTextInTextareaAndSubmit(textAreaElement, text);
-    } else {
-      console.error('Kein passendes Editor-Container-Element oder Textarea gefunden.');
-    }
-  }
+ console.log('Text, der eingefügt werden soll:', text);
 
-  function insertTextInTextareaAndSubmit(chatbox, text) {
-    chatbox.click();
-    console.log('Klick in die Textarea simuliert.');
+ if (quillEditorContainer) {
+  let editorElement = quillEditorContainer.querySelector('.ql-editor');
+  console.log('Editor gefunden:', editorElement);
+  editorElement.innerHTML = text; // Verwende innerHTML für den Quill-Editor
+  console.log('Text im Quill-Editor eingefügt:', editorElement.innerHTML);
+  simulateEnterPress(editorElement);
+ } else if (textAreaElement) {
+  insertTextInTextareaAndSubmit(textAreaElement, text);
+ } else {
+  console.error('Kein passendes Editor-Container-Element oder Textarea gefunden.');
+ }
+ }
 
-    chatbox.value = text;
-    console.log('Text in die Textarea eingefügt:', chatbox.value);
+ function insertTextInTextareaAndSubmit(chatbox, text) {
+ chatbox.click();
+ console.log('Klick in die Textarea simuliert.');
 
-    let inputEvent = new Event('input', { bubbles: true });
-    chatbox.dispatchEvent(inputEvent);
+ chatbox.value = text;
+ console.log('Text in die Textarea eingefügt:', chatbox.value);
 
-    let changeEvent = new Event('change', { bubbles: true });
-    chatbox.dispatchEvent(changeEvent);
+ let inputEvent = new Event('input', { bubbles: true });
+ chatbox.dispatchEvent(inputEvent);
 
-    setTimeout(() => {
-      simulateEnterPress(chatbox);
-    }, 10);
-  }
+ let changeEvent = new Event('change', { bubbles: true });
+ chatbox.dispatchEvent(changeEvent);
 
-  function simulateEnterPress(element) {
-    const event = new KeyboardEvent('keydown', {
-      key: 'Enter',
-      code: 'Enter',
-      keyCode: 13,
-      bubbles: true,
-      cancelable: true
-    });
-    console.log('Simuliere Enter-Tasten-Event:', event);
-    element.dispatchEvent(event);
-  }
+ setTimeout(() => {
+  simulateEnterPress(chatbox);
+ }, 10);
+ }
 
-  function createOverlay() {
-    const overlay = document.createElement('div');
-    overlay.style.position = 'fixed';
-    overlay.style.right = '0';
-    overlay.style.top = '0';
-    overlay.style.width = '350px';
-    overlay.style.height = '100vh';
-    overlay.style.backgroundColor = '#ffffff';
-    overlay.style.color = '#333333';
-    overlay.style.zIndex = '1000';
-    overlay.style.borderRadius = '0 10px 10px 0';
-    overlay.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
-    overlay.style.padding = '20px';
-    overlay.style.display = 'flex';
-    overlay.style.flexDirection = 'column';
-    overlay.style.overflowY = 'auto';
-    document.body.appendChild(overlay);
+ function simulateEnterPress(element) {
+ const event = new KeyboardEvent('keydown', {
+  key: 'Enter',
+  code: 'Enter',
+  keyCode: 13,
+  bubbles: true,
+  cancelable: true
+ });
+ console.log('Simuliere Enter-Tasten-Event:', event);
+ element.dispatchEvent(event);
+ }
 
-    const header = document.createElement('div');
-    header.style.backgroundColor = '#333333';
-    header.style.color = '#ffffff';
-    header.style.padding = '10px';
-    header.style.borderRadius = '0 10px 0 0';
-    header.style.display = 'flex';
-    header.style.justifyContent = 'space-between';
-    header.style.alignItems = 'center';
-    overlay.appendChild(header);
+ function reloadPage() {
+ location.reload();
+ }
 
-    const headerTitle = document.createElement('h2');
-    headerTitle.innerText = 'ContentBuddy';
-    headerTitle.style.margin = '0';
-    headerTitle.style.fontSize = '1.2em';
-    header.appendChild(headerTitle);
+ function monitorResetButton() {
+ const resetButton = document.querySelector('.v-btn.v-btn--size-x-large');
 
-    const closeButton = document.createElement('button');
-    closeButton.innerText = '✕';
-    closeButton.style.backgroundColor = 'transparent';
-    closeButton.style.color = '#ffffff';
-    closeButton.style.border = 'none';
-    closeButton.style.cursor = 'pointer';
-    closeButton.style.fontSize = '1.2em';
-    closeButton.onclick = () => {
-      document.body.removeChild(overlay);
-    };
-    header.appendChild(closeButton);
+ if (resetButton) {
+  resetButton.addEventListener('click', function() {
+  reloadPage();
+  });
+  console.log("Reset-Button gefunden und EventListener hinzugefügt.");
+ } else {
+  console.error("Reset-Button nicht gefunden.");
+ }
+ }
 
-    return overlay;
-  }
+ function createButton() {
+ console.log("Erstelle Haupt-Button für ContentBuddy...");
+ const button = document.createElement('button');
+ button.innerText = 'ContentBuddy';
+ button.id = 'contentBuddyButton';
+ button.style.position = 'fixed';
+ button.style.top = '10px';
+ button.style.right = '10px';
+ button.style.zIndex = '1000';
+ button.style.padding = '10px';
+ button.style.backgroundColor = '#333333';
+ button.style.color = 'white';
+ button.style.border = 'none';
+ button.style.borderRadius = '5px';
+ button.style.cursor = 'pointer';
+ button.style.transition = 'background-color 0.3s';
+ button.onclick = () => {
+  insertTextAndSend(
+   mainKeywordInput.value.trim(),
+   mainKeywordInput.value.trim(), // Keyword ist das Hauptkeyword
+   subKeywordInput.value.trim(),
+   proofKeywordInput.value.trim(),
+   Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ')
+  );
+ };
+ document.body.appendChild(button);
+ }
 
-  function createInputField(labelText, placeholder) {
-    const inputContainer = document.createElement('div');
-    inputContainer.style.marginBottom = '20px';
+ function initializeContentBuddy() {
+ if (initialized) {
+  console.log("initializeContentBuddy() abgebrochen, da schon initialized = true.");
+  return;
+ }
+ createButton();
+ monitorResetButton();
+ console.log('ContentBuddy initialized.');
+ initialized = true;
+ }
 
-    const label = document.createElement('label');
-    label.innerText = labelText;
-    label.style.display = 'block';
-    label.style.fontSize = '0.9em';
-    label.style.color = '#4F4F4F';
-    label.style.marginBottom = '5px';
-    inputContainer.appendChild(label);
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.placeholder = placeholder;
-    input.style.width = '100%';
-    input.style.padding = '10px';
-    input.style.borderRadius = '5px';
-    input.style.border = '1px solid #ddd';
-    input.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
-    inputContainer.appendChild(input);
-
-    return { inputContainer, input };
-  }
-
-  function createButton() {
-    console.log("Erstelle Haupt-Button für ContentBuddy...");
-    const button = document.createElement('button');
-    button.innerText = 'ContentBuddy ' + (window.selectedOption || '');
-    button.id = 'contentBuddyButton';
-    button.style.position = 'fixed';
-    button.style.top = '10px';
-    button.style.right = '10px';
-    button.style.zIndex = '1000';
-    button.style.padding = '10px';
-    button.style.backgroundColor = '#333333';
-    button.style.color = 'white';
-    button.style.border = 'none';
-    button.style.borderRadius = '5px';
-    button.style.cursor = 'pointer';
-    button.style.transition = 'background-color 0.3s';
-    button.onmouseover = () => {
-      button.style.backgroundColor = '#444444';
-    };
-    button.onmouseout = () => {
-      button.style.backgroundColor = '#333333';
-    };
-    button.onclick = () => {
-      const overlay = createOverlay();
-
-      const { inputContainer: mainKeywordContainer, input: mainKeywordInput } = createInputField('Haupt-Keyword', 'Hauptkeyword eingeben');
-      overlay.appendChild(mainKeywordContainer);
-
-      const { inputContainer: subKeywordContainer, input: subKeywordInput } = createInputField('Neben-Keywords', 'Nebenkeyword eingeben');
-      overlay.appendChild(subKeywordContainer);
-
-      const { inputContainer: proofKeywordContainer, input: proofKeywordInput } = createInputField('Proof-Keywords', 'Proofkeyword eingeben');
-      overlay.appendChild(proofKeywordContainer);
-
-      const insertButton = document.createElement('button');
-      insertButton.innerText = 'Text generieren';
-      insertButton.style.width = '100%';
-      insertButton.style.padding = '10px';
-      insertButton.style.backgroundColor = '#333333';
-      insertButton.style.color = 'white';
-      insertButton.style.border = 'none';
-      insertButton.style.borderRadius = '5px';
-      insertButton.style.cursor = 'pointer';
-      insertButton.style.marginTop = '10px';
-      insertButton.addEventListener('click', () => {
-        const hauptkeyword = mainKeywordInput.value.trim();
-        const nebenkeywords = subKeywordInput.value.trim();
-        const proofkeywords = proofKeywordInput.value.trim();
-
-        if (hauptkeyword) {
-          insertTextAndSend(hauptkeyword, nebenkeywords, proofkeywords);
-          document.body.removeChild(overlay); // Overlay schließen
-        }
-      });
-      overlay.appendChild(insertButton);
-    };
-    document.body.appendChild(button);
-  }
-
-  function initializeContentBuddy() {
-    if (initialized) {
-      console.log("initializeContentBuddy() abgebrochen, da schon initialized = true.");
-      return;
-    }
-
-    createButton();
-    console.log('ContentBuddy initialized.');
-    initialized = true;
-  }
-
-  initializeContentBuddy();
+ initializeContentBuddy();
 
 })();

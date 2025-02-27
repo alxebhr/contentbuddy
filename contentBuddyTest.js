@@ -8,20 +8,17 @@
   let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
   function insertTextAndSend(hauptkeyword, text, nebenkeywords, proofkeywords, w_fragen) {
-    // Versuche zuerst den Quill-Editor zu finden
     let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
     console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
 
     let textAreaElement;
 
-    // Falls der Quill-Editor nicht gefunden wird, suche das Textarea-Element
     if (!quillEditorContainer) {
       console.log('Erstes Element ".v-ql-textarea.ql-container" nicht gefunden. Versuche, "textarea.v-field__input" zu verwenden.');
       textAreaElement = document.querySelector('textarea.v-field__input');
       console.log('Versuche, "textarea.v-field__input" zu finden:', textAreaElement);
     }
 
-    // Überprüfen, ob der Prompt-Text vorhanden ist
     if (!text) {
       console.error('Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
       return;
@@ -29,47 +26,37 @@
 
     console.log('Text, der eingefügt werden soll:', text);
 
-    // Wenn ein Quill-Editor gefunden wurde, Text einfügen
     if (quillEditorContainer) {
       let editorElement = quillEditorContainer.querySelector('.ql-editor');
       console.log('Editor gefunden:', editorElement);
-      editorElement.innerHTML = text; // Verwende innerHTML für den Quill-Editor
+      editorElement.innerHTML = text;
       console.log('Text im Quill-Editor eingefügt:', editorElement.innerHTML);
-      simulateEnterPress(editorElement); // Simuliere Enter-Taste
-    }
-    // Wenn ein Textarea-Element gefunden wird, führe die spezielle Logik für Textarea aus
-    else if (textAreaElement) {
-      insertTextInTextareaAndSubmit(textAreaElement, text); // Text und Logik für Textarea verwenden
+      simulateEnterPress(editorElement);
+    } else if (textAreaElement) {
+      insertTextInTextareaAndSubmit(textAreaElement, text);
     } else {
       console.error('Kein passendes Editor-Container-Element oder Textarea gefunden.');
     }
   }
 
-  // Funktion zum Einfügen von Text in die Textarea und Absenden
   function insertTextInTextareaAndSubmit(chatbox, text) {
-    // Simuliere einen Klick auf die Textarea
     chatbox.click();
     console.log('Klick in die Textarea simuliert.');
 
-    // Text in die Textarea einfügen
     chatbox.value = text;
     console.log('Text in die Textarea eingefügt:', chatbox.value);
 
-    // Erstelle ein Input-Event, um die Änderung im Text zu registrieren
     let inputEvent = new Event('input', { bubbles: true });
     chatbox.dispatchEvent(inputEvent);
 
-    // Erstelle ein Change-Event, um sicherzustellen, dass jede Änderung erkannt wird
     let changeEvent = new Event('change', { bubbles: true });
     chatbox.dispatchEvent(changeEvent);
 
-    // Simuliere Enter-Taste nach einer kleinen Verzögerung
     setTimeout(() => {
       simulateEnterPress(chatbox);
-    }, 10); // Kleine Verzögerung, um sicherzustellen, dass der Text zuerst eingefügt wird
+    }, 10);
   }
 
-  // Funktion zum Simulieren des Drückens der Enter-Taste
   function simulateEnterPress(element) {
     const event = new KeyboardEvent('keydown', {
       key: 'Enter',
@@ -82,18 +69,16 @@
     element.dispatchEvent(event);
   }
 
-  // Funktion zum Neuladen der Seite (zum vollständigen Zurücksetzen des Skripts)
   function reloadPage() {
-    location.reload(); // Neuladen der Seite
+    location.reload();
   }
 
-  // Funktion zum Überwachen des "Neuer Chat"-Buttons
   function monitorResetButton() {
-    const resetButton = document.querySelector('.v-btn.v-btn--size-x-large'); // Finde den "Neuer Chat"-Button
+    const resetButton = document.querySelector('.v-btn.v-btn--size-x-large');
 
     if (resetButton) {
       resetButton.addEventListener('click', function() {
-        reloadPage(); // Seite neu laden und Skript komplett neu starten
+        reloadPage();
       });
       console.log("Reset-Button gefunden und EventListener hinzugefügt.");
     } else {
@@ -101,7 +86,6 @@
     }
   }
 
-  // Funktion zum Extrahieren der Gliederung
   function extractOutline() {
     console.log("extractOutline() wurde aufgerufen. Versuche die Gliederung zu extrahieren...");
     const elements = document.querySelectorAll('div[data-v-1780e672].v-col-md-10.v-col-12.px-0.pt-0.content');
@@ -135,10 +119,8 @@
       const point = { title: '', content: [] };
       console.log(`Verarbeite Überschrift Nr. ${index + 1}: ${heading.innerText.trim()}`);
 
-      // Extrahiere den Titel des <h3>-Tags
       point.title = heading.innerText.trim();
 
-      // Prüfe das nächste Element auf <ul>
       let nextElement = heading.nextElementSibling;
       while (nextElement && nextElement.tagName !== 'UL') {
         nextElement = nextElement.nextElementSibling;
@@ -183,7 +165,6 @@
     return outline;
   }
 
-  // Funktion zur Erstellung der Gliederung
   function generateOutline(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
     return window.promptTextDefault
       .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
@@ -192,7 +173,6 @@
       .replace(/\$\{w_fragen\}/g, w_fragen);
   }
 
-  // Funktion zur Erstellung des Textes
   function generateFinalText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen, outline) {
     return window.promptTextOutline
       .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
@@ -200,6 +180,14 @@
       .replace(/\$\{proofkeywords\}/g, proofkeywords)
       .replace(/\$\{w_fragen\}/g, w_fragen)
       .replace(/\$\{outline\}/g, outline);
+  }
+
+  function generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
+    return window.promptBText
+      .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+      .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+      .replace(/\$\{proofkeywords\}/g, proofkeywords)
+      .replace(/\$\{w_fragen\}/g, w_fragen);
   }
 
   function createOutlineBoxes(outline, container) {
@@ -660,7 +648,6 @@
 
       if (hauptkeyword) {
         if (textType === 'A') {
-          // Generiere Gliederung
           const outlineText = generateOutline(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
           insertTextAndSend(hauptkeyword, outlineText, nebenkeywords, proofkeywords, w_fragen);
           console.log("Prompt zum Generieren der Gliederung gesendet.");
@@ -668,7 +655,6 @@
           createLoadingIndicator(content); // Ladeanimation anzeigen
           setTimeout(() => handleFallbackForOutline(), 10000);
         } else if (textType === 'B') {
-          // Generiere Text für Typ B
           const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
           insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen);
           console.log("B-Text generiert.");
@@ -681,7 +667,6 @@
     return overlay;
   }
 
-  // Funktion zur Handhabung des Fallbacks für die Gliederung
   function handleFallbackForOutline() {
     console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Generieren'...");
     if (firstTime) {
@@ -742,15 +727,12 @@
     const overlay = createOverlay(button);
   }
 
-  // Überwacht die Console-Logs, um u.a. auf "llm generation stream closed" zu reagieren.
   function monitorConsoleMessages() {
     console.log("monitorConsoleMessages() gestartet.");
     const originalConsoleLog = console.log;
 
-    // Ersetzt console.log durch eine eigene Funktion, um auf bestimmte Nachrichten zu reagieren.
     console.log = function (message) {
       if (typeof message === 'string') {
-        // Debug-Ausgabe, um zu sehen, welche Log-Messages ankommen
         originalConsoleLog("[monitorConsoleMessages] - Intercepted:", message);
 
         if (message.includes('llm generation stream closed')) {
@@ -777,13 +759,11 @@
           }
         }
       }
-      // Ruft das ursprüngliche console.log auf, damit nichts verloren geht.
       originalConsoleLog.apply(console, arguments);
     };
   }
 
   function initializeContentBuddy() {
-    // Stelle sicher, dass nur einmal initialisiert wird
     if (initialized) {
       console.log("initializeContentBuddy() abgebrochen, da schon initialized = true.");
       return;
@@ -799,7 +779,6 @@
     console.log('ContentBuddy initialized.');
     initialized = true;
 
-    // Nach erfolgter Initialisierung Observer deaktivieren, um mehrfaches Triggern zu vermeiden
     observer.disconnect();
   }
 

@@ -7,7 +7,7 @@
     let firstTime = true; // Track the first time the text is inserted
     let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
-    function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, isAType) {
+    function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, outlineText = false) {
         // Versuche zuerst den Quill-Editor zu finden
         let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
         console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
@@ -23,10 +23,10 @@
 
         // Text für den Editor erstellen
         let text;
-        if (isAType) {
-            text = window.promptTextOutline; // A-Text
+        if (outlineText) {
+            text = window.promptTextOutline; // A-Text für Gliederung
         } else {
-            text = window.promptTextDefault; // B-Text
+            text = window.promptTextDefault; // Standard A-Text
         }
 
         // Überprüfen, ob der Prompt-Text vorhanden ist
@@ -37,7 +37,7 @@
 
         // Ersetzen der Platzhalter im Text
         text = text.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-            .replace(/\$\{keyword\}/g, keyword) // Hier wird die Gliederung ersetzt
+            .replace(/\$\{keyword\}/g, keyword)
             .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
             .replace(/\$\{proofkeywords\}/g, proofkeywords)
             .replace(/\$\{w_fragen\}/g, w_fragen);
@@ -354,11 +354,7 @@
             console.log('Proofkeywords:', proofkeywords);
             console.log('Subkeywords:', subkeywords);
             console.log('W-Fragen:', w_fragen);
-            
-            // Hier wird nun zwischen A- und B-Text unterschieden
-            const textType = document.querySelector('select').value; // Annahme: Es gibt ein Select-Element zur Auswahl des Texttyps
-            const isAType = textType === 'A';
-            insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, isAType);
+            insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true); // true für A-Text
             console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
 
             // Button deaktivieren, um mehrfache Eingaben zu vermeiden
@@ -596,7 +592,7 @@
         inputContainer.appendChild(wFragenContainer);
 
         const insertButton = document.createElement('button');
-        insertButton.innerText = 'Gliederung abfragen';
+        insertButton.innerText = 'Generieren';
         insertButton.style.width = '100%';
         insertButton.style.padding = '10px';
         insertButton.style.backgroundColor = '#333333';
@@ -613,7 +609,7 @@
             insertButton.style.backgroundColor = '#333333';
         };
         insertButton.addEventListener('click', () => {
-            console.log("Gliederung abfragen geklickt.");
+            console.log("Generieren geklickt.");
             const hauptkeyword = mainKeywordInput.value.trim();
             const nebenkeywords = subKeywordInput.value.trim();
             const proofkeywords = proofKeywordInput.value.trim();
@@ -627,41 +623,72 @@
             console.log("Proofkeywords:", proofkeywords);
             console.log("W-Fragen:", w_fragen);
 
-            if (hauptkeyword) {
-                insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen, true); // A-Text
-                console.log("Prompt zum Generieren der Gliederung gesendet. Verberge Insert-Button und zeige Ladeindikator.");
-                insertButton.style.display = 'none'; // Button verschwinden lassen
-                createLoadingIndicator(content); // Ladeanimation anzeigen
+            const textType = document.querySelector('select').value; // Annahme: Es gibt ein Select-Element zur Auswahl des Texttyps
 
-                // NUR JETZT startet der 10-Sekunden-Fallback
-                setTimeout(() => {
-                    console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Gliederung abfragen'...");
-                    if (firstTime) {
-                        console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
-                        if (loadingIndicator) {
-                            loadingIndicator.remove();
-                        }
-                        const outline = extractOutline();
-                        if (outline) {
-                            const container = document.querySelector('.text-buddy-content');
-                            if (container) {
-                                createOutlineBoxes(outline, container);
-                            } else {
-                                console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
-                            }
-                        } else {
-                            console.log("outline war null, also keine Boxes.");
-                        }
-                        firstTime = false;
-                    } else {
-                        console.log("Fallback nicht nötig, da firstTime bereits false ist.");
-                    }
-                }, 10000);
+            if (hauptkeyword) {
+                if (textType === 'A') {
+                    // Generiere Text für Typ A
+                    const outlineText = generateOutlineText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+                    insertTextAndSend(hauptkeyword, outlineText, nebenkeywords, proofkeywords, w_fragen, true);
+                    console.log("Prompt zum Generieren der Gliederung gesendet.");
+                    insertButton.style.display = 'none'; // Button verschwinden lassen
+                    createLoadingIndicator(content); // Ladeanimation anzeigen
+                    setTimeout(() => handleFallbackForOutline(), 10000);
+                } else if (textType === 'B') {
+                    // Generiere Text für Typ B
+                    const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+                    insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen);
+                    console.log("B-Text generiert.");
+                }
             }
         });
+
         content.appendChild(insertButton);
 
         return overlay;
+    }
+
+    // Funktion zur Generierung des A-Textes
+    function generateOutlineText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
+        return window.promptTextDefault
+            .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+            .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+            .replace(/\$\{proofkeywords\}/g, proofkeywords)
+            .replace(/\$\{w_fragen\}/g, w_fragen);
+    }
+
+    // Funktion zur Generierung des B-Textes
+    function generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
+        return window.promptBText
+            .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+            .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+            .replace(/\$\{proofkeywords\}/g, proofkeywords)
+            .replace(/\$\{w_fragen\}/g, w_fragen);
+    }
+
+    // Funktion zur Handhabung des Fallbacks für die Gliederung
+    function handleFallbackForOutline() {
+        console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Generieren'...");
+        if (firstTime) {
+            console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
+            if (loadingIndicator) {
+                loadingIndicator.remove();
+            }
+            const outline = extractOutline();
+            if (outline) {
+                const container = document.querySelector('.text-buddy-content');
+                if (container) {
+                    createOutlineBoxes(outline, container);
+                } else {
+                    console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
+                }
+            } else {
+                console.log("outline war null, also keine Boxes.");
+            }
+            firstTime = false;
+        } else {
+            console.log("Fallback nicht nötig, da firstTime bereits false ist.");
+        }
     }
 
     function createButton() {
@@ -700,7 +727,7 @@
         const overlay = createOverlay(button);
     }
 
-    // Funktion zur Überwachung der Console-Logs
+    // Überwacht die Console-Logs, um u.a. auf "llm generation stream closed" zu reagieren.
     function monitorConsoleMessages() {
         console.log("monitorConsoleMessages() gestartet.");
         const originalConsoleLog = console.log;

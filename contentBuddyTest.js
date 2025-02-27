@@ -175,10 +175,11 @@
 
   function generateFinalText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen, outline) {
     return window.promptTextOutline
-      .replace(/\$\{keyword\}/g, outline) // Hier wird die generierte Gliederung verwendet
+      .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
       .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
       .replace(/\$\{proofkeywords\}/g, proofkeywords)
-      .replace(/\$\{w_fragen\}/g, w_fragen);
+      .replace(/\$\{w_fragen\}/g, w_fragen)
+      .replace(/\$\{outline\}/g, outline); // Hier wird die Gliederung verwendet
   }
 
   function generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
@@ -347,9 +348,7 @@
       console.log('W-Fragen:', w_fragen);
       const textType = document.querySelector('select').value; // Auswahl des Texttyps
       if (textType === 'A') {
-        const outline = generateOutline(mainkeyword, subkeywords, proofkeywords, w_fragen);
-        const finalText = generateFinalText(mainkeyword, subkeywords, proofkeywords, w_fragen, outline);
-        insertTextAndSend(mainkeyword, finalText, subkeywords, proofkeywords, w_fragen);
+        insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
       } else if (textType === 'B') {
         const bText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
         insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen);
@@ -645,19 +644,15 @@
       console.log("Proofkeywords:", proofkeywords);
       console.log("W-Fragen:", w_fragen);
 
-      const textType = textTypeSelect.value;
-
+      const textType = textTypeSelect.value; // Auswahl des Texttyps
       if (hauptkeyword) {
         if (textType === 'A') {
           const outlineText = generateOutline(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+          insertTextAndSend(hauptkeyword, outlineText, nebenkeywords, proofkeywords, w_fragen);
+          console.log("Prompt zum Generieren der Gliederung gesendet.");
+          insertButton.style.display = 'none'; // Button verschwinden lassen
           createLoadingIndicator(content); // Ladeanimation anzeigen
-          setTimeout(() => {
-            const outline = extractOutline();
-            if (outline) {
-              const finalText = generateFinalText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen, outlineText);
-              insertTextAndSend(hauptkeyword, finalText, nebenkeywords, proofkeywords, w_fragen);
-            }
-          }, 10000);
+          setTimeout(() => handleFallbackForOutline(), 10000);
         } else if (textType === 'B') {
           const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
           insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen);
@@ -683,6 +678,14 @@
         const container = document.querySelector('.text-buddy-content');
         if (container) {
           createOutlineBoxes(outline, container);
+          // A-Text generieren
+          const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
+          const nebenkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
+          const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
+          const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
+
+          const aText = generateFinalText(mainkeyword, nebenkeywords, proofkeywords, w_fragen, outline);
+          insertTextAndSend(mainkeyword, aText, nebenkeywords, proofkeywords, w_fragen);
         } else {
           console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
         }

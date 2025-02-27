@@ -119,6 +119,7 @@
   // Funktion zum Extrahieren der Gliederung
   function extractOutline() {
     console.log("extractOutline() wurde aufgerufen. Versuche die Gliederung zu extrahieren...");
+    // HIER MUSS MEISTENS DAS ELEMENT INNERHALB DES DIV AUSGETAUSCHT WERDEN
     const elements = document.querySelectorAll('div[data-v-1780e672].v-col-md-10.v-col-12.px-0.pt-0.content');
     console.log(`Gefundene Elemente data-v-1780e672: ${elements.length}`);
 
@@ -148,7 +149,7 @@
 
     headings.forEach((heading, index) => {
       const point = { title: '', content: [] };
-      console.log(`Verarbeite Überschrift Nr. ${index + 1}: ${heading.innerText.trim()}`);
+      console.log(`Verarbeite Überschrift Nr. ${index+1}: ${heading.innerText.trim()}`);
 
       // Extrahiere den Titel des <h3>-Tags
       point.title = heading.innerText.trim();
@@ -201,11 +202,11 @@
   function createOutlineBoxes(outline, container) {
     console.log("Erstelle Outline Boxes...");
     outline.forEach((point, index) => {
-      console.log(`Box #${index + 1} wird erstellt mit Titel: "${point.title}"`);
+      console.log(`Box #${index+1} wird erstellt mit Titel: "${point.title}"`);
       const box = document.createElement('div');
       box.style.position = 'relative';
       box.style.border = '1px solid #ddd';
-      box.style.padding = '40px 10px 10px 10px';
+      box.style.padding = '40px 10px 10px 10px'; 
       box.style.marginBottom = '10px';
       box.style.borderRadius = '5px';
       box.contentEditable = 'true';
@@ -286,7 +287,7 @@
       });
 
       container.appendChild(box);
-      console.log(`Box #${index + 1} mit Titel "${point.title}" hinzugefügt`);
+      console.log(`Box #${index+1} mit Titel "${point.title}" hinzugefügt`);
     });
 
     function updateMoveButtons(container) {
@@ -343,7 +344,7 @@
         const titleText = box.querySelector('h4') ? box.querySelector('h4').innerText.trim() : '';
         const paragraphs = box.querySelectorAll('p');
         const contentText = Array.from(paragraphs).map(p => p.innerText.trim()).join(' ');
-        console.log(`Outline Box #${i + 1} => Titel: "${titleText}", Inhalt: "${contentText}"`);
+        console.log(`Outline Box #${i+1} => Titel: "${titleText}", Inhalt: "${contentText}"`);
         return `${titleText}\n${contentText}`;
       }).filter(text => text);
       const outlineText = outlinePoints.join('\n\n');
@@ -467,39 +468,6 @@
     content.style.height = 'calc(100vh - 60px)';
     overlay.appendChild(content);
 
-    // Neue Auswahl für A- oder B-Text
-    const textTypeContainer = document.createElement('div');
-    textTypeContainer.style.marginBottom = '20px';
-
-    const aTextButton = document.createElement('button');
-    aTextButton.innerText = 'A-Text';
-    aTextButton.onclick = () => {
-      mainKeywordInput.style.display = 'block';
-      subKeywordInput.style.display = 'block';
-      proofKeywordInput.style.display = 'block';
-      wFragenContainer.style.display = 'block';
-      insertButton.style.display = 'block';
-      bTextButton.style.display = 'none';
-      console.log("A-Text ausgewählt.");
-    };
-
-    const bTextButton = document.createElement('button');
-    bTextButton.innerText = 'B-Text';
-    bTextButton.onclick = () => {
-      mainKeywordInput.style.display = 'block';
-      subKeywordInput.style.display = 'block';
-      proofKeywordInput.style.display = 'block';
-      wFragenContainer.style.display = 'none'; // W-Fragen nicht anzeigen
-      insertButton.innerText = 'Text generieren'; // Button-Text ändern
-      insertButton.style.display = 'block';
-      console.log("B-Text ausgewählt.");
-    };
-
-    textTypeContainer.appendChild(aTextButton);
-    textTypeContainer.appendChild(bTextButton);
-    content.appendChild(textTypeContainer);
-
-    // Die vorhandenen Eingabefelder und der Insert-Button
     const inputContainer = document.createElement('div');
     inputContainer.style.backgroundColor = '#F7F7F7';
     inputContainer.style.border = '1px solid #B7B5B4';
@@ -508,7 +476,16 @@
     inputContainer.style.marginBottom = '20px';
     content.appendChild(inputContainer);
 
-    // Haupt-Keyword
+    function createLabel(text) {
+      const label = document.createElement('label');
+      label.innerText = text;
+      label.style.display = 'block';
+      label.style.fontSize = '0.9em';
+      label.style.color = '#4F4F4F';
+      label.style.marginBottom = '5px';
+      return label;
+    }
+
     const mainKeywordLabel = createLabel('Haupt-Keyword');
     inputContainer.appendChild(mainKeywordLabel);
     const mainKeywordInput = document.createElement('input');
@@ -522,7 +499,6 @@
     mainKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
     inputContainer.appendChild(mainKeywordInput);
 
-    // Neben-Keyword
     const subKeywordLabel = createLabel('Neben-Keywords');
     inputContainer.appendChild(subKeywordLabel);
     const subKeywordInput = document.createElement('input');
@@ -536,7 +512,6 @@
     subKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
     inputContainer.appendChild(subKeywordInput);
 
-    // Proof-Keyword
     const proofKeywordLabel = createLabel('Proof-Keywords');
     inputContainer.appendChild(proofKeywordLabel);
     const proofKeywordInput = document.createElement('input');
@@ -550,7 +525,19 @@
     proofKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
     inputContainer.appendChild(proofKeywordInput);
 
-    // W-Fragen Container (wird im B-Text nicht angezeigt)
+    const textTypeLabel = createLabel('Texttyp wählen');
+    inputContainer.appendChild(textTypeLabel);
+    const textTypeSelect = document.createElement('select');
+    const optionA = document.createElement('option');
+    optionA.value = 'A';
+    optionA.textContent = 'A-Text';
+    const optionB = document.createElement('option');
+    optionB.value = 'B';
+    optionB.textContent = 'B-Text';
+    textTypeSelect.appendChild(optionA);
+    textTypeSelect.appendChild(optionB);
+    inputContainer.appendChild(textTypeSelect);
+
     const wFragenContainer = document.createElement('div');
     wFragenContainer.className = 'w-fragen-container';
     wFragenContainer.style.border = '1px solid #ddd';
@@ -581,6 +568,7 @@
     addWFrageButton.style.cursor = 'pointer';
     addWFrageButton.style.fontSize = '20px';
     addWFrageButton.onclick = () => {
+      console.log("W-Frage hinzufügen angeklickt.");
       const wFrageBox = document.createElement('div');
       wFrageBox.className = 'w-frage-box';
       wFrageBox.style.position = 'relative';
@@ -608,6 +596,7 @@
       removeWFrageButton.style.cursor = 'pointer';
       removeWFrageButton.style.fontSize = '14px';
       removeWFrageButton.onclick = () => {
+        console.log("W-Frage entfernt.");
         wFrageBox.remove();
       };
       wFrageBox.appendChild(removeWFrageButton);
@@ -617,9 +606,8 @@
     wFragenContainer.appendChild(addWFrageButton);
     inputContainer.appendChild(wFragenContainer);
 
-    // Insert-Button
     const insertButton = document.createElement('button');
-    insertButton.innerText = 'Gliederung abfragen';
+    insertButton.innerText = 'Generieren';
     insertButton.style.width = '100%';
     insertButton.style.padding = '10px';
     insertButton.style.backgroundColor = '#333333';
@@ -629,15 +617,14 @@
     insertButton.style.cursor = 'pointer';
     insertButton.style.marginBottom = '10px';
     insertButton.style.transition = 'background-color 0.3s';
-    insertButton.style.display = 'none'; // Zuerst verstecken
     insertButton.onmouseover = () => {
       insertButton.style.backgroundColor = '#444444';
     };
     insertButton.onmouseout = () => {
       insertButton.style.backgroundColor = '#333333';
     };
-
     insertButton.addEventListener('click', () => {
+      console.log("Generieren geklickt.");
       const hauptkeyword = mainKeywordInput.value.trim();
       const nebenkeywords = subKeywordInput.value.trim();
       const proofkeywords = proofKeywordInput.value.trim();
@@ -651,18 +638,47 @@
       console.log("Proofkeywords:", proofkeywords);
       console.log("W-Fragen:", w_fragen);
 
+      const textType = textTypeSelect.value;
+
       if (hauptkeyword) {
-        if (insertButton.innerText === 'Text generieren') {
-          // B-Text Generierung
-          const text = window.promptBText; // Prompt für B-Text
-          const finalText = text.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+        if (textType === 'A') {
+          insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+          console.log("Prompt zum Generieren der Gliederung gesendet.");
+          insertButton.style.display = 'none'; // Button verschwinden lassen
+          createLoadingIndicator(content); // Ladeanimation anzeigen
+
+          // NUR JETZT startet der 10-Sekunden-Fallback
+          setTimeout(() => {
+            console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Generieren'...");
+            if (firstTime) {
+              console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
+              if (loadingIndicator) {
+                loadingIndicator.remove();
+              }
+              const outline = extractOutline();
+              if (outline) {
+                const container = document.querySelector('.text-buddy-content');
+                if (container) {
+                  createOutlineBoxes(outline, container);
+                } else {
+                  console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
+                }
+              } else {
+                console.log("outline war null, also keine Boxes.");
+              }
+              firstTime = false;
+            } else {
+              console.log("Fallback nicht nötig, da firstTime bereits false ist.");
+            }
+          }, 10000);
+        } else if (textType === 'B') {
+          const text = window.promptBText
+            .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
             .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-            .replace(/\$\{proofkeywords\}/g, proofkeywords);
-          console.log('Text wurde generiert:', finalText);
-          // Hier den generierten Text an die entsprechende Stelle einfügen
-        } else {
-          // A-Text Generierung (wie bisher)
-          insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen, true);
+            .replace(/\$\{proofkeywords\}/g, proofkeywords)
+            .replace(/\$\{w_fragen\}/g, w_fragen);
+          insertTextAndSend(hauptkeyword, text, nebenkeywords, proofkeywords, w_fragen, false);
+          console.log("B-Text generiert.");
         }
       }
     });
@@ -767,7 +783,7 @@
     monitorResetButton();
     console.log('ContentBuddy initialized.');
     initialized = true;
-     
+    
     // Nach erfolgter Initialisierung Observer deaktivieren, um mehrfaches Triggern zu vermeiden
     observer.disconnect();
   }

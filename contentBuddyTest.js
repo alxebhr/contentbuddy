@@ -567,8 +567,7 @@
                 console.log('Subkeywords:', subkeywords);
                 console.log('W-Fragen:', w_fragen);
                 insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
-                console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
-                
+
                 // Generate final text button
                 const generateTextButton = document.createElement('button');
                 generateTextButton.innerText = 'Generiere finalen Text';

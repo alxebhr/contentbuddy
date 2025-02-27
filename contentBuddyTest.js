@@ -26,7 +26,7 @@
   const textType = document.querySelector('select').value; // Texttyp auswählen
 
   if (textType === 'A') {
-   // Verwende den richtigen Prompt für die Textgenerierung
+   // Verwende den Prompt für die Textgenerierung
    text = window.promptTextOutline.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
                    .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
                    .replace(/\$\{proofkeywords\}/g, proofkeywords)

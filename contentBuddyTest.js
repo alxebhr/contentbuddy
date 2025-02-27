@@ -7,7 +7,7 @@
     let firstTime = true; // Track the first time the text is inserted
     let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
-    function insertTextAndSend(hauptkeyword, text, nebenkeywords, proofkeywords, w_fragen) {
+    function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, outlineText = false) {
         // Versuche zuerst den Quill-Editor zu finden
         let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
         console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
@@ -21,11 +21,26 @@
             console.log('Versuche, "textarea.v-field__input" zu finden:', textAreaElement);
         }
 
+        // Text für den Editor erstellen
+        let text;
+        if (outlineText) {
+            text = window.promptTextOutline;
+        } else {
+            text = window.promptTextDefault;
+        }
+
         // Überprüfen, ob der Prompt-Text vorhanden ist
         if (!text) {
             console.error('Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
             return;
         }
+
+        // Ersetzen der Platzhalter im Text
+        text = text.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+            .replace(/\$\{keyword\}/g, keyword) // Hier wird die Gliederung ersetzt
+            .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+            .replace(/\$\{proofkeywords\}/g, proofkeywords)
+            .replace(/\$\{w_fragen\}/g, w_fragen);
 
         console.log('Text, der eingefügt werden soll:', text);
 
@@ -339,7 +354,7 @@
             console.log('Proofkeywords:', proofkeywords);
             console.log('Subkeywords:', subkeywords);
             console.log('W-Fragen:', w_fragen);
-            insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
+            insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true); // Hier wird outlineText übergeben
             console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
 
             // Button deaktivieren, um mehrfache Eingaben zu vermeiden
@@ -469,29 +484,6 @@
             return label;
         }
 
-        const textTypeLabel = createLabel('Texttyp wählen');
-        inputContainer.appendChild(textTypeLabel);
-
-        const textTypeSelect = document.createElement('select');
-        textTypeSelect.style.width = '100%';
-        textTypeSelect.style.padding = '10px';
-        textTypeSelect.style.marginBottom = '10px';
-        textTypeSelect.style.borderRadius = '5px';
-        textTypeSelect.style.border = '1px solid #ddd';
-        textTypeSelect.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
-
-        const optionA = document.createElement('option');
-        optionA.value = 'A';
-        optionA.textContent = 'A-Text';
-        textTypeSelect.appendChild(optionA);
-
-        const optionB = document.createElement('option');
-        optionB.value = 'B';
-        optionB.textContent = 'B-Text';
-        textTypeSelect.appendChild(optionB);
-
-        inputContainer.appendChild(textTypeSelect);
-
         const mainKeywordLabel = createLabel('Haupt-Keyword');
         inputContainer.appendChild(mainKeywordLabel);
         const mainKeywordInput = document.createElement('input');
@@ -600,7 +592,7 @@
         inputContainer.appendChild(wFragenContainer);
 
         const insertButton = document.createElement('button');
-        insertButton.innerText = 'Generieren';
+        insertButton.innerText = 'Gliederung abfragen';
         insertButton.style.width = '100%';
         insertButton.style.padding = '10px';
         insertButton.style.backgroundColor = '#333333';
@@ -617,7 +609,7 @@
             insertButton.style.backgroundColor = '#333333';
         };
         insertButton.addEventListener('click', () => {
-            console.log("Generieren geklickt.");
+            console.log("Gliederung abfragen geklickt.");
             const hauptkeyword = mainKeywordInput.value.trim();
             const nebenkeywords = subKeywordInput.value.trim();
             const proofkeywords = proofKeywordInput.value.trim();
@@ -631,72 +623,41 @@
             console.log("Proofkeywords:", proofkeywords);
             console.log("W-Fragen:", w_fragen);
 
-            const textType = textTypeSelect.value;
-
             if (hauptkeyword) {
-                if (textType === 'A') {
-                    // Generiere Text für Typ A mit dem Outline-Prompt
-                    const outlineText = generateOutlineText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-                    insertTextAndSend(hauptkeyword, outlineText, nebenkeywords, proofkeywords, w_fragen);
-                    console.log("Prompt zum Generieren der Gliederung gesendet.");
-                    insertButton.style.display = 'none'; // Button verschwinden lassen
-                    createLoadingIndicator(content); // Ladeanimation anzeigen
-                    setTimeout(() => handleFallbackForOutline(), 10000);
-                } else if (textType === 'B') {
-                    // Generiere Text für Typ B
-                    const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-                    insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen);
-                    console.log("B-Text generiert.");
-                }
+                insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+                console.log("Prompt zum Generieren der Gliederung gesendet. Verberge Insert-Button und zeige Ladeindikator.");
+                insertButton.style.display = 'none'; // Button verschwinden lassen
+                createLoadingIndicator(content); // Ladeanimation anzeigen
+
+                // NUR JETZT startet der 10-Sekunden-Fallback
+                setTimeout(() => {
+                    console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Gliederung abfragen'...");
+                    if (firstTime) {
+                        console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
+                        if (loadingIndicator) {
+                            loadingIndicator.remove();
+                        }
+                        const outline = extractOutline();
+                        if (outline) {
+                            const container = document.querySelector('.text-buddy-content');
+                            if (container) {
+                                createOutlineBoxes(outline, container);
+                            } else {
+                                console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
+                            }
+                        } else {
+                            console.log("outline war null, also keine Boxes.");
+                        }
+                        firstTime = false;
+                    } else {
+                        console.log("Fallback nicht nötig, da firstTime bereits false ist.");
+                    }
+                }, 10000);
             }
         });
-
         content.appendChild(insertButton);
 
         return overlay;
-    }
-
-    // Funktion zur Generierung des A-Textes
-    function generateOutlineText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
-        return window.promptTextOutline // Hier wird der Outline-Prompt verwendet
-            .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-            .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-            .replace(/\$\{proofkeywords\}/g, proofkeywords)
-            .replace(/\$\{w_fragen\}/g, w_fragen);
-    }
-
-    // Funktion zur Generierung des B-Textes
-    function generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
-        return window.promptBText
-            .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-            .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-            .replace(/\$\{proofkeywords\}/g, proofkeywords)
-            .replace(/\$\{w_fragen\}/g, w_fragen);
-    }
-
-    // Funktion zur Handhabung des Fallbacks für die Gliederung
-    function handleFallbackForOutline() {
-        console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Generieren'...");
-        if (firstTime) {
-            console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
-            if (loadingIndicator) {
-                loadingIndicator.remove();
-            }
-            const outline = extractOutline();
-            if (outline) {
-                const container = document.querySelector('.text-buddy-content');
-                if (container) {
-                    createOutlineBoxes(outline, container);
-                } else {
-                    console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
-                }
-            } else {
-                console.log("outline war null, also keine Boxes.");
-            }
-            firstTime = false;
-        } else {
-            console.log("Fallback nicht nötig, da firstTime bereits false ist.");
-        }
     }
 
     function createButton() {
@@ -735,7 +696,7 @@
         const overlay = createOverlay(button);
     }
 
-    // Überwacht die Console-Logs, um u.a. auf "llm generation stream closed" zu reagieren.
+    // Funktion zur Überwachung der Console-Logs
     function monitorConsoleMessages() {
         console.log("monitorConsoleMessages() gestartet.");
         const originalConsoleLog = console.log;

@@ -331,6 +331,19 @@
     generateATextButton.style.marginLeft = '10px';
     generateATextButton.style.transition = 'background-color 0.3s';
 
+    const generateBTextButton = document.createElement('button');
+    generateBTextButton.innerText = 'B-Text';
+    generateBTextButton.style.width = 'auto';
+    generateBTextButton.style.padding = '10px';
+    generateBTextButton.style.backgroundColor = '#d2d3db';
+    generateBTextButton.style.color = 'white';
+    generateBTextButton.style.border = '1px solid #000000';
+    generateBTextButton.style.borderRadius = '50px';
+    generateBTextButton.style.cursor = 'pointer';
+    generateBTextButton.style.marginLeft = '10px';
+    generateBTextButton.style.transition = 'background-color 0.3s';
+
+    // Event-Listener für den A-Text Button
     generateATextButton.addEventListener('click', () => {
       console.log("Button A-Text wurde geklickt.");
       const allTextBoxes = Array.from(container.querySelectorAll('div[contenteditable="true"]'));
@@ -354,18 +367,7 @@
       console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
     });
 
-    const generateBTextButton = document.createElement('button');
-    generateBTextButton.innerText = 'B-Text';
-    generateBTextButton.style.width = 'auto';
-    generateBTextButton.style.padding = '10px';
-    generateBTextButton.style.backgroundColor = '#d2d3db';
-    generateBTextButton.style.color = 'white';
-    generateBTextButton.style.border = '1px solid #000000';
-    generateBTextButton.style.borderRadius = '50px';
-    generateBTextButton.style.cursor = 'pointer';
-    generateBTextButton.style.marginLeft = '10px';
-    generateBTextButton.style.transition = 'background-color 0.3s';
-
+    // Event-Listener für den B-Text Button
     generateBTextButton.addEventListener('click', () => {
       console.log("Button B-Text wurde geklickt.");
       const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
@@ -377,8 +379,9 @@
       console.log('Text wurde eingefügt für B-Text:', mainkeyword, generatedText, subkeywords, proofkeywords, w_fragen);
     });
 
-    header.insertBefore(generateATextButton, header.querySelector('button'));
-    header.insertBefore(generateBTextButton, header.querySelector('button'));
+    // Buttons zum Header hinzufügen
+    header.appendChild(generateATextButton);
+    header.appendChild(generateBTextButton);
     console.log('Buttons A-Text und B-Text hinzugefügt');
   }
 
@@ -614,25 +617,26 @@
     wFragenContainer.appendChild(addWFrageButton);
     inputContainer.appendChild(wFragenContainer);
 
-    const insertButton = document.createElement('button');
-    insertButton.innerText = 'Gliederung abfragen';
-    insertButton.style.width = '100%';
-    insertButton.style.padding = '10px';
-    insertButton.style.backgroundColor = '#333333';
-    insertButton.style.color = 'white';
-    insertButton.style.border = 'none';
-    insertButton.style.borderRadius = '5px';
-    insertButton.style.cursor = 'pointer';
-    insertButton.style.marginBottom = '10px';
-    insertButton.style.transition = 'background-color 0.3s';
-    insertButton.onmouseover = () => {
-      insertButton.style.backgroundColor = '#444444';
+    // Hier werden die Buttons für A-Text und B-Text hinzugefügt
+    const generateATextButton = document.createElement('button');
+    generateATextButton.innerText = 'A-Text';
+    generateATextButton.style.width = '100%';
+    generateATextButton.style.padding = '10px';
+    generateATextButton.style.backgroundColor = '#333333';
+    generateATextButton.style.color = 'white';
+    generateATextButton.style.border = 'none';
+    generateATextButton.style.borderRadius = '5px';
+    generateATextButton.style.cursor = 'pointer';
+    generateATextButton.style.marginBottom = '10px';
+    generateATextButton.style.transition = 'background-color 0.3s';
+    generateATextButton.onmouseover = () => {
+      generateATextButton.style.backgroundColor = '#444444';
     };
-    insertButton.onmouseout = () => {
-      insertButton.style.backgroundColor = '#333333';
+    generateATextButton.onmouseout = () => {
+      generateATextButton.style.backgroundColor = '#333333';
     };
-    insertButton.addEventListener('click', () => {
-      console.log("Gliederung abfragen geklickt.");
+    generateATextButton.addEventListener('click', () => {
+      console.log("Button A-Text wurde geklickt.");
       const hauptkeyword = mainKeywordInput.value.trim();
       const nebenkeywords = subKeywordInput.value.trim();
       const proofkeywords = proofKeywordInput.value.trim();
@@ -641,44 +645,151 @@
         .filter(value => value)
         .join(', ');
 
-      console.log("Hauptkeyword:", hauptkeyword);
-      console.log("Nebenkeywords:", nebenkeywords);
-      console.log("Proofkeywords:", proofkeywords);
-      console.log("W-Fragen:", w_fragen);
-
       if (hauptkeyword) {
         insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-        console.log("Prompt zum Generieren der Gliederung gesendet. Verberge Insert-Button und zeige Ladeindikator.");
-        insertButton.style.display = 'none'; // Button verschwinden lassen
-        createLoadingIndicator(content); // Ladeanimation anzeigen
-
-        // NUR JETZT startet der 10-Sekunden-Fallback
-        setTimeout(() => {
-          console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Gliederung abfragen'...");
-          if (firstTime) {
-            console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
-            if (loadingIndicator) {
-              loadingIndicator.remove();
-            }
-            const outline = extractOutline();
-            if (outline) {
-              const container = document.querySelector('.text-buddy-content');
-              if (container) {
-                createOutlineBoxes(outline, container);
-              } else {
-                console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
-              }
-            } else {
-              console.log("outline war null, also keine Boxes.");
-            }
-            firstTime = false;
-          } else {
-            console.log("Fallback nicht nötig, da firstTime bereits false ist.");
-          }
-        }, 10000);
+        console.log("Prompt zum Generieren der Gliederung gesendet.");
       }
     });
-    content.appendChild(insertButton);
+
+    const generateBTextButton = document.createElement('button');
+    generateBTextButton.innerText = 'B-Text';
+    generateBTextButton.style.width = '100%';
+    generateBTextButton.style.padding = '10px';
+    generateBTextButton.style.backgroundColor = '#333333';
+    generateBTextButton.style.color = 'white';
+    generateBTextButton.style.border = 'none';
+    generateBTextButton.style.borderRadius = '5px';
+    generateBTextButton.style.cursor = 'pointer';
+    generateBTextButton.style.marginBottom = '10px';
+    generateBTextButton.style.transition = 'background-color 0.3s';
+    generateBTextButton.onmouseover = () => {
+      generateBTextButton.style.backgroundColor = '#444444';
+    };
+    generateBTextButton.onmouseout = () => {
+      generateBTextButton.style.backgroundColor = '#333333';
+    };
+    generateBTextButton.addEventListener('click', () => {
+      console.log("Button B-Text wurde geklickt.");
+      const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
+      const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
+      const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
+      const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
+      const generatedText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
+      insertTextAndSend(mainkeyword, generatedText, subkeywords, proofkeywords, w_fragen, false);
+      console.log('Text wurde eingefügt für B-Text:', mainkeyword, generatedText, subkeywords, proofkeywords, w_fragen);
+    });
+
+    // Buttons zum Content-Bereich hinzufügen
+    content.appendChild(generateATextButton);
+    content.appendChild(generateBTextButton);
+  }
+
+  function generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
+    return window.promptBText
+      .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+      .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+      .replace(/\$\{proofkeywords\}/g, proofkeywords)
+      .replace(/\$\{w_fragen\}/g, w_fragen);
+  }
+
+  function createLoadingIndicator(container) {
+    console.log("Erstelle Loading-Indicator...");
+    loadingIndicator = document.createElement('div');
+    loadingIndicator.style.position = 'fixed';
+    loadingIndicator.style.top = '50%';
+    loadingIndicator.style.left = '50%';
+    loadingIndicator.style.transform = 'translate(-50%, -50%)';
+    loadingIndicator.style.zIndex = '1001';
+    loadingIndicator.style.backgroundColor = 'rgba(255, 255, 255)';
+    loadingIndicator.style.border = '1px solid #ddd';
+    loadingIndicator.style.padding = '20px';
+    loadingIndicator.style.borderRadius = '5px';
+    loadingIndicator.style.display = 'flex';
+    loadingIndicator.style.justifyContent = 'center';
+    loadingIndicator.style.alignItems = 'center';
+    loadingIndicator.innerText = 'Gliederung... ';
+
+    const spinner = document.createElement('div');
+    spinner.style.border = '4px solid rgba(0, 0, 0, 0.1)';
+    spinner.style.borderTop = '4px solid #333';
+    spinner.style.borderRadius = '50%';
+    spinner.style.width = '24px';
+    spinner.style.height = '24px';
+    spinner.style.animation = 'spin 1s linear infinite';
+    loadingIndicator.appendChild(spinner);
+
+    container.appendChild(loadingIndicator);
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+    console.log("Loading-Indicator erstellt.");
+  }
+
+  function createOverlay(button) {
+    console.log("Erstelle Overlay...");
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.right = '0';
+    overlay.style.top = '0';
+    overlay.style.width = '350px';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = '#ffffff';
+    overlay.style.color = '#333333';
+    overlay.style.zIndex = '1000';
+    overlay.style.display = 'none';
+    overlay.style.borderRadius = '0 10px 10px 0';
+    overlay.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+    overlay.style.transition = 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
+    overlay.style.transform = 'translateX(100%)';
+    overlay.style.opacity = '0';
+    document.body.appendChild(overlay);
+
+    const header = document.createElement('div');
+    header.style.backgroundColor = '#333333';
+    header.style.color = '#ffffff';
+    header.style.padding = '10px';
+    header.style.borderRadius = '0 10px 0 0';
+    header.style.display = 'flex';
+    header.style.justifyContent = 'space-between';
+    header.style.alignItems = 'center';
+    overlay.appendChild(header);
+
+    const headerTitle = document.createElement('h2');
+    headerTitle.innerText = 'ContentBuddy';
+    headerTitle.style.margin = '0';
+    headerTitle.style.fontSize = '1.2em';
+    header.appendChild(headerTitle);
+
+    const closeButton = document.createElement('button');
+    closeButton.innerText = '✕';
+    closeButton.style.backgroundColor = 'transparent';
+    closeButton.style.color = '#ffffff';
+    closeButton.style.border = 'none';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.fontSize = '1.2em';
+    closeButton.onclick = () => {
+      overlay.style.transform = 'translateX(100%)';
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        button.style.display = 'block';
+      }, 300);
+      document.body.style.marginRight = '0';
+    };
+    header.appendChild(closeButton);
+
+    const content = document.createElement('div');
+    content.className = 'text-buddy-content';
+    content.style.padding = '20px';
+    content.style.overflowY = 'auto';
+    content.style.height = 'calc(100vh - 60px)';
+    overlay.appendChild(content);
 
     return overlay;
   }

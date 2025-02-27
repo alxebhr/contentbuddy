@@ -368,25 +368,14 @@
 
         generateBTextButton.addEventListener('click', () => {
             console.log("Button B-Text wurde geklickt.");
-            const allTextBoxes = Array.from(container.querySelectorAll('div[contenteditable="true"]'));
-            const outlinePoints = allTextBoxes.map((box, i) => {
-                const titleText = box.querySelector('h4') ? box.querySelector('h4').innerText.trim() : '';
-                const paragraphs = box.querySelectorAll('p');
-                const contentText = Array.from(paragraphs).map(p => p.innerText.trim()).join(' ');
-                console.log(`Outline Box #${i+1} => Titel: "${titleText}", Inhalt: "${contentText}"`);
-                return `${titleText}\n${contentText}`;
-            }).filter(text => text);
-            const outlineText = outlinePoints.join('\n\n');
+            const hauptkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
+            const nebenkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
             const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
-            const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
-            const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
             const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
-            console.log('Mainkeyword:', mainkeyword);
-            console.log('Proofkeywords:', proofkeywords);
-            console.log('Subkeywords:', subkeywords);
-            console.log('W-Fragen:', w_fragen);
-            insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
-            console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
+
+            const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+            console.log('B-Text generiert:', bText);
+            insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen, false);
         });
 
         header.insertBefore(generateATextButton, header.querySelector('button'));

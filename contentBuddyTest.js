@@ -7,7 +7,7 @@
     let firstTime = true; // Track the first time the text is inserted
     let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
-    function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, outlineText = false) {
+    function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, isAType) {
         // Versuche zuerst den Quill-Editor zu finden
         let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
         console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
@@ -23,10 +23,10 @@
 
         // Text für den Editor erstellen
         let text;
-        if (outlineText) {
-            text = window.promptTextOutline;
+        if (isAType) {
+            text = window.promptTextOutline; // A-Text
         } else {
-            text = window.promptTextDefault;
+            text = window.promptTextDefault; // B-Text
         }
 
         // Überprüfen, ob der Prompt-Text vorhanden ist
@@ -354,7 +354,11 @@
             console.log('Proofkeywords:', proofkeywords);
             console.log('Subkeywords:', subkeywords);
             console.log('W-Fragen:', w_fragen);
-            insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true); // Hier wird outlineText übergeben
+            
+            // Hier wird nun zwischen A- und B-Text unterschieden
+            const textType = document.querySelector('select').value; // Annahme: Es gibt ein Select-Element zur Auswahl des Texttyps
+            const isAType = textType === 'A';
+            insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, isAType);
             console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
 
             // Button deaktivieren, um mehrfache Eingaben zu vermeiden
@@ -624,7 +628,7 @@
             console.log("W-Fragen:", w_fragen);
 
             if (hauptkeyword) {
-                insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+                insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen, true); // A-Text
                 console.log("Prompt zum Generieren der Gliederung gesendet. Verberge Insert-Button und zeige Ladeindikator.");
                 insertButton.style.display = 'none'; // Button verschwinden lassen
                 createLoadingIndicator(content); // Ladeanimation anzeigen

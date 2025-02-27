@@ -633,72 +633,6 @@
     wFragenContainer.appendChild(addWFrageButton);
     inputContainer.appendChild(wFragenContainer);
 
-    const insertButton = document.createElement('button');
-    insertButton.innerText = 'Gliederung abfragen';
-    insertButton.style.width = '100%';
-    insertButton.style.padding = '10px';
-    insertButton.style.backgroundColor = '#333333';
-    insertButton.style.color = 'white';
-    insertButton.style.border = 'none';
-    insertButton.style.borderRadius = '5px';
-    insertButton.style.cursor = 'pointer';
-    insertButton.style.marginBottom = '10px';
-    insertButton.style.transition = 'background-color 0.3s';
-    insertButton.onmouseover = () => {
-      insertButton.style.backgroundColor = '#444444';
-    };
-    insertButton.onmouseout = () => {
-      insertButton.style.backgroundColor = '#333333';
-    };
-    insertButton.addEventListener('click', () => {
-      console.log("Gliederung abfragen geklickt.");
-      const hauptkeyword = mainKeywordInput.value.trim();
-      const nebenkeywords = subKeywordInput.value.trim();
-      const proofkeywords = proofKeywordInput.value.trim();
-      const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
-        .map(input => input.value.trim())
-        .filter(value => value)
-        .join(', ');
-
-      console.log("Hauptkeyword:", hauptkeyword);
-      console.log("Nebenkeywords:", nebenkeywords);
-      console.log("Proofkeywords:", proofkeywords);
-      console.log("W-Fragen:", w_fragen);
-
-      if (hauptkeyword) {
-        insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-        console.log("Prompt zum Generieren der Gliederung gesendet. Verberge Insert-Button und zeige Ladeindikator.");
-        insertButton.style.display = 'none'; // Button verschwinden lassen
-        createLoadingIndicator(content); // Ladeanimation anzeigen
-
-        // NUR JETZT startet der 10-Sekunden-Fallback
-        setTimeout(() => {
-          console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Gliederung abfragen'...");
-          if (firstTime) {
-            console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
-            if (loadingIndicator) {
-              loadingIndicator.remove();
-            }
-            const outline = extractOutline();
-            if (outline) {
-              const container = document.querySelector('.text-buddy-content');
-              if (container) {
-                createOutlineBoxes(outline, container);
-              } else {
-                console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
-              }
-            } else {
-              console.log("outline war null, also keine Boxes.");
-            }
-            firstTime = false;
-          } else {
-            console.log("Fallback nicht nötig, da firstTime bereits false ist.");
-          }
-        }, 10000);
-      }
-    });
-    content.appendChild(insertButton);
-
     return overlay;
   }
 
@@ -738,19 +672,12 @@
     const overlay = createOverlay(button);
   }
 
-  /**
-   * Überwacht die Console-Logs, um u.a. auf "llm generation stream closed" zu reagieren.
-   * Anders als vorher KEIN Timer hier, da wir wollen, dass der 10-Sekunden-Fallback
-   * erst nach Klick auf "Gliederung abfragen" startet.
-   */
   function monitorConsoleMessages() {
     console.log("monitorConsoleMessages() gestartet.");
     const originalConsoleLog = console.log;
 
-    // Ersetzt console.log durch eine eigene Funktion, um auf bestimmte Nachrichten zu reagieren.
     console.log = function (message) {
       if (typeof message === 'string') {
-        // Debug-Ausgabe, um zu sehen, welche Log-Messages ankommen
         originalConsoleLog("[monitorConsoleMessages] - Intercepted:", message);
 
         if (message.includes('llm generation stream closed')) {
@@ -777,13 +704,11 @@
           }
         }
       }
-      // Ruft das ursprüngliche console.log auf, damit nichts verloren geht.
       originalConsoleLog.apply(console, arguments);
     };
   }
 
   function initializeContentBuddy() {
-    // Stelle sicher, dass nur einmal initialisiert wird
     if (initialized) {
       console.log("initializeContentBuddy() abgebrochen, da schon initialized = true.");
       return;
@@ -799,7 +724,6 @@
     console.log('ContentBuddy initialized.');
     initialized = true;
      
-    // Nach erfolgter Initialisierung Observer deaktivieren, um mehrfaches Triggern zu vermeiden
     observer.disconnect();
   }
 

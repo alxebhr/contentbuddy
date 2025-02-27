@@ -521,8 +521,8 @@
   optionB.textContent = 'B-Text';
   textTypeSelect.appendChild(optionB);
 
-  // Füge das Dropdown über dem Haupt-Keyword Input-Feld hinzu
-  inputContainer.insertBefore(textTypeSelect, mainKeywordInput);
+  // Füge das Dropdown nach dem Haupt-Keyword Input-Feld hinzu
+  inputContainer.appendChild(textTypeSelect);
 
   const subKeywordLabel = createLabel('Neben-Keywords');
   inputContainer.appendChild(subKeywordLabel);

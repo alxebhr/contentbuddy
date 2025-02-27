@@ -334,8 +334,8 @@
             console.log('Proofkeywords:', proofkeywords);
             console.log('Subkeywords:', subkeywords);
             console.log('W-Fragen:', w_fragen);
-            insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
-            console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
+            insertTextAndSend(outlineText); // Nur die Gliederung senden
+            console.log('Text wurde eingefügt:', outlineText);
         });
 
         const generateBTextButton = document.createElement('button');
@@ -647,25 +647,16 @@
 
                 if (message.includes('llm generation stream closed')) {
                     console.log("Die Nachricht enthält 'llm generation stream closed'.");
-                    if (firstTime) {
-                        console.log("firstTime ist noch true. Entferne loadingIndicator und führe extractOutline() aus...");
-                        if (loadingIndicator) {
-                            loadingIndicator.remove();
-                        }
-                        const outline = extractOutline();
-                        if (outline) {
-                            const container = document.querySelector('.text-buddy-content');
-                            if (container) {
-                                createOutlineBoxes(outline, container);
-                            } else {
-                                console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
-                            }
+                    const outline = extractOutline();
+                    if (outline) {
+                        const container = document.querySelector('.text-buddy-content');
+                        if (container) {
+                            createOutlineBoxes(outline, container);
                         } else {
-                            console.log("outline war null, also keine Boxes.");
+                            console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
                         }
-                        firstTime = false; 
                     } else {
-                        console.log("firstTime war bereits false, daher keine Aktion.");
+                        console.log("outline war null, also keine Boxes.");
                     }
                 }
             }

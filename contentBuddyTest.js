@@ -340,7 +340,7 @@
         console.log("Prompt zum Generieren der Gliederung gesendet.");
       }
     });
-    header.insertBefore(generateATextButton, header.querySelector('button'));
+    inputContainer.appendChild(generateATextButton); // Button hier hinzufügen
 
     const generateBTextButton = document.createElement('button');
     generateBTextButton.innerText = 'B-Text generieren';
@@ -368,7 +368,7 @@
       const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
       insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen);
     });
-    header.insertBefore(generateBTextButton, header.querySelector('button'));
+    inputContainer.appendChild(generateBTextButton); // Button hier hinzufügen
   }
 
   function createLoadingIndicator(container) {
@@ -478,17 +478,9 @@
     inputContainer.style.marginBottom = '20px';
     content.appendChild(inputContainer);
 
-    function createLabel(text) {
-      const label = document.createElement('label');
-      label.innerText = text;
-      label.style.display = 'block';
-      label.style.fontSize = '0.9em';
-      label.style.color = '#4F4F4F';
-      label.style.marginBottom = '5px';
-      return label;
-    }
-
-    const mainKeywordLabel = createLabel('Haupt-Keyword');
+    // Hier werden die Input-Felder hinzugefügt
+    const mainKeywordLabel = document.createElement('label');
+    mainKeywordLabel.innerText = 'Haupt-Keyword';
     inputContainer.appendChild(mainKeywordLabel);
     const mainKeywordInput = document.createElement('input');
     mainKeywordInput.type = 'text';
@@ -501,7 +493,8 @@
     mainKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
     inputContainer.appendChild(mainKeywordInput);
 
-    const subKeywordLabel = createLabel('Neben-Keywords');
+    const subKeywordLabel = document.createElement('label');
+    subKeywordLabel.innerText = 'Neben-Keywords';
     inputContainer.appendChild(subKeywordLabel);
     const subKeywordInput = document.createElement('input');
     subKeywordInput.type = 'text';
@@ -514,7 +507,8 @@
     subKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
     inputContainer.appendChild(subKeywordInput);
 
-    const proofKeywordLabel = createLabel('Proof-Keywords');
+    const proofKeywordLabel = document.createElement('label');
+    proofKeywordLabel.innerText = 'Proof-Keywords';
     inputContainer.appendChild(proofKeywordLabel);
     const proofKeywordInput = document.createElement('input');
     proofKeywordInput.type = 'text';

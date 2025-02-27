@@ -663,9 +663,9 @@
             document.body.style.marginRight = '350px';
             button.style.display = 'none';
         };
-        document.body.appendChild(button);
 
         const overlay = createOverlay(button);
+        document.body.appendChild(button);
     }
 
     function initializeContentBuddy() {

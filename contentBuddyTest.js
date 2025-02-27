@@ -60,6 +60,14 @@
         }
     }
 
+    function generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
+        return window.promptBText
+            .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+            .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+            .replace(/\$\{proofkeywords\}/g, proofkeywords)
+            .replace(/\$\{w_fragen\}/g, w_fragen);
+    }
+
     // Funktion zum Einfügen von Text in die Textarea und Absenden
     function insertTextInTextareaAndSubmit(chatbox, text) {
         // Simuliere einen Klick auf die Textarea
@@ -368,14 +376,14 @@
 
         generateBTextButton.addEventListener('click', () => {
             console.log("Button B-Text wurde geklickt.");
-            const hauptkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
-            const nebenkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
             const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
+            const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
+            const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
             const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
 
-            const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-            console.log('B-Text generiert:', bText);
-            insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen, false);
+            const bText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
+            insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen, false);
+            console.log('B-Text wurde eingefügt:', bText);
         });
 
         header.insertBefore(generateATextButton, header.querySelector('button'));
@@ -606,72 +614,6 @@
         };
         wFragenContainer.appendChild(addWFrageButton);
         inputContainer.appendChild(wFragenContainer);
-
-        const insertButton = document.createElement('button');
-        insertButton.innerText = 'Gliederung abfragen';
-        insertButton.style.width = '100%';
-        insertButton.style.padding = '10px';
-        insertButton.style.backgroundColor = '#333333';
-        insertButton.style.color = 'white';
-        insertButton.style.border = 'none';
-        insertButton.style.borderRadius = '5px';
-        insertButton.style.cursor = 'pointer';
-        insertButton.style.marginBottom = '10px';
-        insertButton.style.transition = 'background-color 0.3s';
-        insertButton.onmouseover = () => {
-            insertButton.style.backgroundColor = '#444444';
-        };
-        insertButton.onmouseout = () => {
-            insertButton.style.backgroundColor = '#333333';
-        };
-        insertButton.addEventListener('click', () => {
-            console.log("Gliederung abfragen geklickt.");
-            const hauptkeyword = mainKeywordInput.value.trim();
-            const nebenkeywords = subKeywordInput.value.trim();
-            const proofkeywords = proofKeywordInput.value.trim();
-            const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
-                .map(input => input.value.trim())
-                .filter(value => value)
-                .join(', ');
-
-            console.log("Hauptkeyword:", hauptkeyword);
-            console.log("Nebenkeywords:", nebenkeywords);
-            console.log("Proofkeywords:", proofkeywords);
-            console.log("W-Fragen:", w_fragen);
-
-            if (hauptkeyword) {
-                insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-                console.log("Prompt zum Generieren der Gliederung gesendet. Verberge Insert-Button und zeige Ladeindikator.");
-                insertButton.style.display = 'none'; // Button verschwinden lassen
-                createLoadingIndicator(content); // Ladeanimation anzeigen
-
-                // NUR JETZT startet der 10-Sekunden-Fallback
-                setTimeout(() => {
-                    console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Gliederung abfragen'...");
-                    if (firstTime) {
-                        console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
-                        if (loadingIndicator) {
-                            loadingIndicator.remove();
-                        }
-                        const outline = extractOutline();
-                        if (outline) {
-                            const container = document.querySelector('.text-buddy-content');
-                            if (container) {
-                                createOutlineBoxes(outline, container);
-                            } else {
-                                console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
-                            }
-                        } else {
-                            console.log("outline war null, also keine Boxes.");
-                        }
-                        firstTime = false;
-                    } else {
-                        console.log("Fallback nicht nötig, da firstTime bereits false ist.");
-                    }
-                }, 10000);
-            }
-        });
-        content.appendChild(insertButton);
 
         return overlay;
     }

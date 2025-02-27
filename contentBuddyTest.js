@@ -23,10 +23,12 @@
 
     // Text für den Editor erstellen
     let text;
-    if (outlineText) {
-      text = window.promptTextOutline;
-    } else {
-      text = window.promptTextDefault;
+    const textType = document.querySelector('select').value; // Texttyp auswählen
+
+    if (textType === 'A') {
+      text = window.promptTextOutline; // Verwende den Prompt für die Gliederung
+    } else if (textType === 'B') {
+      text = window.promptBText; // Verwende den B-Text-Prompt
     }
 
     // Überprüfen, ob der Prompt-Text vorhanden ist

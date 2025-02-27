@@ -7,7 +7,7 @@
   let firstTime = true; // Track the first time the text is inserted
   let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
-  function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, outlineText = false) {
+  function insertTextAndSend(hauptkeyword, text, nebenkeywords, proofkeywords, w_fragen) {
     // Versuche zuerst den Quill-Editor zu finden
     let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
     console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
@@ -19,14 +19,6 @@
       console.log('Erstes Element ".v-ql-textarea.ql-container" nicht gefunden. Versuche, "textarea.v-field__input" zu verwenden.');
       textAreaElement = document.querySelector('textarea.v-field__input');
       console.log('Versuche, "textarea.v-field__input" zu finden:', textAreaElement);
-    }
-
-    // Text für den Editor erstellen
-    let text;
-    if (outlineText) {
-      text = window.promptTextDefault; // A-Text für Gliederung
-    } else {
-      text = window.promptTextOutline; // A-Text für Textgenerierung
     }
 
     // Überprüfen, ob der Prompt-Text vorhanden ist
@@ -355,7 +347,8 @@
       console.log('Subkeywords:', subkeywords);
       console.log('W-Fragen:', w_fragen);
 
-      insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
+      // Generierung der Gliederung
+      insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
       console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
 
       // Button deaktivieren, um mehrfache Eingaben zu vermeiden
@@ -641,14 +634,9 @@
 
       if (hauptkeyword) {
         if (textType === 'A') {
-          // Hier wird der Text für den A-Text generiert
-          const aText = window.promptTextOutline
-            .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-            .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-            .replace(/\$\{proofkeywords\}/g, proofkeywords)
-            .replace(/\$\{w_fragen\}/g, w_fragen);
-          insertTextAndSend(hauptkeyword, aText, nebenkeywords, proofkeywords, w_fragen);
-          console.log('A-Text wurde eingefügt:', aText);
+          // Generierung der Gliederung
+          insertTextAndSend(hauptkeyword, window.promptTextDefault, nebenkeywords, proofkeywords, w_fragen);
+          console.log("Prompt zum Generieren der Gliederung gesendet.");
         } else if (textType === 'B') {
           const bText = window.promptBText
             .replace(/\$\{hauptkeyword\}/g, hauptkeyword)

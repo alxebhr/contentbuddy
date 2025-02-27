@@ -397,14 +397,17 @@
       console.log('Proofkeywords:', proofkeywords);
 
       // Prompt-Text für Metadaten laden
-      const promptMeta = window.promptMetas[window.selectedOption];
-      if (!promptMeta) {
+      let metaText;
+      if (window.promptMetas) {
+        metaText = window.promptMetas[window.selectedOption];
+      }
+      if (!metaText) {
         console.error('Meta-Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
         return;
       }
 
       // Ersetzen der Platzhalter im Meta-Prompt
-      const metaText = promptMeta
+      metaText = metaText
          .replace(/\$\{hauptkeyword\}/g, mainkeyword)
          .replace(/\$\{nebenkeywords\}/g, metaKeywords)
          .replace(/\$\{proofkeywords\}/g, proofkeywords);

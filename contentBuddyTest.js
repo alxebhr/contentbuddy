@@ -311,55 +311,60 @@
     const header = container.closest('.text-buddy-content').previousElementSibling;
     console.log('Header gefunden:', header);
     const generateATextButton = document.createElement('button');
-    generateATextButton.innerText = 'A-Text generieren';
-    generateATextButton.style.width = '100%';
+    generateATextButton.innerText = 'A-Text';
+    generateATextButton.style.width = 'auto';
     generateATextButton.style.padding = '10px';
-    generateATextButton.style.backgroundColor = '#333333';
+    generateATextButton.style.backgroundColor = '#d2d3db';
     generateATextButton.style.color = 'white';
     generateATextButton.style.border = '1px solid #000000';
-    generateATextButton.style.borderRadius = '5px';
+    generateATextButton.style.borderRadius = '50px';
     generateATextButton.style.cursor = 'pointer';
-    generateATextButton.style.marginBottom = '10px';
+    generateATextButton.style.marginLeft = '10px';
     generateATextButton.style.transition = 'background-color 0.3s';
     generateATextButton.onmouseover = () => {
-      generateATextButton.style.backgroundColor = '#444444';
+      generateATextButton.style.backgroundColor = '#f0f0f0';
     };
     generateATextButton.onmouseout = () => {
-      generateATextButton.style.backgroundColor = '#333333';
+      generateATextButton.style.backgroundColor = '#ffffff';
     };
     generateATextButton.addEventListener('click', () => {
-      console.log("A-Text Generieren geklickt.");
+      console.log("Button zum Generieren des A-Texts wurde geklickt.");
       const hauptkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
       const nebenkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
       const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
       const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
 
-      if (hauptkeyword) {
-        const outlineText = generateOutline(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-        insertTextAndSend(hauptkeyword, outlineText, nebenkeywords, proofkeywords, w_fragen);
-        console.log("Prompt zum Generieren der Gliederung gesendet.");
-      }
+      console.log('Hauptkeyword:', hauptkeyword);
+      console.log('Proofkeywords:', proofkeywords);
+      console.log('Subkeywords:', nebenkeywords);
+      console.log('W-Fragen:', w_fragen);
+
+      const outlineText = generateOutline(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+      insertTextAndSend(hauptkeyword, outlineText, nebenkeywords, proofkeywords, w_fragen);
+      console.log("Prompt zum Generieren der Gliederung gesendet.");
+      createLoadingIndicator(container); // Ladeanimation anzeigen
+      setTimeout(() => handleFallbackForOutline(), 10000);
     });
-    inputContainer.appendChild(generateATextButton); // Button hier hinzufügen
 
     const generateBTextButton = document.createElement('button');
-    generateBTextButton.innerText = 'B-Text generieren';
-    generateBTextButton.style.width = '100%';
+    generateBTextButton.innerText = 'B-Text';
+    generateBTextButton.style.width = 'auto';
     generateBTextButton.style.padding = '10px';
-    generateBTextButton.style.backgroundColor = '#333333';
+    generateBTextButton.style.backgroundColor = '#d2d3db';
     generateBTextButton.style.color = 'white';
     generateBTextButton.style.border = '1px solid #000000';
-    generateBTextButton.style.borderRadius = '5px';
+    generateBTextButton.style.borderRadius = '50px';
     generateBTextButton.style.cursor = 'pointer';
+    generateBTextButton.style.marginLeft = '10px';
     generateBTextButton.style.transition = 'background-color 0.3s';
     generateBTextButton.onmouseover = () => {
-      generateBTextButton.style.backgroundColor = '#444444';
+      generateBTextButton.style.backgroundColor = '#f0f0f0';
     };
     generateBTextButton.onmouseout = () => {
-      generateBTextButton.style.backgroundColor = '#333333';
+      generateBTextButton.style.backgroundColor = '#ffffff';
     };
     generateBTextButton.addEventListener('click', () => {
-      console.log("B-Text Generieren geklickt.");
+      console.log("Button zum Generieren des B-Texts wurde geklickt.");
       const hauptkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
       const nebenkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
       const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
@@ -368,7 +373,11 @@
       const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
       insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen);
     });
-    inputContainer.appendChild(generateBTextButton); // Button hier hinzufügen
+
+    header.insertBefore(generateATextButton, header.querySelector('button'));
+    header.insertBefore(generateBTextButton, header.querySelector('button'));
+
+    console.log('Buttons zum Generieren des A-Texts und B-Texts hinzugefügt');
   }
 
   function createLoadingIndicator(container) {
@@ -478,9 +487,40 @@
     inputContainer.style.marginBottom = '20px';
     content.appendChild(inputContainer);
 
-    // Hier werden die Input-Felder hinzugefügt
-    const mainKeywordLabel = document.createElement('label');
-    mainKeywordLabel.innerText = 'Haupt-Keyword';
+    function createLabel(text) {
+      const label = document.createElement('label');
+      label.innerText = text;
+      label.style.display = 'block';
+      label.style.fontSize = '0.9em';
+      label.style.color = '#4F4F4F';
+      label.style.marginBottom = '5px';
+      return label;
+    }
+
+    const textTypeLabel = createLabel('Texttyp wählen');
+    inputContainer.appendChild(textTypeLabel);
+
+    const textTypeSelect = document.createElement('select');
+    textTypeSelect.style.width = '100%';
+    textTypeSelect.style.padding = '10px';
+    textTypeSelect.style.marginBottom = '10px';
+    textTypeSelect.style.borderRadius = '5px';
+    textTypeSelect.style.border = '1px solid #ddd';
+    textTypeSelect.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
+
+    const optionA = document.createElement('option');
+    optionA.value = 'A';
+    optionA.textContent = 'A-Text';
+    textTypeSelect.appendChild(optionA);
+
+    const optionB = document.createElement('option');
+    optionB.value = 'B';
+    optionB.textContent = 'B-Text';
+    textTypeSelect.appendChild(optionB);
+
+    inputContainer.appendChild(textTypeSelect);
+
+    const mainKeywordLabel = createLabel('Haupt-Keyword');
     inputContainer.appendChild(mainKeywordLabel);
     const mainKeywordInput = document.createElement('input');
     mainKeywordInput.type = 'text';
@@ -493,8 +533,7 @@
     mainKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
     inputContainer.appendChild(mainKeywordInput);
 
-    const subKeywordLabel = document.createElement('label');
-    subKeywordLabel.innerText = 'Neben-Keywords';
+    const subKeywordLabel = createLabel('Neben-Keywords');
     inputContainer.appendChild(subKeywordLabel);
     const subKeywordInput = document.createElement('input');
     subKeywordInput.type = 'text';
@@ -507,8 +546,7 @@
     subKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
     inputContainer.appendChild(subKeywordInput);
 
-    const proofKeywordLabel = document.createElement('label');
-    proofKeywordLabel.innerText = 'Proof-Keywords';
+    const proofKeywordLabel = createLabel('Proof-Keywords');
     inputContainer.appendChild(proofKeywordLabel);
     const proofKeywordInput = document.createElement('input');
     proofKeywordInput.type = 'text';
@@ -589,11 +627,13 @@
     wFragenContainer.appendChild(addWFrageButton);
     inputContainer.appendChild(wFragenContainer);
 
+    content.appendChild(overlay);
+
     return overlay;
   }
 
   function handleFallbackForOutline() {
-    console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Generieren'...");
+    console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'A-Text'...");
     if (firstTime) {
       console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
       if (loadingIndicator) {

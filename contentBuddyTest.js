@@ -20,10 +20,12 @@
   }
 
   let text;
+  console.log('Keyword:', keyword); // Debugging
   if (outlineText) {
    text = window.promptTextOutline;
   } else if (keyword === "Meta-Daten") {
    text = window.promptMetas; // Verwende den Prompt für Metadaten
+   console.log('Text für Metadaten:', text); // Debugging
   } else {
    text = window.promptTextDefault;
   }

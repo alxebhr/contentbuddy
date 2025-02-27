@@ -119,6 +119,7 @@
   // Funktion zum Extrahieren der Gliederung
   function extractOutline() {
     console.log("extractOutline() wurde aufgerufen. Versuche die Gliederung zu extrahieren...");
+    // HIER MUSS MEISTENS DAS ELEMENT INNERHALB DES DIV AUSGETAUSCHT WERDEN
     const elements = document.querySelectorAll('div[data-v-1780e672].v-col-md-10.v-col-12.px-0.pt-0.content');
     console.log(`Gefundene Elemente data-v-1780e672: ${elements.length}`);
 
@@ -289,41 +290,7 @@
       console.log(`Box #${index+1} mit Titel "${point.title}" hinzugefügt`);
     });
 
-    // Button zum Generieren von Metadaten hinzufügen
-    const generateMetaButton = document.createElement('button');
-    generateMetaButton.innerText = 'Meta-Daten generieren';
-    generateMetaButton.style.width = '100%';
-    generateMetaButton.style.padding = '10px';
-    generateMetaButton.style.backgroundColor = '#333333';
-    generateMetaButton.style.color = 'white';
-    generateMetaButton.style.border = 'none';
-    generateMetaButton.style.borderRadius = '5px';
-    generateMetaButton.style.cursor = 'pointer';
-    generateMetaButton.style.marginBottom = '10px';
-    generateMetaButton.style.transition = 'background-color 0.3s';
-    generateMetaButton.onmouseover = () => {
-      generateMetaButton.style.backgroundColor = '#444444';
-    };
-    generateMetaButton.onmouseout = () => {
-      generateMetaButton.style.backgroundColor = '#333333';
-    };
-    generateMetaButton.addEventListener('click', () => {
-      console.log("Button zum Generieren der Metadaten wurde geklickt.");
-      const selectedOption = window.selectedOption; // Aktuelle Option abrufen
-      const metaPrompt = window.promptMetas[selectedOption]; // Prompt für Metadaten abrufen
-
-      if (metaPrompt) {
-        insertTextAndSend(selectedOption, metaPrompt, '', '', '', false); // Metadaten generieren
-      } else {
-        console.error('Meta-Prompt nicht gefunden für die ausgewählte Option:', selectedOption);
-      }
-    });
-
-    container.appendChild(generateMetaButton);
-    console.log('Button zum Generieren der Metadaten hinzugefügt');
-  }
-
-  function updateMoveButtons(container) {
+    function updateMoveButtons(container) {
       const allBoxes = container.querySelectorAll('div[contenteditable="true"]');
       allBoxes.forEach((box, index) => {
         const moveUpButton = box.querySelector('button:nth-of-type(1)');
@@ -348,6 +315,109 @@
         }
       });
     }
+
+    updateMoveButtons(container);
+
+    const header = container.closest('.text-buddy-content').previousElementSibling;
+    console.log('Header gefunden:', header);
+    const generateTextButton = document.createElement('button');
+    generateTextButton.innerText = '🖋️✨';
+    generateTextButton.style.width = 'auto';
+    generateTextButton.style.padding = '10px';
+    generateTextButton.style.backgroundColor = '#d2d3db';
+    generateTextButton.style.color = 'white';
+    generateTextButton.style.border = '1px solid #000000';
+    generateTextButton.style.borderRadius = '50px';
+    generateTextButton.style.cursor = 'pointer';
+    generateTextButton.style.marginLeft = '10px';
+    generateTextButton.style.transition = 'background-color 0.3s';
+    generateTextButton.onmouseover = () => {
+      generateTextButton.style.backgroundColor = '#f0f0f0';
+    };
+    generateTextButton.onmouseout = () => {
+      generateTextButton.style.backgroundColor = '#ffffff';
+    };
+    generateTextButton.addEventListener('click', () => {
+      console.log("Button zum Generieren des Textes wurde geklickt.");
+      const allTextBoxes = Array.from(container.querySelectorAll('div[contenteditable="true"]'));
+      const outlinePoints = allTextBoxes.map((box, i) => {
+        const titleText = box.querySelector('h4') ? box.querySelector('h4').innerText.trim() : '';
+        const paragraphs = box.querySelectorAll('p');
+        const contentText = Array.from(paragraphs).map(p => p.innerText.trim()).join(' ');
+        console.log(`Outline Box #${i+1} => Titel: "${titleText}", Inhalt: "${contentText}"`);
+        return `${titleText}\n${contentText}`;
+      }).filter(text => text);
+      const outlineText = outlinePoints.join('\n\n');
+      const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
+      const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
+      const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
+      const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
+      console.log('Mainkeyword:', mainkeyword);
+      console.log('Proofkeywords:', proofkeywords);
+      console.log('Subkeywords:', subkeywords);
+      console.log('W-Fragen:', w_fragen);
+      insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
+      console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
+
+      // Button deaktivieren, um mehrfache Eingaben zu vermeiden
+      generateTextButton.style.backgroundColor = '#cccccc';
+      generateTextButton.style.cursor = 'not-allowed';
+      generateTextButton.disabled = true;
+    });
+
+    header.insertBefore(generateTextButton, header.querySelector('button'));
+    console.log('Button zum Generieren des Textes hinzugefügt');
+
+    // Neuer Button für Meta-Daten generieren
+    const generateMetaDataButton = document.createElement('button');
+    generateMetaDataButton.innerText = 'Meta-Daten generieren';
+    generateMetaDataButton.style.width = '100%';
+    generateMetaDataButton.style.padding = '10px';
+    generateMetaDataButton.style.backgroundColor = '#333333';
+    generateMetaDataButton.style.color = 'white';
+    generateMetaDataButton.style.border = 'none';
+    generateMetaDataButton.style.borderRadius = '5px';
+    generateMetaDataButton.style.cursor = 'pointer';
+    generateMetaDataButton.style.marginBottom = '10px';
+    generateMetaDataButton.style.transition = 'background-color 0.3s';
+    generateMetaDataButton.onmouseover = () => {
+      generateMetaDataButton.style.backgroundColor = '#444444';
+    };
+    generateMetaDataButton.onmouseout = () => {
+      generateMetaDataButton.style.backgroundColor = '#333333';
+    };
+
+    // Event Listener für den neuen Button
+    generateMetaDataButton.addEventListener('click', () => {
+      console.log("Meta-Daten generieren geklickt.");
+      const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
+      const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
+      const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
+      const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
+
+      console.log('Mainkeyword:', mainkeyword);
+      console.log('Proofkeywords:', proofkeywords);
+      console.log('Subkeywords:', subkeywords);
+      console.log('W-Fragen:', w_fragen);
+
+      // Prompt für Metadaten laden
+      const metaPrompt = window.promptMetas; // Hier wird der Prompt geladen
+
+      if (metaPrompt) {
+          const metaDataText = metaPrompt.replace(/\$\{hauptkeyword\}/g, mainkeyword)
+                                         .replace(/\$\{proofkeywords\}/g, proofkeywords)
+                                         .replace(/\$\{nebenkeywords\}/g, subkeywords)
+                                         .replace(/\$\{w_fragen\}/g, w_fragen);
+          console.log('Generierte Metadaten:', metaDataText);
+          // Hier kannst du den Code hinzufügen, um die Metadaten anzuzeigen oder zu speichern
+      } else {
+          console.error('Meta-Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
+      }
+    });
+
+    // Füge den neuen Button zum Inhalt hinzu
+    content.appendChild(generateMetaDataButton);
+  }
 
   function createLoadingIndicator(container) {
     console.log("Erstelle Loading-Indicator...");

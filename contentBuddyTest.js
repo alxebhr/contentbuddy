@@ -486,20 +486,7 @@
    return label;
   }
 
-  const mainKeywordLabel = createLabel('Haupt-Keyword');
-  inputContainer.appendChild(mainKeywordLabel);
-  const mainKeywordInput = document.createElement('input');
-  mainKeywordInput.type = 'text';
-  mainKeywordInput.placeholder = 'Hauptkeyword eingeben';
-  mainKeywordInput.style.width = '100%';
-  mainKeywordInput.style.padding = '10px';
-  mainKeywordInput.style.marginBottom = '10px';
-  mainKeywordInput.style.borderRadius = '5px';
-  mainKeywordInput.style.border = '1px solid #ddd';
-  mainKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
-  inputContainer.appendChild(mainKeywordInput);
-
-  // Füge Dropdown für Texttyp hinzu
+  // Reihenfolge geändert
   const textTypeLabel = createLabel('Texttyp wählen');
   inputContainer.appendChild(textTypeLabel);
 
@@ -521,8 +508,20 @@
   optionB.textContent = 'B-Text';
   textTypeSelect.appendChild(optionB);
 
-  // Füge das Dropdown nach dem Haupt-Keyword Input-Feld hinzu
   inputContainer.appendChild(textTypeSelect);
+
+  const mainKeywordLabel = createLabel('Haupt-Keyword');
+  inputContainer.appendChild(mainKeywordLabel);
+  const mainKeywordInput = document.createElement('input');
+  mainKeywordInput.type = 'text';
+  mainKeywordInput.placeholder = 'Hauptkeyword eingeben';
+  mainKeywordInput.style.width = '100%';
+  mainKeywordInput.style.padding = '10px';
+  mainKeywordInput.style.marginBottom = '10px';
+  mainKeywordInput.style.borderRadius = '5px';
+  mainKeywordInput.style.border = '1px solid #ddd';
+  mainKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
+  inputContainer.appendChild(mainKeywordInput);
 
   const subKeywordLabel = createLabel('Neben-Keywords');
   inputContainer.appendChild(subKeywordLabel);

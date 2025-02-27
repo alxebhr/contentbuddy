@@ -348,7 +348,7 @@
    console.log('W-Fragen:', w_fragen);
    const textType = document.querySelector('select').value; // Auswahl des Texttyps
    if (textType === 'A') {
-    // Texterstellung wird erst nach Klick auf den Button 🖋️✨ gestartet
+    // Hier wird die Generierung des A-Texts ausgelagert
     const aText = generateFinalText(mainkeyword, subkeywords, proofkeywords, w_fragen, outlinePoints);
     insertTextAndSend(mainkeyword, aText, subkeywords, proofkeywords, w_fragen);
    } else if (textType === 'B') {

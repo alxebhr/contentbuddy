@@ -26,8 +26,8 @@
   const textType = document.querySelector('select').value; // Texttyp auswählen
 
   if (textType === 'A') {
-   // Verwende den Prompt für die Textgenerierung
-   text = window.promptTextOutline.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+   // Verwende den Prompt für die Gliederung
+   text = window.promptTextDefault.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
                    .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
                    .replace(/\$\{proofkeywords\}/g, proofkeywords)
                    .replace(/\$\{w_fragen\}/g, w_fragen);
@@ -363,22 +363,21 @@
    const textType = document.querySelector('select').value; // Texttyp auswählen
 
    if (textType === 'A') {
-     // Hier wird der Text für den A-Text generiert
-     const aText = window.promptTextOutline
-      .replace(/\$\{hauptkeyword\}/g, mainkeyword)
-      .replace(/\$\{nebenkeywords\}/g, subkeywords)
-      .replace(/\$\{proofkeywords\}/g, proofkeywords)
-      .replace(/\$\{w_fragen\}/g, w_fragen);
-     insertTextAndSend(mainkeyword, aText, subkeywords, proofkeywords, w_fragen);
-     console.log('A-Text wurde eingefügt:', aText);
+    const aText = window.promptTextOutline
+     .replace(/\$\{hauptkeyword\}/g, mainkeyword)
+     .replace(/\$\{nebenkeywords\}/g, subkeywords)
+     .replace(/\$\{proofkeywords\}/g, proofkeywords)
+     .replace(/\$\{w_fragen\}/g, w_fragen);
+    insertTextAndSend(mainkeyword, aText, subkeywords, proofkeywords, w_fragen);
+    console.log('A-Text wurde eingefügt:', aText);
    } else if (textType === 'B') {
-     const bText = window.promptBText
-      .replace(/\$\{hauptkeyword\}/g, mainkeyword)
-      .replace(/\$\{nebenkeywords\}/g, subkeywords)
-      .replace(/\$\{proofkeywords\}/g, proofkeywords)
-      .replace(/\$\{w_fragen\}/g, w_fragen);
-     insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen);
-     console.log('B-Text wurde eingefügt:', bText);
+    const bText = window.promptBText
+     .replace(/\$\{hauptkeyword\}/g, mainkeyword)
+     .replace(/\$\{nebenkeywords\}/g, subkeywords)
+     .replace(/\$\{proofkeywords\}/g, proofkeywords)
+     .replace(/\$\{w_fragen\}/g, w_fragen);
+    insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen);
+    console.log('B-Text wurde eingefügt:', bText);
    }
 
    // Button deaktivieren, um mehrfache Eingaben zu vermeiden
@@ -664,7 +663,6 @@
 
    if (hauptkeyword) {
     if (textType === 'A') {
-     // Hier wird der Text für den A-Text generiert
      const aText = window.promptTextOutline
       .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
       .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
@@ -725,80 +723,4 @@
  }
 
  /**
-  * Überwacht die Console-Logs, um u.a. auf "llm generation stream closed" zu reagieren.
-  * Anders als vorher KEIN Timer hier, da wir wollen, dass der 10-Sekunden-Fallback
-  * erst nach Klick auf "Gliederung abfragen" startet.
-  */
- function monitorConsoleMessages() {
-  console.log("monitorConsoleMessages() gestartet.");
-  const originalConsoleLog = console.log;
-
-  // Ersetzt console.log durch eine eigene Funktion, um auf bestimmte Nachrichten zu reagieren.
-  console.log = function (message) {
-   if (typeof message === 'string') {
-    // Debug-Ausgabe, um zu sehen, welche Log-Messages ankommen
-    originalConsoleLog("[monitorConsoleMessages] - Intercepted:", message);
-
-    if (message.includes('llm generation stream closed')) {
-     console.log("Die Nachricht enthält 'llm generation stream closed'.");
-     if (firstTime) {
-      console.log("firstTime ist noch true. Entferne loadingIndicator und führe extractOutline() aus...");
-      if (loadingIndicator) {
-       loadingIndicator.remove();
-      }
-      const outline = extractOutline();
-      if (outline) {
-       const container = document.querySelector('.text-buddy-content');
-       if (container) {
-        createOutlineBoxes(outline, container);
-       } else {
-        console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
-       }
-      } else {
-       console.log("outline war null, also keine Boxes.");
-      }
-      firstTime = false; 
-     } else {
-      console.log("firstTime war bereits false, daher keine Aktion.");
-     }
-    }
-   }
-   // Ruft das ursprüngliche console.log auf, damit nichts verloren geht.
-   originalConsoleLog.apply(console, arguments);
-  };
- }
-
- function initializeContentBuddy() {
-  // Stelle sicher, dass nur einmal initialisiert wird
-  if (initialized) {
-   console.log("initializeContentBuddy() abgebrochen, da schon initialized = true.");
-   return;
-  }
-  if (document.querySelector('#contentBuddyButton')) {
-   console.log("initializeContentBuddy() abgebrochen, Button existiert bereits.");
-   return; 
-  }
-
-  createButton();
-  monitorConsoleMessages();
-  monitorResetButton();
-  console.log('ContentBuddy initialized.');
-  initialized = true;
-   
-  // Nach erfolgter Initialisierung Observer deaktivieren, um mehrfaches Triggern zu vermeiden
-  observer.disconnect();
- }
-
- const observer = new MutationObserver((mutations) => {
-  mutations.forEach((mutation) => {
-   if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-    initializeContentBuddy();
-   }
-  });
- });
-
- observer.observe(document.body, { childList: true, subtree: true });
-
- initializeContentBuddy();
-
-})();
+  * Überwacht die Console-Logs, um u.a. auf "llm

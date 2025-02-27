@@ -410,7 +410,9 @@
          .replace(/\$\{proofkeywords\}/g, proofkeywords);
 
       console.log('Meta-Text, der generiert werden soll:', metaText);
-      // Hier kannst du die Logik hinzufügen, um die generierten Metadaten weiterzuverarbeiten oder anzuzeigen
+
+      // Text in den Editor einfügen
+      insertTextAndSend(mainkeyword, metaText, metaKeywords, proofkeywords, '', false);
     });
 
     header.appendChild(generateMetaDataButton);

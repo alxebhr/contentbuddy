@@ -329,43 +329,39 @@
     };
     
     generateTextButton.addEventListener('click', () => {
-      console.log("Button zum Generieren des Textes wurde geklickt.");
-      const allTextBoxes = Array.from(container.querySelectorAll('div[contenteditable="true"]'));
-      const outlinePoints = allTextBoxes.map((box, i) => {
-        const titleText = box.querySelector('h4') ? box.querySelector('h4').innerText.trim() : '';
-        const paragraphs = box.querySelectorAll('p');
-        const contentText = Array.from(paragraphs).map(p => p.innerText.trim()).join(' ');
-        console.log(`Outline Box #${i + 1} => Titel: "${titleText}", Inhalt: "${contentText}"`);
-        return `${titleText}\n${contentText}`;
-      }).filter(text => text);
-      const outlineText = outlinePoints.join('\n\n');
-      const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
-      const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
-      const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
-      const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
-      console.log('Mainkeyword:', mainkeyword);
-      console.log('Proofkeywords:', proofkeywords);
-      console.log('Subkeywords:', subkeywords);
-      console.log('W-Fragen:', w_fragen);
-      const textType = document.querySelector('select').value; // Auswahl des Texttyps
-      if (textType === 'A') {
-        const outline = extractOutline(); // Extrahiere die Gliederung hier
-        if (outline) {
-          const aText = generateFinalText(mainkeyword, subkeywords, proofkeywords, w_fragen, outline);
-          insertTextAndSend(mainkeyword, aText, subkeywords, proofkeywords, w_fragen);
-        }
-      } else if (textType === 'B') {
-        const bText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
-        insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen);
-      }
-      console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
-
-      // Button deaktivieren, um mehrfache Eingaben zu vermeiden
-      generateTextButton.style.backgroundColor = '#cccccc';
-      generateTextButton.style.cursor = 'not-allowed';
-      generateTextButton.disabled = true;
+    console.log("Button zum Generieren des Textes wurde geklickt.");
+    const allTextBoxes = Array.from(container.querySelectorAll('div[contenteditable="true"]'));
+    const outlinePoints = allTextBoxes.map((box, i) => {
+      const titleText = box.querySelector('h4') ? box.querySelector('h4').innerText.trim() : '';
+      const paragraphs = box.querySelectorAll('p');
+      const contentText = Array.from(paragraphs).map(p => p.innerText.trim()).join(' ');
+      console.log(`Outline Box #${i + 1} => Titel: "${titleText}", Inhalt: "${contentText}"`);
+      return `${titleText}\n${contentText}`;
+    }).filter(text => text);
+    const outlineText = outlinePoints.join('\n\n');
+    const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
+    const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
+    const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
+    const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
+    console.log('Mainkeyword:', mainkeyword);
+    console.log('Proofkeywords:', proofkeywords);
+    console.log('Subkeywords:', subkeywords);
+    console.log('W-Fragen:', w_fragen);
+  
+    const textType = document.querySelector('select').value; // Auswahl des Texttyps
+    if (textType === 'A') {
+      insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
+    } else if (textType === 'B') {
+      const bText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
+      insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen);
+    }
+    console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
+  
+    // Button deaktivieren, um mehrfache Eingaben zu vermeiden
+    generateTextButton.style.backgroundColor = '#cccccc';
+    generateTextButton.style.cursor = 'not-allowed';
+    generateTextButton.disabled = true;
     });
-
     header.insertBefore(generateTextButton, header.querySelector('button'));
     console.log('Button zum Generieren des Textes hinzugefügt');
   }

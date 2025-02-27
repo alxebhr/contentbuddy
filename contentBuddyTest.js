@@ -175,11 +175,10 @@
 
   function generateFinalText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen, outline) {
     return window.promptTextOutline
-      .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+      .replace(/\$\{keyword\}/g, outline) // Hier wird die generierte Gliederung verwendet
       .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
       .replace(/\$\{proofkeywords\}/g, proofkeywords)
-      .replace(/\$\{w_fragen\}/g, w_fragen)
-      .replace(/\$\{outline\}/g, outline);
+      .replace(/\$\{w_fragen\}/g, w_fragen);
   }
 
   function generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
@@ -348,7 +347,8 @@
       console.log('W-Fragen:', w_fragen);
       const textType = document.querySelector('select').value; // Auswahl des Texttyps
       if (textType === 'A') {
-        insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
+        const finalText = generateFinalText(mainkeyword, subkeywords, proofkeywords, w_fragen, outlineText);
+        insertTextAndSend(mainkeyword, finalText, subkeywords, proofkeywords, w_fragen);
       } else if (textType === 'B') {
         const bText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
         insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen);
@@ -649,7 +649,8 @@
       if (hauptkeyword) {
         if (textType === 'A') {
           const outlineText = generateOutline(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-          insertTextAndSend(hauptkeyword, outlineText, nebenkeywords, proofkeywords, w_fragen);
+          const finalText = generateFinalText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen, outlineText);
+          insertTextAndSend(hauptkeyword, finalText, nebenkeywords, proofkeywords, w_fragen);
           console.log("Prompt zum Generieren der Gliederung gesendet.");
           insertButton.style.display = 'none'; // Button verschwinden lassen
           createLoadingIndicator(content); // Ladeanimation anzeigen

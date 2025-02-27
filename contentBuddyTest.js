@@ -122,7 +122,6 @@
  // Funktion zum Extrahieren der Gliederung
  function extractOutline() {
   console.log("extractOutline() wurde aufgerufen. Versuche die Gliederung zu extrahieren...");
-  // HIER MUSS MEISTENS DAS ELEMENT INNERHALB DES DIV AUSGETAUSCHT WERDEN
   const elements = document.querySelectorAll('div[data-v-1780e672].v-col-md-10.v-col-12.px-0.pt-0.content');
   console.log(`Gefundene Elemente data-v-1780e672: ${elements.length}`);
 

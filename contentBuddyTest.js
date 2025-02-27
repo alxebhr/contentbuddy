@@ -7,7 +7,7 @@
   let firstTime = true; // Track the first time the text is inserted
   let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
-  function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, isOutlineText = false) {
+  function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen) {
     // Versuche zuerst den Quill-Editor zu finden
     let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
     console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
@@ -26,9 +26,17 @@
     const textType = document.querySelector('select').value; // Texttyp auswählen
 
     if (textType === 'A') {
-      text = window.promptTextOutline; // Verwende den Prompt für die Gliederung
+      // Verwende den Prompt für die Gliederung
+      text = window.promptTextOutline.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+                                     .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+                                     .replace(/\$\{proofkeywords\}/g, proofkeywords)
+                                     .replace(/\$\{w_fragen\}/g, w_fragen);
     } else if (textType === 'B') {
-      text = window.promptBText; // Verwende den B-Text-Prompt
+      // Verwende den B-Text-Prompt
+      text = window.promptBText.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+                               .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+                               .replace(/\$\{proofkeywords\}/g, proofkeywords)
+                               .replace(/\$\{w_fragen\}/g, w_fragen);
     }
 
     // Überprüfen, ob der Prompt-Text vorhanden ist
@@ -36,13 +44,6 @@
       console.error('Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
       return;
     }
-
-    // Ersetzen der Platzhalter im Text
-    text = text.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-          .replace(/\$\{keyword\}/g, keyword)
-          .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-          .replace(/\$\{proofkeywords\}/g, proofkeywords)
-          .replace(/\$\{w_fragen\}/g, w_fragen);
 
     console.log('Text, der eingefügt werden soll:', text);
 
@@ -362,7 +363,7 @@
       const textType = document.querySelector('select').value; // Texttyp auswählen
 
       if (textType === 'A') {
-        insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
+        insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
         console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
       } else if (textType === 'B') {
         const bText = window.promptBText
@@ -370,7 +371,7 @@
           .replace(/\$\{nebenkeywords\}/g, subkeywords)
           .replace(/\$\{proofkeywords\}/g, proofkeywords)
           .replace(/\$\{w_fragen\}/g, w_fragen);
-        insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen, false);
+        insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen);
         console.log('B-Text wurde eingefügt:', bText);
       }
 
@@ -657,7 +658,7 @@
 
       if (hauptkeyword) {
         if (textType === 'A') {
-          insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen, true);
+          insertTextAndSend(hauptkeyword, '', nebenkeywords, proofkeywords, w_fragen); // Leeres Keyword für A-Text
           console.log("Prompt zum Generieren der Gliederung gesendet.");
           insertButton.style.display = 'none'; // Button verschwinden lassen
           createLoadingIndicator(content); // Ladeanimation anzeigen
@@ -692,7 +693,7 @@
             .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
             .replace(/\$\{proofkeywords\}/g, proofkeywords)
             .replace(/\$\{w_fragen\}/g, w_fragen);
-          insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen, false);
+          insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen);
           console.log('B-Text wurde eingefügt:', bText);
         }
       }

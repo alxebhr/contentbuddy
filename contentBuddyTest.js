@@ -356,8 +356,21 @@
       console.log('Proofkeywords:', proofkeywords);
       console.log('Subkeywords:', subkeywords);
       console.log('W-Fragen:', w_fragen);
-      insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
-      console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
+
+      const textType = document.querySelector('select').value; // Texttyp auswählen
+
+      if (textType === 'A') {
+        insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
+        console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
+      } else if (textType === 'B') {
+        const bText = window.promptBText
+          .replace(/\$\{hauptkeyword\}/g, mainkeyword)
+          .replace(/\$\{nebenkeywords\}/g, subkeywords)
+          .replace(/\$\{proofkeywords\}/g, proofkeywords)
+          .replace(/\$\{w_fragen\}/g, w_fragen);
+        insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen, false);
+        console.log('B-Text wurde eingefügt:', bText);
+      }
 
       // Button deaktivieren, um mehrfache Eingaben zu vermeiden
       generateTextButton.style.backgroundColor = '#cccccc';
@@ -638,11 +651,11 @@
       console.log("Proofkeywords:", proofkeywords);
       console.log("W-Fragen:", w_fragen);
 
-      const textType = textTypeSelect.value;
+      const textType = textTypeSelect.value; // Texttyp auswählen
 
       if (hauptkeyword) {
         if (textType === 'A') {
-          insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+          insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen, true);
           console.log("Prompt zum Generieren der Gliederung gesendet.");
           insertButton.style.display = 'none'; // Button verschwinden lassen
           createLoadingIndicator(content); // Ladeanimation anzeigen
@@ -672,13 +685,13 @@
             }
           }, 10000);
         } else if (textType === 'B') {
-          const text = window.promptBText
+          const bText = window.promptBText
             .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
             .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
             .replace(/\$\{proofkeywords\}/g, proofkeywords)
             .replace(/\$\{w_fragen\}/g, w_fragen);
-          insertTextAndSend(hauptkeyword, text, nebenkeywords, proofkeywords, w_fragen, false);
-          console.log("B-Text generiert.");
+          insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen, false);
+          console.log('B-Text wurde eingefügt:', bText);
         }
       }
     });

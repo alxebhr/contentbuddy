@@ -347,7 +347,8 @@
       console.log('W-Fragen:', w_fragen);
       const textType = document.querySelector('select').value; // Auswahl des Texttyps
       if (textType === 'A') {
-        const finalText = generateFinalText(mainkeyword, subkeywords, proofkeywords, w_fragen, outlineText);
+        const outline = generateOutline(mainkeyword, subkeywords, proofkeywords, w_fragen);
+        const finalText = generateFinalText(mainkeyword, subkeywords, proofkeywords, w_fragen, outline);
         insertTextAndSend(mainkeyword, finalText, subkeywords, proofkeywords, w_fragen);
       } else if (textType === 'B') {
         const bText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
@@ -649,12 +650,14 @@
       if (hauptkeyword) {
         if (textType === 'A') {
           const outlineText = generateOutline(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-          const finalText = generateFinalText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen, outlineText);
-          insertTextAndSend(hauptkeyword, finalText, nebenkeywords, proofkeywords, w_fragen);
-          console.log("Prompt zum Generieren der Gliederung gesendet.");
-          insertButton.style.display = 'none'; // Button verschwinden lassen
           createLoadingIndicator(content); // Ladeanimation anzeigen
-          setTimeout(() => handleFallbackForOutline(), 10000);
+          setTimeout(() => {
+            const outline = extractOutline();
+            if (outline) {
+              const finalText = generateFinalText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen, outlineText);
+              insertTextAndSend(hauptkeyword, finalText, nebenkeywords, proofkeywords, w_fragen);
+            }
+          }, 10000);
         } else if (textType === 'B') {
           const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
           insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen);

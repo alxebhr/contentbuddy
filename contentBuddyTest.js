@@ -60,6 +60,13 @@
     }
   }
 
+  function generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
+    return window.promptBText
+      .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+      .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+      .replace(/\$\{proofkeywords\}/g, proofkeywords);
+  }
+
   // Funktion zum Einfügen von Text in die Textarea und Absenden
   function insertTextInTextareaAndSubmit(chatbox, text) {
     // Simuliere einen Klick auf die Textarea
@@ -119,7 +126,6 @@
   // Funktion zum Extrahieren der Gliederung
   function extractOutline() {
     console.log("extractOutline() wurde aufgerufen. Versuche die Gliederung zu extrahieren...");
-    // HIER MUSS MEISTENS DAS ELEMENT INNERHALB DES DIV AUSGETAUSCHT WERDEN
     const elements = document.querySelectorAll('div[data-v-1780e672].v-col-md-10.v-col-12.px-0.pt-0.content');
     console.log(`Gefundene Elemente data-v-1780e672: ${elements.length}`);
 
@@ -321,7 +327,7 @@
     const header = container.closest('.text-buddy-content').previousElementSibling;
     console.log('Header gefunden:', header);
     const generateTextButton = document.createElement('button');
-    generateTextButton.innerText = '🖋️✨ Gliederung abfragen';
+    generateTextButton.innerText = '🖋️✨';
     generateTextButton.style.width = 'auto';
     generateTextButton.style.padding = '10px';
     generateTextButton.style.backgroundColor = '#d2d3db';
@@ -338,7 +344,7 @@
       generateTextButton.style.backgroundColor = '#ffffff';
     };
     generateTextButton.addEventListener('click', () => {
-      console.log("Button zum Generieren der Gliederung wurde geklickt.");
+      console.log("Button zum Generieren des Textes wurde geklickt.");
       const allTextBoxes = Array.from(container.querySelectorAll('div[contenteditable="true"]'));
       const outlinePoints = allTextBoxes.map((box, i) => {
         const titleText = box.querySelector('h4') ? box.querySelector('h4').innerText.trim() : '';
@@ -365,44 +371,8 @@
       generateTextButton.disabled = true;
     });
 
-    // Button für B-Text generieren
-    const generateBTextButton = document.createElement('button');
-    generateBTextButton.innerText = 'B-Text generieren';
-    generateBTextButton.style.width = 'auto';
-    generateBTextButton.style.padding = '10px';
-    generateBTextButton.style.backgroundColor = '#d2d3db';
-    generateBTextButton.style.color = 'white';
-    generateBTextButton.style.border = '1px solid #000000';
-    generateBTextButton.style.borderRadius = '50px';
-    generateBTextButton.style.cursor = 'pointer';
-    generateBTextButton.style.marginLeft = '10px';
-    generateBTextButton.style.transition = 'background-color 0.3s';
-    generateBTextButton.onmouseover = () => {
-      generateBTextButton.style.backgroundColor = '#f0f0f0';
-    };
-    generateBTextButton.onmouseout = () => {
-      generateBTextButton.style.backgroundColor = '#ffffff';
-    };
-    generateBTextButton.addEventListener('click', () => {
-      console.log("Button zum Generieren des B-Texts wurde geklickt.");
-      const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
-      const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
-      const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
-      const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
-      const bText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
-      insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen, false);
-    });
-
-    header.insertBefore(generateBTextButton, header.querySelector('button'));
     header.insertBefore(generateTextButton, header.querySelector('button'));
-    console.log('Buttons zum Generieren der Gliederung und B-Text hinzugefügt');
-  }
-
-  function generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
-    return window.promptBText
-      .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-      .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-      .replace(/\$\{proofkeywords\}/g, proofkeywords);
+    console.log('Button zum Generieren des Textes hinzugefügt');
   }
 
   function createLoadingIndicator(container) {
@@ -629,25 +599,20 @@
     wFragenContainer.appendChild(addWFrageButton);
     inputContainer.appendChild(wFragenContainer);
 
-    const insertButton = document.createElement('button');
-    insertButton.innerText = 'Gliederung abfragen';
-    insertButton.style.width = '100%';
-    insertButton.style.padding = '10px';
-    insertButton.style.backgroundColor = '#333333';
-    insertButton.style.color = 'white';
-    insertButton.style.border = 'none';
-    insertButton.style.borderRadius = '5px';
-    insertButton.style.cursor = 'pointer';
-    insertButton.style.marginBottom = '10px';
-    insertButton.style.transition = 'background-color 0.3s';
-    insertButton.onmouseover = () => {
-      insertButton.style.backgroundColor = '#444444';
-    };
-    insertButton.onmouseout = () => {
-      insertButton.style.backgroundColor = '#333333';
-    };
-    insertButton.addEventListener('click', () => {
-      console.log("Gliederung abfragen geklickt.");
+    const insertButtonContainer = document.createElement('div');
+    insertButtonContainer.style.display = 'flex';
+    insertButtonContainer.style.justifyContent = 'space-between';
+
+    const aTextButton = document.createElement('button');
+    aTextButton.innerText = 'A-Text';
+    aTextButton.style.width = '48%';
+    aTextButton.style.padding = '10px';
+    aTextButton.style.backgroundColor = '#333333';
+    aTextButton.style.color = 'white';
+    aTextButton.style.border = 'none';
+    aTextButton.style.borderRadius = '5px';
+    aTextButton.style.cursor = 'pointer';
+    aTextButton.addEventListener('click', () => {
       const hauptkeyword = mainKeywordInput.value.trim();
       const nebenkeywords = subKeywordInput.value.trim();
       const proofkeywords = proofKeywordInput.value.trim();
@@ -656,44 +621,38 @@
         .filter(value => value)
         .join(', ');
 
-      console.log("Hauptkeyword:", hauptkeyword);
-      console.log("Nebenkeywords:", nebenkeywords);
-      console.log("Proofkeywords:", proofkeywords);
-      console.log("W-Fragen:", w_fragen);
-
       if (hauptkeyword) {
         insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-        console.log("Prompt zum Generieren der Gliederung gesendet. Verberge Insert-Button und zeige Ladeindikator.");
-        insertButton.style.display = 'none'; // Button verschwinden lassen
-        createLoadingIndicator(content); // Ladeanimation anzeigen
-
-        // NUR JETZT startet der 10-Sekunden-Fallback
-        setTimeout(() => {
-          console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Gliederung abfragen'...");
-          if (firstTime) {
-            console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
-            if (loadingIndicator) {
-              loadingIndicator.remove();
-            }
-            const outline = extractOutline();
-            if (outline) {
-              const container = document.querySelector('.text-buddy-content');
-              if (container) {
-                createOutlineBoxes(outline, container);
-              } else {
-                console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
-              }
-            } else {
-              console.log("outline war null, also keine Boxes.");
-            }
-            firstTime = false;
-          } else {
-            console.log("Fallback nicht nötig, da firstTime bereits false ist.");
-          }
-        }, 10000);
       }
     });
-    content.appendChild(insertButton);
+
+    const bTextButton = document.createElement('button');
+    bTextButton.innerText = 'B-Text';
+    bTextButton.style.width = '48%';
+    bTextButton.style.padding = '10px';
+    bTextButton.style.backgroundColor = '#333333';
+    bTextButton.style.color = 'white';
+    bTextButton.style.border = 'none';
+    bTextButton.style.borderRadius = '5px';
+    bTextButton.style.cursor = 'pointer';
+    bTextButton.addEventListener('click', () => {
+      const hauptkeyword = mainKeywordInput.value.trim();
+      const nebenkeywords = subKeywordInput.value.trim();
+      const proofkeywords = proofKeywordInput.value.trim();
+      const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
+        .map(input => input.value.trim())
+        .filter(value => value)
+        .join(', ');
+
+      if (hauptkeyword) {
+        const bText = generateBText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+        insertTextAndSend(hauptkeyword, bText, nebenkeywords, proofkeywords, w_fragen, false);
+      }
+    });
+
+    insertButtonContainer.appendChild(aTextButton);
+    insertButtonContainer.appendChild(bTextButton);
+    content.appendChild(insertButtonContainer);
 
     return overlay;
   }
@@ -794,7 +753,7 @@
     monitorResetButton();
     console.log('ContentBuddy initialized.');
     initialized = true;
-     
+
     // Nach erfolgter Initialisierung Observer deaktivieren, um mehrfaches Triggern zu vermeiden
     observer.disconnect();
   }

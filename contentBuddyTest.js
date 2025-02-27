@@ -157,41 +157,41 @@
       // Prüfe das nächste Element auf <ul>
       let nextElement = heading.nextElementSibling;
       while (nextElement && nextElement.tagName !== 'UL') {
-        nextElement = nextElement.nextElementSibling;
+         nextElement = nextElement.nextElementSibling;
       }
 
       if (nextElement && nextElement.tagName === 'UL') {
-        console.log('UL gefunden. Lese Listenpunkte aus.');
-        const processList = (ulElement) => {
-          const sublistItems = ulElement.querySelectorAll(':scope > li');
-          const content = [];
+         console.log('UL gefunden. Lese Listenpunkte aus.');
+         const processList = (ulElement) => {
+           const sublistItems = ulElement.querySelectorAll(':scope > li');
+           const content = [];
 
-          sublistItems.forEach((subitem) => {
-            let listItemText = subitem.firstChild.textContent.trim();
-            const nestedUl = subitem.querySelector(':scope > ul');
-            if (nestedUl) {
-              const nestedItems = processList(nestedUl);
-              if (nestedItems.length > 0) {
-                listItemText = `${listItemText}: ${nestedItems.join(' ')}`;
+           sublistItems.forEach((subitem) => {
+              let listItemText = subitem.firstChild.textContent.trim();
+              const nestedUl = subitem.querySelector(':scope > ul');
+              if (nestedUl) {
+                const nestedItems = processList(nestedUl);
+                if (nestedItems.length > 0) {
+                  listItemText = `${listItemText}: ${nestedItems.join(' ')}`;
+                }
               }
-            }
-            content.push(listItemText);
-            console.log(`  Listenpunkt: "${listItemText}"`);
-          });
+              content.push(listItemText);
+              console.log(`  Listenpunkt: "${listItemText}"`);
+           });
 
-          return content;
-        };
+           return content;
+         };
 
-        const items = processList(nextElement);
-        point.content.push(...items);
+         const items = processList(nextElement);
+         point.content.push(...items);
       } else {
-        console.warn(`Kein <ul>-Element nach <h3> "${point.title}" gefunden.`);
+         console.warn(`Kein <ul>-Element nach <h3> "${point.title}" gefunden.`);
       }
 
       if (point.content.length > 0) {
-        outline.push(point);
+         outline.push(point);
       } else {
-        console.warn(`Leerer Punkt nach <h3> "${point.title}" wird nicht hinzugefügt.`);
+         console.warn(`Leerer Punkt nach <h3> "${point.title}" wird nicht hinzugefügt.`);
       }
     });
 
@@ -368,55 +368,53 @@
     header.insertBefore(generateTextButton, header.querySelector('button'));
     console.log('Button zum Generieren des Textes hinzugefügt');
 
-    // Neuer Button für Meta-Daten generieren
+    // Button zum Generieren der Meta-Daten
     const generateMetaDataButton = document.createElement('button');
-    generateMetaDataButton.innerText = 'Meta-Daten generieren';
-    generateMetaDataButton.style.width = '100%';
+    generateMetaDataButton.innerText = '📊 Meta-Daten generieren';
+    generateMetaDataButton.style.width = 'auto';
     generateMetaDataButton.style.padding = '10px';
-    generateMetaDataButton.style.backgroundColor = '#333333';
+    generateMetaDataButton.style.backgroundColor = '#d2d3db';
     generateMetaDataButton.style.color = 'white';
-    generateMetaDataButton.style.border = 'none';
-    generateMetaDataButton.style.borderRadius = '5px';
+    generateMetaDataButton.style.border = '1px solid #000000';
+    generateMetaDataButton.style.borderRadius = '50px';
     generateMetaDataButton.style.cursor = 'pointer';
-    generateMetaDataButton.style.marginBottom = '10px';
+    generateMetaDataButton.style.marginLeft = '10px';
     generateMetaDataButton.style.transition = 'background-color 0.3s';
     generateMetaDataButton.onmouseover = () => {
-      generateMetaDataButton.style.backgroundColor = '#444444';
+      generateMetaDataButton.style.backgroundColor = '#f0f0f0';
     };
     generateMetaDataButton.onmouseout = () => {
-      generateMetaDataButton.style.backgroundColor = '#333333';
+      generateMetaDataButton.style.backgroundColor = '#ffffff';
     };
 
-    // Event Listener für den neuen Button
     generateMetaDataButton.addEventListener('click', () => {
-      console.log("Meta-Daten generieren geklickt.");
+      console.log("Button zum Generieren der Meta-Daten wurde geklickt.");
       const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
+      const metaKeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
       const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
-      const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
-      const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
-
-      console.log('Mainkeyword:', mainkeyword);
+      console.log('Hauptkeyword:', mainkeyword);
+      console.log('Nebenkeywords:', metaKeywords);
       console.log('Proofkeywords:', proofkeywords);
-      console.log('Subkeywords:', subkeywords);
-      console.log('W-Fragen:', w_fragen);
 
-      // Prompt für Metadaten laden
-      const metaPrompt = window.promptMetas; // Hier wird der Prompt geladen
-
-      if (metaPrompt) {
-          const metaDataText = metaPrompt.replace(/\$\{hauptkeyword\}/g, mainkeyword)
-                                         .replace(/\$\{proofkeywords\}/g, proofkeywords)
-                                         .replace(/\$\{nebenkeywords\}/g, subkeywords)
-                                         .replace(/\$\{w_fragen\}/g, w_fragen);
-          console.log('Generierte Metadaten:', metaDataText);
-          // Hier kannst du den Code hinzufügen, um die Metadaten anzuzeigen oder zu speichern
-      } else {
-          console.error('Meta-Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
+      // Prompt-Text für Metadaten laden
+      const promptMeta = window.promptMetas[window.selectedOption];
+      if (!promptMeta) {
+        console.error('Meta-Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
+        return;
       }
+
+      // Ersetzen der Platzhalter im Meta-Prompt
+      const metaText = promptMeta
+         .replace(/\$\{hauptkeyword\}/g, mainkeyword)
+         .replace(/\$\{nebenkeywords\}/g, metaKeywords)
+         .replace(/\$\{proofkeywords\}/g, proofkeywords);
+
+      console.log('Meta-Text, der generiert werden soll:', metaText);
+      // Hier kannst du die Logik hinzufügen, um die generierten Metadaten weiterzuverarbeiten oder anzuzeigen
     });
 
-    // Füge den neuen Button zum Inhalt hinzu
-    content.appendChild(generateMetaDataButton);
+    header.appendChild(generateMetaDataButton);
+    console.log('Button zum Generieren der Meta-Daten hinzugefügt');
   }
 
   function createLoadingIndicator(container) {
@@ -633,8 +631,8 @@
       removeWFrageButton.style.cursor = 'pointer';
       removeWFrageButton.style.fontSize = '14px';
       removeWFrageButton.onclick = () => {
-        console.log("W-Frage entfernt.");
-        wFrageBox.remove();
+         console.log("W-Frage entfernt.");
+         wFrageBox.remove();
       };
       wFrageBox.appendChild(removeWFrageButton);
 

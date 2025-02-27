@@ -669,7 +669,7 @@
 
   // Funktion zur Generierung des A-Textes
   function generateOutlineText(hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
-    return window.promptTextDefault
+    return window.promptTextOutline
       .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
       .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
       .replace(/\$\{proofkeywords\}/g, proofkeywords)

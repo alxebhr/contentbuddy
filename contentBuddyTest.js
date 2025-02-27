@@ -337,25 +337,6 @@
     generateTextButton.onmouseout = () => {
       generateTextButton.style.backgroundColor = '#ffffff';
     };
-
-    const generateBTextButton = document.createElement('button');
-    generateBTextButton.innerText = 'B-Text generieren';
-    generateBTextButton.style.width = 'auto';
-    generateBTextButton.style.padding = '10px';
-    generateBTextButton.style.backgroundColor = '#d2d3db';
-    generateBTextButton.style.color = 'white';
-    generateBTextButton.style.border = '1px solid #000000';
-    generateBTextButton.style.borderRadius = '50px';
-    generateBTextButton.style.cursor = 'pointer';
-    generateBTextButton.style.marginLeft = '10px';
-    generateBTextButton.style.transition = 'background-color 0.3s';
-    generateBTextButton.onmouseover = () => {
-      generateBTextButton.style.backgroundColor = '#f0f0f0';
-    };
-    generateBTextButton.onmouseout = () => {
-      generateBTextButton.style.backgroundColor = '#ffffff';
-    };
-
     generateTextButton.addEventListener('click', () => {
       console.log("Button zum Generieren der Gliederung wurde geklickt.");
       const allTextBoxes = Array.from(container.querySelectorAll('div[contenteditable="true"]'));
@@ -384,20 +365,36 @@
       generateTextButton.disabled = true;
     });
 
+    // Button für B-Text generieren
+    const generateBTextButton = document.createElement('button');
+    generateBTextButton.innerText = 'B-Text generieren';
+    generateBTextButton.style.width = 'auto';
+    generateBTextButton.style.padding = '10px';
+    generateBTextButton.style.backgroundColor = '#d2d3db';
+    generateBTextButton.style.color = 'white';
+    generateBTextButton.style.border = '1px solid #000000';
+    generateBTextButton.style.borderRadius = '50px';
+    generateBTextButton.style.cursor = 'pointer';
+    generateBTextButton.style.marginLeft = '10px';
+    generateBTextButton.style.transition = 'background-color 0.3s';
+    generateBTextButton.onmouseover = () => {
+      generateBTextButton.style.backgroundColor = '#f0f0f0';
+    };
+    generateBTextButton.onmouseout = () => {
+      generateBTextButton.style.backgroundColor = '#ffffff';
+    };
     generateBTextButton.addEventListener('click', () => {
       console.log("Button zum Generieren des B-Texts wurde geklickt.");
       const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
       const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
       const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
       const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
-
-      const generatedBText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
-      console.log('Generierter B-Text:', generatedBText);
-      insertTextAndSend(mainkeyword, generatedBText, subkeywords, proofkeywords, w_fragen, false);
+      const bText = generateBText(mainkeyword, subkeywords, proofkeywords, w_fragen);
+      insertTextAndSend(mainkeyword, bText, subkeywords, proofkeywords, w_fragen, false);
     });
 
+    header.insertBefore(generateBTextButton, header.querySelector('button'));
     header.insertBefore(generateTextButton, header.querySelector('button'));
-    header.insertBefore(generateBTextButton, generateTextButton.nextSibling);
     console.log('Buttons zum Generieren der Gliederung und B-Text hinzugefügt');
   }
 

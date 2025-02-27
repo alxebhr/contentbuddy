@@ -7,7 +7,7 @@
   let firstTime = true; // Track the first time the text is inserted
   let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
-  function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, outlineText = false) {
+  function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, isOutlineText = false) {
     // Versuche zuerst den Quill-Editor zu finden
     let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
     console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);

@@ -499,6 +499,31 @@
   mainKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
   inputContainer.appendChild(mainKeywordInput);
 
+  // Füge Dropdown für Texttyp hinzu
+  const textTypeLabel = createLabel('Texttyp wählen');
+  inputContainer.appendChild(textTypeLabel);
+
+  const textTypeSelect = document.createElement('select');
+  textTypeSelect.style.width = '100%';
+  textTypeSelect.style.padding = '10px';
+  textTypeSelect.style.marginBottom = '10px';
+  textTypeSelect.style.borderRadius = '5px';
+  textTypeSelect.style.border = '1px solid #ddd';
+  textTypeSelect.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
+
+  const optionA = document.createElement('option');
+  optionA.value = 'A';
+  optionA.textContent = 'A-Text';
+  textTypeSelect.appendChild(optionA);
+
+  const optionB = document.createElement('option');
+  optionB.value = 'B';
+  optionB.textContent = 'B-Text';
+  textTypeSelect.appendChild(optionB);
+
+  // Füge das Dropdown über dem Haupt-Keyword Input-Feld hinzu
+  inputContainer.insertBefore(textTypeSelect, mainKeywordInput);
+
   const subKeywordLabel = createLabel('Neben-Keywords');
   inputContainer.appendChild(subKeywordLabel);
   const subKeywordInput = document.createElement('input');
@@ -524,19 +549,6 @@
   proofKeywordInput.style.border = '1px solid #ddd';
   proofKeywordInput.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.1)';
   inputContainer.appendChild(proofKeywordInput);
-
-  const textTypeLabel = createLabel('Texttyp wählen');
-  inputContainer.appendChild(textTypeLabel);
-  const textTypeSelect = document.createElement('select');
-  const optionA = document.createElement('option');
-  optionA.value = 'A';
-  optionA.textContent = 'A-Text';
-  const optionB = document.createElement('option');
-  optionB.value = 'B';
-  optionB.textContent = 'B-Text';
-  textTypeSelect.appendChild(optionA);
-  textTypeSelect.appendChild(optionB);
-  inputContainer.appendChild(textTypeSelect);
 
   const wFragenContainer = document.createElement('div');
   wFragenContainer.className = 'w-fragen-container';

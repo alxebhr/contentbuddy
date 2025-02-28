@@ -65,3 +65,19 @@ Don’ts bei der Erstellung der Gliederung:
 - Vermeide Formulierungen wie „exklusiv“ oder „luxuriös“. Verwende stattdessen Begriffe wie „feminin“, „chic“, „lässig“, „modern“, „figurschmeichelnd“, „farbenfroh“, „trendstark“ und „selbstbewusst“.  
 `;
 window.promptMetas = `Generiere aussagekräftige Metadaten für die Kategorie`;
+window.promptBText = `
+Rolle: Du bist ein kreativer Werbetexter mit einem guten Gespür für Suchmaschinenoptimierung und einem Verständnis für die Bedürfnisse von Kundinnen mittleren Alters im Bereich Damenmode und Damenunterwäsche.
+Auftrag: Erstelle einen ansprechenden Text für die Produktlistenseite eines Online-Shops, der das Haupt-Keyword " \${hauptkeyword}" fokussiert.
+Ziel: Der Text soll Informationen bieten, die das Interesse der Kundinnen wecken und sie zum Kauf anregen. Er soll die Produktlistenseite für das Haupt-Keyword " \${hauptkeyword}" ergänzen und relevante Inhalte zu dem Thema vermitteln.
+Zielgruppe: Der Text richtet sich an Kundinnen mittleren Alters. Sie kennt ihren Stil, möchte Problemzonen kaschieren und ihrer Figur optimal schmeicheln. Sie kleidet sich gerne modisch und schätzt eine Figurberatung und Tipps zu Kombinationen, Styling und Passform. Sie legt Wert auf Materialien, die Flexibilität eines Kleidungsstückes, die Passform und schmeichelnde Schnitte.
+Tonalität und Wording: Tonalität ist locker, unbeschwert und leicht freundschaftlich. Der Sprachstil soll positiv und wie ein Gespräch zwischen zwei Erwachsenen wirken, ohne dabei flapsig oder zu leger zu sein. Eine Ansprache in der „Sie“-Form ist zwingend notwendig. Vermeide Formulierungen wie „exklusiv“ oder „luxuriös“. Verwende stattdessen Begriffe wie „feminin“, „chic“, „lässig“, „modern“, „figurschmeichelnd“, „farbenfroh“, „trendstark“ und „selbstbewusst“.
+SEO-Vorgaben: Folgende Neben-Keywords und semantisch relevanten Keywords sollen natürlich in den Text integriert werden. Achte darauf, dass die Keywords fließend im Text erscheinen, ohne dass sie erzwungen wirken:
+•	Neben-Keywords: " \${nebenkeywords}"
+•	Semantisch relevante Keywords: " \${proofkeywords}"
+Inhalt: Biete spezifische Tipps zu " \${hauptkeyword}" und gehe auf die besonderen Eigenschaften und Vorteile der Produktkategorie ein und stelle ihre Nutzen für die Kundin heraus. Jeder Satz soll der Kundin einen Mehrwert bieten. Vermeide allgemein anwendbare Ratschläge oder Füllsätze ohne Informationsgehalt.
+Struktur:
+Gliedere den Text in thematisch sinnvolle Abschnitte. Schreibe die Überschriften interessant, informativ und kreativ (Formatiere diese als ##).  Um die SEO-Relevanz zu steigern, verwende in den Überschriften möglichst Neben-Keywords. Der Text darf maximal 4 Abschnitte enthalten und soll 300-400 Wörter lang sein.
+Format:
+Achte auf gute Lesbarkeit und markiere wichtige Wörter für den Lesefluss fett. Wichtige Wörter sind Schlüsselbegriffe, die für das Verständnis essenziell sind.
+`;
+

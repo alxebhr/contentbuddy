@@ -319,6 +319,8 @@
 
         const header = container.closest('.text-buddy-content').previousElementSibling;
         console.log('Header gefunden:', header);
+        
+        // Buttons für A-Text und B-Text erstellen
         const generateATextButton = document.createElement('button');
         generateATextButton.innerText = 'A-Text 🖋️✨';
         generateATextButton.style.width = 'auto';
@@ -382,8 +384,9 @@
             console.log('B-Text wurde eingefügt:', mainkeyword, subkeywords, proofkeywords, w_fragen);
         });
 
-        header.insertBefore(generateATextButton, header.querySelector('button'));
-        header.insertBefore(generateBTextButton, generateATextButton.nextSibling);
+        // Buttons zum Header hinzufügen
+        header.appendChild(generateATextButton);
+        header.appendChild(generateBTextButton);
         console.log('Buttons zum Generieren des Textes hinzugefügt');
     }
 

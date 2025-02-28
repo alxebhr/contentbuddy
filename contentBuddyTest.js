@@ -64,21 +64,41 @@
             console.error('Kein passendes Editor-Container-Element oder Textarea gefunden.');
         }
     }
-    function createMetaDataButton(container) {
+    function createMetaDataButton() {
+        console.log("Erstelle Meta-Daten-Button...");
+    
+        // **Header-Container holen, wo auch der 🖋️✨ Button ist**
+        const header = document.querySelector('.text-buddy-content').previousElementSibling;
+    
+        if (!header) {
+            console.error("Header für Meta-Daten-Button nicht gefunden!");
+            return;
+        }
+    
+        // **Neuen Button erstellen**
         const metaButton = document.createElement('button');
         metaButton.innerText = 'Meta-Daten generieren';
-        metaButton.style.marginTop = '10px';
+        metaButton.style.width = 'auto';
         metaButton.style.padding = '10px';
-        metaButton.style.backgroundColor = '#007BFF';
+        metaButton.style.backgroundColor = '#28a745'; // 🟢 Grün für Metadaten
         metaButton.style.color = 'white';
         metaButton.style.border = 'none';
-        metaButton.style.borderRadius = '5px';
+        metaButton.style.borderRadius = '50px';
         metaButton.style.cursor = 'pointer';
+        metaButton.style.marginLeft = '10px';
+        metaButton.style.transition = 'background-color 0.3s';
+        metaButton.onmouseover = () => {
+            metaButton.style.backgroundColor = '#218838';
+        };
+        metaButton.onmouseout = () => {
+            metaButton.style.backgroundColor = '#28a745';
+        };
     
+        // **Click-Event für das Generieren der Meta-Daten**
         metaButton.addEventListener('click', () => {
             console.log("Meta-Daten-Button geklickt.");
     
-            // **1️⃣ Haupt- & Nebenkeywords aus den Input-Feldern holen**
+            // **Haupt- & Nebenkeywords aus den Input-Feldern holen**
             const hauptkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
             const nebenkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
             const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
@@ -87,13 +107,13 @@
                 .filter(value => value)
                 .join(', ');
     
-            // **2️⃣ Sicherstellen, dass window.promptMetas existiert**
+            // **Sicherstellen, dass window.promptMetas existiert**
             if (!window.promptMetas) {
                 console.error('window.promptMetas ist nicht definiert!');
                 return;
             }
     
-            // **3️⃣ Platzhalter im Prompt mit echten Werten ersetzen**
+            // **Platzhalter im Prompt ersetzen**
             let metaPrompt = window.promptMetas;
             metaPrompt = metaPrompt.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
                                    .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
@@ -102,12 +122,18 @@
     
             console.log('Metadaten-Prompt nach Platzhalter-Ersetzung:', metaPrompt);
     
-            // **4️⃣ Der verarbeitete Prompt wird in den Editor eingefügt**
+            // **Prompt in den Editor einfügen**
             insertTextAndSend(hauptkeyword, metaPrompt, nebenkeywords, proofkeywords, w_fragen, "metaText");
         });
     
-        container.appendChild(metaButton);
+        // **Den Button erst einfügen, wenn er noch nicht existiert**
+        if (!document.querySelector('#metaDataButton')) {
+            metaButton.id = 'metaDataButton';
+            header.insertBefore(metaButton, header.querySelector('button'));
+            console.log("Meta-Daten-Button wurde eingefügt!");
+        }
     }
+    
     
     
     // Funktion zum Einfügen von Text in die Textarea und Absenden
@@ -130,8 +156,9 @@
 
         // Simuliere Enter-Taste nach einer kleinen Verzögerung
         setTimeout(() => {
-            simulateEnterPress(chatbox);
-        }, 10); // Kleine Verzögerung, um sicherzustellen, dass der Text zuerst eingefügt wird
+            createMetaDataButton();
+        }, 3000); // 🕒 3 Sekunden Verzögerung, damit es flüssig aussieht
+        
     }
 
     // Funktion zum Simulieren des Drückens der Enter-Taste
@@ -706,11 +733,10 @@
                         firstTime = false;
                     }
                     // 🆕 Meta-Button einfügen (jetzt mit korrektem Prompt!)
-                    createMetaDataButton(content);
+                    createMetaDataButton(content, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
                 }, 10000);
             }
         });
-        
         
 
         bTextButton.addEventListener('click', () => {
@@ -732,11 +758,15 @@
                     .replace(/\$\{w_fragen\}/g, w_fragen);
         
                 insertTextAndSend(hauptkeyword, bTextPrompt, nebenkeywords, proofkeywords, w_fragen, "bText");
+                setTimeout(() => {
+                    createMetaDataButton();
+                }, 2000); // 🕒 2 Sekunden Verzögerung für B-Text                
         
                 // 🆕 Meta-Button einfügen (jetzt mit korrektem Prompt!)
-                createMetaDataButton(content);
+                createMetaDataButton(content, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
             }
         });
+        
         
                 
 

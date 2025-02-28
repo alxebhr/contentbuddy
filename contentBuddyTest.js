@@ -61,7 +61,7 @@
             console.error('Kein passendes Editor-Container-Element oder Textarea gefunden.');
         }
     }
-    function createMetaDataButton(container, hauptkeyword, nebenkeywords) {
+    function createMetaDataButton(container, hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
         const metaButton = document.createElement('button');
         metaButton.innerText = 'Meta-Daten generieren';
         metaButton.style.marginTop = '10px';
@@ -82,16 +82,19 @@
     
             let metaPrompt = window.promptMetas;
             metaPrompt = metaPrompt.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-                                   .replace(/\$\{nebenkeywords\}/g, nebenkeywords);
+                                   .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+                                   .replace(/\$\{proofkeywords\}/g, proofkeywords)
+                                   .replace(/\$\{w_fragen\}/g, w_fragen);
     
-            console.log('Meta-Daten-Generierung mit Prompt:', metaPrompt);
+            console.log('Meta-Daten-Text wird in den Editor eingefügt:', metaPrompt);
     
-            // Hier kann z. B. die API zur Metadaten-Generierung aufgerufen werden
-            alert(`Meta-Daten generiert:\n${metaPrompt}`);
+            // 🆕 Metadaten-Text in den Editor einfügen
+            insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen, "metaText");
         });
     
         container.appendChild(metaButton);
     }
+    
     
     // Funktion zum Einfügen von Text in die Textarea und Absenden
     function insertTextInTextareaAndSubmit(chatbox, text) {
@@ -688,8 +691,8 @@
                         }
                         firstTime = false;
                     }
-                    // ➡️ Meta-Button einfügen
-                    createMetaDataButton(content, hauptkeyword, nebenkeywords);
+                    // 🆕 Meta-Button einfügen
+                    createMetaDataButton(content, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
                 }, 10000);
             }
         });
@@ -715,11 +718,11 @@
         
                 insertTextAndSend(hauptkeyword, bTextPrompt, nebenkeywords, proofkeywords, w_fragen, "bText");
         
-                // ➡️ Meta-Button einfügen
-                createMetaDataButton(content, hauptkeyword, nebenkeywords);
+                // 🆕 Meta-Button einfügen
+                createMetaDataButton(content, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
             }
         });
-        
+                
 
         return overlay;
     }

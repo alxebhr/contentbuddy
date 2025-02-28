@@ -86,7 +86,6 @@ Format:
 •	Platziere, sofern angemessen, Neben-Keywords wie " \${nebenkeywords}" in der Description. 
 •	Verwende Emojis, die zu dem Thema passen und die Description inhaltlich und optisch aufwerten. Beschränke dich auf folgende Emojis: 🌸➡️☀️✔❤❄️
 •	Beende die Description mit einem Call-to-Action, der zum Kauf auffordert. 
-•	Die Description darf nicht länger als 26 Token sein.
+•	Die Description darf nicht länger als 26 Token sein. Nutze den Platz in der Description bestmöglich aus. 
 •	Stimme die Description immer individuell und ganz speziell auf das Thema " \${hauptkeyword}" ab. Greife hier Eigenschaften und Vorteile auf, die für den Kauf des jeweiligen Produkts für potenzielle Kunden relevant sind. Formuliere abwechslungsreich und kreativ. 
-
 `;

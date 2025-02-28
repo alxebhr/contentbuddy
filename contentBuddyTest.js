@@ -61,7 +61,38 @@
             console.error('Kein passendes Editor-Container-Element oder Textarea gefunden.');
         }
     }
-
+    function createMetaDataButton(container, hauptkeyword, nebenkeywords) {
+        const metaButton = document.createElement('button');
+        metaButton.innerText = 'Meta-Daten generieren';
+        metaButton.style.marginTop = '10px';
+        metaButton.style.padding = '10px';
+        metaButton.style.backgroundColor = '#007BFF';
+        metaButton.style.color = 'white';
+        metaButton.style.border = 'none';
+        metaButton.style.borderRadius = '5px';
+        metaButton.style.cursor = 'pointer';
+    
+        metaButton.addEventListener('click', () => {
+            console.log("Meta-Daten-Button geklickt.");
+    
+            if (!window.promptMetas) {
+                console.error('window.promptMetas nicht definiert.');
+                return;
+            }
+    
+            let metaPrompt = window.promptMetas;
+            metaPrompt = metaPrompt.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+                                   .replace(/\$\{nebenkeywords\}/g, nebenkeywords);
+    
+            console.log('Meta-Daten-Generierung mit Prompt:', metaPrompt);
+    
+            // Hier kann z. B. die API zur Metadaten-Generierung aufgerufen werden
+            alert(`Meta-Daten generiert:\n${metaPrompt}`);
+        });
+    
+        container.appendChild(metaButton);
+    }
+    
     // Funktion zum Einfügen von Text in die Textarea und Absenden
     function insertTextInTextareaAndSubmit(chatbox, text) {
         // Simuliere einen Klick auf die Textarea
@@ -637,7 +668,7 @@
                 .map(input => input.value.trim())
                 .filter(value => value)
                 .join(', ');
-
+        
             if (hauptkeyword) {
                 insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
                 aTextButton.style.display = 'none';
@@ -657,9 +688,12 @@
                         }
                         firstTime = false;
                     }
+                    // ➡️ Meta-Button einfügen
+                    createMetaDataButton(content, hauptkeyword, nebenkeywords);
                 }, 10000);
             }
         });
+        
 
         bTextButton.addEventListener('click', () => {
             console.log("B-Text direkt generieren.");
@@ -670,7 +704,7 @@
                 .map(input => input.value.trim())
                 .filter(value => value)
                 .join(', ');
-
+        
             if (hauptkeyword) {
                 let bTextPrompt = window.promptBText;
                 bTextPrompt = bTextPrompt.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
@@ -678,10 +712,14 @@
                     .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
                     .replace(/\$\{proofkeywords\}/g, proofkeywords)
                     .replace(/\$\{w_fragen\}/g, w_fragen);
-
+        
                 insertTextAndSend(hauptkeyword, bTextPrompt, nebenkeywords, proofkeywords, w_fragen, "bText");
+        
+                // ➡️ Meta-Button einfügen
+                createMetaDataButton(content, hauptkeyword, nebenkeywords);
             }
         });
+        
 
         return overlay;
     }

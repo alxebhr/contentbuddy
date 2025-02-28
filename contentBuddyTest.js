@@ -724,6 +724,8 @@
         document.body.appendChild(button);
 
         const overlay = createOverlay(button);
+        document.body.appendChild(button);
+
     }
 
     /**

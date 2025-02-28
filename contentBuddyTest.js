@@ -64,7 +64,7 @@
             console.error('Kein passendes Editor-Container-Element oder Textarea gefunden.');
         }
     }
-    function createMetaDataButton(container, hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
+    function createMetaDataButton(container) {
         const metaButton = document.createElement('button');
         metaButton.innerText = 'Meta-Daten generieren';
         metaButton.style.marginTop = '10px';
@@ -78,13 +78,23 @@
         metaButton.addEventListener('click', () => {
             console.log("Meta-Daten-Button geklickt.");
     
-            // **Wichtig: Hier wird sichergestellt, dass window.promptMetas existiert!**
+            // **1️⃣ Haupt- & Nebenkeywords aus den Input-Feldern holen**
+            const hauptkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
+            const nebenkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
+            const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
+            const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
+                .map(input => input.value.trim())
+                .filter(value => value)
+                .join(', ');
+    
+            // **2️⃣ Sicherstellen, dass window.promptMetas existiert**
             if (!window.promptMetas) {
                 console.error('window.promptMetas ist nicht definiert!');
                 return;
             }
     
-            let metaPrompt = window.promptMetas; // **Hier wird der richtige Prompt geladen**
+            // **3️⃣ Platzhalter im Prompt mit echten Werten ersetzen**
+            let metaPrompt = window.promptMetas;
             metaPrompt = metaPrompt.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
                                    .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
                                    .replace(/\$\{proofkeywords\}/g, proofkeywords)
@@ -92,13 +102,12 @@
     
             console.log('Metadaten-Prompt nach Platzhalter-Ersetzung:', metaPrompt);
     
-            // **Jetzt wird der generierte Text in den Editor eingefügt!**
+            // **4️⃣ Der verarbeitete Prompt wird in den Editor eingefügt**
             insertTextAndSend(hauptkeyword, metaPrompt, nebenkeywords, proofkeywords, w_fragen, "metaText");
         });
     
         container.appendChild(metaButton);
     }
-    
     
     
     // Funktion zum Einfügen von Text in die Textarea und Absenden
@@ -697,7 +706,7 @@
                         firstTime = false;
                     }
                     // 🆕 Meta-Button einfügen (jetzt mit korrektem Prompt!)
-                    createMetaDataButton(content, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+                    createMetaDataButton(content);
                 }, 10000);
             }
         });
@@ -725,7 +734,7 @@
                 insertTextAndSend(hauptkeyword, bTextPrompt, nebenkeywords, proofkeywords, w_fragen, "bText");
         
                 // 🆕 Meta-Button einfügen (jetzt mit korrektem Prompt!)
-                createMetaDataButton(content, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+                createMetaDataButton(content);
             }
         });
         

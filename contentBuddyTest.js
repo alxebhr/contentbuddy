@@ -22,15 +22,13 @@
         }
 
         // Text für den Editor erstellen
-            let text;
-        if (outlineText === 'bText') {
-            text = window.promptBText;
-        } else if (outlineText) {
+        let text;
+        if (outlineText) {
             text = window.promptTextOutline;
         } else {
             text = window.promptTextDefault;
         }
-        
+
         // Überprüfen, ob der Prompt-Text vorhanden ist
         if (!text) {
             console.error('Prompt-Text nicht gefunden. Bitte stellen Sie sicher, dass die Prompt-Dateien korrekt geladen wurden.');
@@ -595,44 +593,25 @@
         wFragenContainer.appendChild(addWFrageButton);
         inputContainer.appendChild(wFragenContainer);
 
-        const aTextButton = document.createElement('button');
-        aTextButton.innerText = 'A-Text';
-        aTextButton.style.width = '48%';
-        aTextButton.style.padding = '10px';
-        aTextButton.style.backgroundColor = '#333333';
-        aTextButton.style.color = 'white';
-        aTextButton.style.border = 'none';
-        aTextButton.style.borderRadius = '5px';
-        aTextButton.style.cursor = 'pointer';
-        aTextButton.style.transition = 'background-color 0.3s';
-        aTextButton.onmouseover = () => aTextButton.style.backgroundColor = '#444444';
-        aTextButton.onmouseout = () => aTextButton.style.backgroundColor = '#333333';
-        
-        const bTextButton = document.createElement('button');
-        bTextButton.innerText = 'B-Text';
-        bTextButton.style.width = '48%';
-        bTextButton.style.padding = '10px';
-        bTextButton.style.backgroundColor = '#555555';
-        bTextButton.style.color = 'white';
-        bTextButton.style.border = 'none';
-        bTextButton.style.borderRadius = '5px';
-        bTextButton.style.cursor = 'pointer';
-        bTextButton.style.transition = 'background-color 0.3s';
-        bTextButton.onmouseover = () => bTextButton.style.backgroundColor = '#666666';
-        bTextButton.onmouseout = () => bTextButton.style.backgroundColor = '#555555';
-        
-        const buttonContainer = document.createElement('div');
-        buttonContainer.style.display = 'flex';
-        buttonContainer.style.justifyContent = 'space-between';
-        buttonContainer.appendChild(aTextButton);
-        buttonContainer.appendChild(bTextButton);
-
+        const insertButton = document.createElement('button');
+        insertButton.innerText = 'Gliederung abfragen';
+        insertButton.style.width = '100%';
+        insertButton.style.padding = '10px';
+        insertButton.style.backgroundColor = '#333333';
+        insertButton.style.color = 'white';
+        insertButton.style.border = 'none';
+        insertButton.style.borderRadius = '5px';
+        insertButton.style.cursor = 'pointer';
+        insertButton.style.marginBottom = '10px';
+        insertButton.style.transition = 'background-color 0.3s';
+        insertButton.onmouseover = () => {
+            insertButton.style.backgroundColor = '#444444';
         };
         insertButton.onmouseout = () => {
             insertButton.style.backgroundColor = '#333333';
         };
-        aTextButton.addEventListener('click', () => {
-            console.log("A-Text angefordert.");
+        insertButton.addEventListener('click', () => {
+            console.log("Gliederung abfragen geklickt.");
             const hauptkeyword = mainKeywordInput.value.trim();
             const nebenkeywords = subKeywordInput.value.trim();
             const proofkeywords = proofKeywordInput.value.trim();
@@ -640,14 +619,23 @@
                 .map(input => input.value.trim())
                 .filter(value => value)
                 .join(', ');
-        
+
+            console.log("Hauptkeyword:", hauptkeyword);
+            console.log("Nebenkeywords:", nebenkeywords);
+            console.log("Proofkeywords:", proofkeywords);
+            console.log("W-Fragen:", w_fragen);
+
             if (hauptkeyword) {
                 insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-                aTextButton.style.display = 'none';
-                bTextButton.style.display = 'none';
-                createLoadingIndicator(content);
+                console.log("Prompt zum Generieren der Gliederung gesendet. Verberge Insert-Button und zeige Ladeindikator.");
+                insertButton.style.display = 'none'; // Button verschwinden lassen
+                createLoadingIndicator(content); // Ladeanimation anzeigen
+
+                // NUR JETZT startet der 10-Sekunden-Fallback
                 setTimeout(() => {
+                    console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Gliederung abfragen'...");
                     if (firstTime) {
+                        console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
                         if (loadingIndicator) {
                             loadingIndicator.remove();
                         }
@@ -656,36 +644,19 @@
                             const container = document.querySelector('.text-buddy-content');
                             if (container) {
                                 createOutlineBoxes(outline, container);
+                            } else {
+                                console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
                             }
+                        } else {
+                            console.log("outline war null, also keine Boxes.");
                         }
                         firstTime = false;
+                    } else {
+                        console.log("Fallback nicht nötig, da firstTime bereits false ist.");
                     }
                 }, 10000);
             }
         });
-        
-        bTextButton.addEventListener('click', () => {
-            console.log("B-Text direkt generieren.");
-            const hauptkeyword = mainKeywordInput.value.trim();
-            const nebenkeywords = subKeywordInput.value.trim();
-            const proofkeywords = proofKeywordInput.value.trim();
-            const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
-                .map(input => input.value.trim())
-                .filter(value => value)
-                .join(', ');
-        
-            if (hauptkeyword) {
-                let bTextPrompt = window.promptBText;
-                bTextPrompt = bTextPrompt.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-                                         .replace(/\$\{keyword\}/g, hauptkeyword)
-                                         .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-                                         .replace(/\$\{proofkeywords\}/g, proofkeywords)
-                                         .replace(/\$\{w_fragen\}/g, w_fragen);
-        
-                insertTextAndSend(hauptkeyword, bTextPrompt, nebenkeywords, proofkeywords, w_fragen, false);
-            }
-        });
-    
         content.appendChild(insertButton);
 
         return overlay;

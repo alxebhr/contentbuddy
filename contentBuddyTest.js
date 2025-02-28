@@ -22,9 +22,12 @@
         }
 
         // Text für den Editor erstellen
+        // Text für den Editor erstellen
         let text;
         if (outlineText === 'bText') {
             text = window.promptBText;
+        } else if (outlineText === 'metaText') {  // 🆕 Meta-Daten Prompt hinzufügen
+            text = window.promptMetas;
         } else if (outlineText === true) {
             text = window.promptTextOutline;
         } else {
@@ -75,25 +78,27 @@
         metaButton.addEventListener('click', () => {
             console.log("Meta-Daten-Button geklickt.");
     
+            // **Wichtig: Hier wird sichergestellt, dass window.promptMetas existiert!**
             if (!window.promptMetas) {
-                console.error('window.promptMetas nicht definiert.');
+                console.error('window.promptMetas ist nicht definiert!');
                 return;
             }
     
-            let metaPrompt = window.promptMetas;
+            let metaPrompt = window.promptMetas; // **Hier wird der richtige Prompt geladen**
             metaPrompt = metaPrompt.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
                                    .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
                                    .replace(/\$\{proofkeywords\}/g, proofkeywords)
                                    .replace(/\$\{w_fragen\}/g, w_fragen);
     
-            console.log('Meta-Daten-Text wird in den Editor eingefügt:', metaPrompt);
+            console.log('Metadaten-Prompt nach Platzhalter-Ersetzung:', metaPrompt);
     
-            // 🆕 Metadaten-Text in den Editor einfügen
-            insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen, "metaText");
+            // **Jetzt wird der generierte Text in den Editor eingefügt!**
+            insertTextAndSend(hauptkeyword, metaPrompt, nebenkeywords, proofkeywords, w_fragen, "metaText");
         });
     
         container.appendChild(metaButton);
     }
+    
     
     
     // Funktion zum Einfügen von Text in die Textarea und Absenden
@@ -691,11 +696,12 @@
                         }
                         firstTime = false;
                     }
-                    // 🆕 Meta-Button einfügen
+                    // 🆕 Meta-Button einfügen (jetzt mit korrektem Prompt!)
                     createMetaDataButton(content, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
                 }, 10000);
             }
         });
+        
         
 
         bTextButton.addEventListener('click', () => {
@@ -718,10 +724,11 @@
         
                 insertTextAndSend(hauptkeyword, bTextPrompt, nebenkeywords, proofkeywords, w_fragen, "bText");
         
-                // 🆕 Meta-Button einfügen
+                // 🆕 Meta-Button einfügen (jetzt mit korrektem Prompt!)
                 createMetaDataButton(content, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
             }
         });
+        
                 
 
         return overlay;

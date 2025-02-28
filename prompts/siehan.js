@@ -81,10 +81,12 @@ Format:
 •	Benutze das Haupt-Keyword " \${hauptkeyword}" immer im Plural
 •	Spreche die Leserin mit "Sie" an 
 •	Stelle im Title den günstig-USP heraus. Gestalte den Title immer in der Form: " \${hauptkeyword}" + günstig + Verb, das zum Kauf auffordert + ggf. passendes Adjektiv. Wenn im Keyword das Wort „Sale“ vorkommt, gestalte den Title bitte in folgender Form: Günstig (grammatikalisch korrekt angepasst) + " \${hauptkeyword}"  + Verb, das zum Kauf auffordert + ggf. Adjektiv. Verwende das Haupt-Keyword " \${hauptkeyword}" so, dass der Title grammatikalisch korrekt ist
+•	Füge am Ende des Titles immer „| Sieh an“ ein
 •	Der Title soll nicht länger als 8 Token sein 
 •	Platziere, sofern angemessen, Neben-Keywords wie " \${nebenkeywords}" in der Description. 
 •	Verwende Emojis, die zu dem Thema passen und die Description inhaltlich und optisch aufwerten. Beschränke dich auf folgende Emojis: 🌸➡️☀️✔❤❄️
 •	Beende die Description mit einem Call-to-Action, der zum Kauf auffordert. 
 •	Die Description darf nicht länger als 26 Token sein.
 •	Stimme die Description immer individuell und ganz speziell auf das Thema " \${hauptkeyword}" ab. Greife hier Eigenschaften und Vorteile auf, die für den Kauf des jeweiligen Produkts für potenzielle Kunden relevant sind. Formuliere abwechslungsreich und kreativ. 
+
 `;

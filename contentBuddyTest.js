@@ -151,7 +151,7 @@
 
         headings.forEach((heading, index) => {
             const point = { title: '', content: [] };
-            console.log(`Verarbeite Überschrift Nr. ${index+1}: ${heading.innerText.trim()}`);
+            console.log(`Verarbeite Überschrift Nr. ${index + 1}: ${heading.innerText.trim()}`);
 
             // Extrahiere den Titel des <h3>-Tags
             point.title = heading.innerText.trim();
@@ -204,11 +204,11 @@
     function createOutlineBoxes(outline, container) {
         console.log("Erstelle Outline Boxes...");
         outline.forEach((point, index) => {
-            console.log(`Box #${index+1} wird erstellt mit Titel: "${point.title}"`);
+            console.log(`Box #${index + 1} wird erstellt mit Titel: "${point.title}"`);
             const box = document.createElement('div');
             box.style.position = 'relative';
             box.style.border = '1px solid #ddd';
-            box.style.padding = '40px 10px 10px 10px'; 
+            box.style.padding = '40px 10px 10px 10px';
             box.style.marginBottom = '10px';
             box.style.borderRadius = '5px';
             box.contentEditable = 'true';
@@ -289,7 +289,7 @@
             });
 
             container.appendChild(box);
-            console.log(`Box #${index+1} mit Titel "${point.title}" hinzugefügt`);
+            console.log(`Box #${index + 1} mit Titel "${point.title}" hinzugefügt`);
         });
 
         function updateMoveButtons(container) {
@@ -346,7 +346,7 @@
                 const titleText = box.querySelector('h4') ? box.querySelector('h4').innerText.trim() : '';
                 const paragraphs = box.querySelectorAll('p');
                 const contentText = Array.from(paragraphs).map(p => p.innerText.trim()).join(' ');
-                console.log(`Outline Box #${i+1} => Titel: "${titleText}", Inhalt: "${contentText}"`);
+                console.log(`Outline Box #${i + 1} => Titel: "${titleText}", Inhalt: "${contentText}"`);
                 return `${titleText}\n${contentText}`;
             }).filter(text => text);
             const outlineText = outlinePoints.join('\n\n');
@@ -607,7 +607,7 @@
         aTextButton.style.transition = 'background-color 0.3s';
         aTextButton.onmouseover = () => aTextButton.style.backgroundColor = '#444444';
         aTextButton.onmouseout = () => aTextButton.style.backgroundColor = '#333333';
-        
+
         const bTextButton = document.createElement('button');
         bTextButton.innerText = 'B-Text';
         bTextButton.style.width = '48%';
@@ -620,7 +620,7 @@
         bTextButton.style.transition = 'background-color 0.3s';
         bTextButton.onmouseover = () => bTextButton.style.backgroundColor = '#666666';
         bTextButton.onmouseout = () => bTextButton.style.backgroundColor = '#555555';
-        
+
         const buttonContainer = document.createElement('div');
         buttonContainer.style.display = 'flex';
         buttonContainer.style.justifyContent = 'space-between';
@@ -628,8 +628,6 @@
         buttonContainer.appendChild(bTextButton);
         content.appendChild(buttonContainer);
 
-        };
-      
         aTextButton.addEventListener('click', () => {
             console.log("A-Text angefordert.");
             const hauptkeyword = mainKeywordInput.value.trim();
@@ -639,7 +637,7 @@
                 .map(input => input.value.trim())
                 .filter(value => value)
                 .join(', ');
-        
+
             if (hauptkeyword) {
                 insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
                 aTextButton.style.display = 'none';
@@ -662,7 +660,7 @@
                 }, 10000);
             }
         });
-        
+
         bTextButton.addEventListener('click', () => {
             console.log("B-Text direkt generieren.");
             const hauptkeyword = mainKeywordInput.value.trim();
@@ -672,20 +670,18 @@
                 .map(input => input.value.trim())
                 .filter(value => value)
                 .join(', ');
-        
+
             if (hauptkeyword) {
                 let bTextPrompt = window.promptBText;
                 bTextPrompt = bTextPrompt.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-                                         .replace(/\$\{keyword\}/g, hauptkeyword)
-                                         .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-                                         .replace(/\$\{proofkeywords\}/g, proofkeywords)
-                                         .replace(/\$\{w_fragen\}/g, w_fragen);
-        
+                    .replace(/\$\{keyword\}/g, hauptkeyword)
+                    .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+                    .replace(/\$\{proofkeywords\}/g, proofkeywords)
+                    .replace(/\$\{w_fragen\}/g, w_fragen);
+
                 insertTextAndSend(hauptkeyword, bTextPrompt, nebenkeywords, proofkeywords, w_fragen, "bText");
             }
         });
-    
-        content.appendChild(insertButton);
 
         return overlay;
     }
@@ -724,8 +720,7 @@
         document.body.appendChild(button);
 
         const overlay = createOverlay(button);
-        document.body.appendChild(button);
-
+        document.body.appendChild(overlay);
     }
 
     /**

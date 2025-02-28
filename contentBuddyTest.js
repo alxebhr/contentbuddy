@@ -38,23 +38,33 @@
         }
     }
 
-    function createInsertButtons(container) {
-        let buttonA = document.createElement('button');
-        buttonA.innerText = 'A-Text';
-        styleButton(buttonA);
-        buttonA.addEventListener('click', () => {
-            handleAText();
+    function extractOutline() {
+        console.log('Extrahiere Gliederung...');
+        const elements = document.querySelectorAll('div[data-v-1780e672].v-col-md-10.v-col-12.px-0.pt-0.content');
+        if (!elements.length) {
+            console.error('Keine passenden Elemente für die Gliederung gefunden.');
+            return null;
+        }
+
+        let sourceElement = elements[elements.length - 1];
+        const outline = [];
+        const headings = sourceElement.querySelectorAll('h3');
+        
+        headings.forEach(heading => {
+            const point = { title: heading.innerText.trim(), content: [] };
+            let nextElement = heading.nextElementSibling;
+            while (nextElement && nextElement.tagName !== 'UL') {
+                nextElement = nextElement.nextElementSibling;
+            }
+            if (nextElement && nextElement.tagName === 'UL') {
+                const items = Array.from(nextElement.querySelectorAll('li')).map(li => li.innerText.trim());
+                point.content.push(...items);
+            }
+            outline.push(point);
         });
         
-        let buttonB = document.createElement('button');
-        buttonB.innerText = 'B-Text';
-        styleButton(buttonB);
-        buttonB.addEventListener('click', () => {
-            handleBText();
-        });
-        
-        container.appendChild(buttonA);
-        container.appendChild(buttonB);
+        console.log('Extrahierte Gliederung:', outline);
+        return outline;
     }
 
     function handleAText() {
@@ -66,7 +76,24 @@
         
         if (hauptkeyword) {
             insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+            setTimeout(() => {
+                const outline = extractOutline();
+                if (outline) {
+                    createOutlineButton(outline, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+                }
+            }, 5000);
         }
+    }
+
+    function createOutlineButton(outline, hauptkeyword, nebenkeywords, proofkeywords, w_fragen) {
+        let button = document.createElement('button');
+        button.innerText = '🖋️✨';
+        styleButton(button);
+        button.addEventListener('click', () => {
+            let outlineText = outline.map(point => `${point.title}: ${point.content.join(', ')}`).join('\n');
+            insertTextAndSend(hauptkeyword, outlineText, nebenkeywords, proofkeywords, w_fragen, true);
+        });
+        document.body.appendChild(button);
     }
 
     function handleBText() {
@@ -81,20 +108,6 @@
         }
     }
 
-    function styleButton(button) {
-        button.style.width = '100%';
-        button.style.padding = '10px';
-        button.style.backgroundColor = '#333333';
-        button.style.color = 'white';
-        button.style.border = 'none';
-        button.style.borderRadius = '5px';
-        button.style.cursor = 'pointer';
-        button.style.marginBottom = '10px';
-        button.style.transition = 'background-color 0.3s';
-        button.onmouseover = () => button.style.backgroundColor = '#444444';
-        button.onmouseout = () => button.style.backgroundColor = '#333333';
-    }
-
     function replaceInsertButton() {
         let insertButton = document.querySelector('button:contains("Gliederung abfragen")');
         if (insertButton) {
@@ -102,6 +115,21 @@
             insertButton.remove();
             createInsertButtons(container);
         }
+    }
+
+    function createInsertButtons(container) {
+        let buttonA = document.createElement('button');
+        buttonA.innerText = 'A-Text';
+        styleButton(buttonA);
+        buttonA.addEventListener('click', handleAText);
+        
+        let buttonB = document.createElement('button');
+        buttonB.innerText = 'B-Text';
+        styleButton(buttonB);
+        buttonB.addEventListener('click', handleBText);
+        
+        container.appendChild(buttonA);
+        container.appendChild(buttonB);
     }
 
     replaceInsertButton();

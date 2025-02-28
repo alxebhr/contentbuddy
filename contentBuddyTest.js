@@ -80,21 +80,21 @@
     
         // **Neuen Button erstellen**
         const metaButton = document.createElement('button');
-        metaButton.innerText = 'Meta-Daten generieren';
+        metaButton.innerText = 'Metas ✏️';
         metaButton.style.width = 'auto';
         metaButton.style.padding = '10px';
-        metaButton.style.backgroundColor = '#28a745'; // 🟢 Grün für Metadaten
-        metaButton.style.color = 'white';
-        metaButton.style.border = 'none';
+        metaButton.style.backgroundColor = '#ffffff'; // 🆕 Weißer Hintergrund wie 🖋️✨
+        metaButton.style.color = '#333'; // Dunkle Schrift
+        metaButton.style.border = '1px solid #000000'; // Dünne schwarze Umrandung
         metaButton.style.borderRadius = '50px';
         metaButton.style.cursor = 'pointer';
         metaButton.style.marginLeft = '10px';
         metaButton.style.transition = 'background-color 0.3s';
         metaButton.onmouseover = () => {
-            metaButton.style.backgroundColor = '#218838';
+            metaButton.style.backgroundColor = '#f0f0f0'; // Leichte Grau-Hervorhebung beim Hover
         };
         metaButton.onmouseout = () => {
-            metaButton.style.backgroundColor = '#28a745';
+            metaButton.style.backgroundColor = '#ffffff';
         };
     
         // **Click-Event für das Generieren der Meta-Daten**
@@ -136,14 +136,13 @@
             console.log("Meta-Daten-Button wurde eingefügt!");
     
             // 🆕 **🖋️✨-Button ausblenden**
-            if (generateTextButton) {
+            if (generateTextButton && generateTextButton.innerText.includes("🖋️✨")) {
                 generateTextButton.style.display = 'none';
                 console.log("🖋️✨-Button wurde ausgeblendet.");
             }
         }
     }
     
-
     
     // Funktion zum Einfügen von Text in die Textarea und Absenden
     function insertTextInTextareaAndSubmit(chatbox, text) {

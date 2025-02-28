@@ -80,7 +80,7 @@
     
         // **Neuen Button erstellen**
         const metaButton = document.createElement('button');
-        metaButton.innerText = 'Metas ✏️';
+        metaButton.innerText = 'Metas 🚀';
         metaButton.style.width = 'auto';
         metaButton.style.padding = '10px';
         metaButton.style.backgroundColor = '#ffffff'; // 🆕 Weißer Hintergrund wie 🖋️✨

@@ -415,32 +415,45 @@
             generateTextButton.style.backgroundColor = '#ffffff';
         };
         generateTextButton.addEventListener('click', () => {
-            console.log("Button zum Generieren des Textes wurde geklickt.");
-            const allTextBoxes = Array.from(container.querySelectorAll('div[contenteditable="true"]'));
+            console.log("🖋️✨-Button zum Generieren des Textes wurde geklickt.");
+        
+            const allTextBoxes = Array.from(document.querySelectorAll('.text-buddy-content div[contenteditable="true"]'));
             const outlinePoints = allTextBoxes.map((box, i) => {
                 const titleText = box.querySelector('h4') ? box.querySelector('h4').innerText.trim() : '';
                 const paragraphs = box.querySelectorAll('p');
                 const contentText = Array.from(paragraphs).map(p => p.innerText.trim()).join(' ');
-                console.log(`Outline Box #${i + 1} => Titel: "${titleText}", Inhalt: "${contentText}"`);
                 return `${titleText}\n${contentText}`;
             }).filter(text => text);
+        
             const outlineText = outlinePoints.join('\n\n');
             const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
             const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
             const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
-            const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
+            const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
+                .map(input => input.value.trim())
+                .filter(value => value)
+                .join(', ');
+        
             console.log('Mainkeyword:', mainkeyword);
             console.log('Proofkeywords:', proofkeywords);
             console.log('Subkeywords:', subkeywords);
             console.log('W-Fragen:', w_fragen);
+        
+            // **Generierten Text in den Editor einfügen**
             insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
             console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
-
-            // Button deaktivieren, um mehrfache Eingaben zu vermeiden
+        
+            // **🖋️✨-Button deaktivieren, um doppelte Klicks zu verhindern**
             generateTextButton.style.backgroundColor = '#cccccc';
             generateTextButton.style.cursor = 'not-allowed';
             generateTextButton.disabled = true;
+        
+            // **🕒 Meta-Button mit Verzögerung anzeigen, NACHDEM die Textgenerierung abgeschlossen ist**
+            setTimeout(() => {
+                createMetaDataButton();
+            }, 3000); // ⏳ 3 Sekunden Verzögerung, um sicherzugehen, dass der Text im Editor ist
         });
+        
 
         header.insertBefore(generateTextButton, header.querySelector('button'));
         console.log('Button zum Generieren des Textes hinzugefügt');

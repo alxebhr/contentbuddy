@@ -67,13 +67,16 @@
     function createMetaDataButton() {
         console.log("Erstelle Meta-Daten-Button...");
     
-        // **Header-Container holen, wo auch der 🖋️✨ Button ist**
+        // **Header-Container holen, wo auch der 🖋️✨-Button ist**
         const header = document.querySelector('.text-buddy-content').previousElementSibling;
     
         if (!header) {
             console.error("Header für Meta-Daten-Button nicht gefunden!");
             return;
         }
+    
+        // **Den 🖋️✨-Button suchen**
+        const generateTextButton = header.querySelector('button'); // Der erste Button im Header ist der 🖋️✨-Button
     
         // **Neuen Button erstellen**
         const metaButton = document.createElement('button');
@@ -129,12 +132,18 @@
         // **Den Button erst einfügen, wenn er noch nicht existiert**
         if (!document.querySelector('#metaDataButton')) {
             metaButton.id = 'metaDataButton';
-            header.insertBefore(metaButton, header.querySelector('button'));
+            header.insertBefore(metaButton, generateTextButton); // Direkt neben 🖋️✨-Button einfügen
             console.log("Meta-Daten-Button wurde eingefügt!");
+    
+            // 🆕 **🖋️✨-Button ausblenden**
+            if (generateTextButton) {
+                generateTextButton.style.display = 'none';
+                console.log("🖋️✨-Button wurde ausgeblendet.");
+            }
         }
     }
     
-    
+
     
     // Funktion zum Einfügen von Text in die Textarea und Absenden
     function insertTextInTextareaAndSubmit(chatbox, text) {
@@ -745,9 +754,8 @@
                         }
                         firstTime = false;
                     }
-                    // 🆕 Meta-Button einfügen (jetzt mit korrektem Prompt!)
-                    createMetaDataButton(content, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
                 }, 10000);
+                
             }
         });
         

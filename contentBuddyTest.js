@@ -898,14 +898,21 @@
 
 
     const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                initializeContentBuddy();
-            }
-        });
+    let changesDetected = false;
+    mutations.forEach((mutation) => {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            changesDetected = true;
+        }
     });
 
+    if (changesDetected) {
+        console.log('🔄 MutationObserver hat Änderungen erkannt. Starte ContentBuddy...');
+        observer.disconnect(); // Stoppe den Observer, damit er nicht mehrfach feuert
+        setTimeout(() => initializeContentBuddy(), 500); // Warte 500ms, um doppelte Starts zu vermeiden
+    }
+    });
     observer.observe(document.body, { childList: true, subtree: true });
+
 
     initializeContentBuddy();
 

@@ -875,24 +875,26 @@
     }
 
     function initializeContentBuddy() {
-        // Stelle sicher, dass nur einmal initialisiert wird
-        if (initialized) {
-            console.log("initializeContentBuddy() abgebrochen, da schon initialized = true.");
-            return;
-        }
-        if (document.querySelector('#contentBuddyButton')) {
-            console.log("initializeContentBuddy() abgebrochen, Button existiert bereits.");
-            return; 
-        }
+    if (initialized) {
+        console.log("initializeContentBuddy() abgebrochen, da schon initialized = true.");
+        return;
+    }
+    if (document.querySelector('#contentBuddyButton')) {
+        console.log("initializeContentBuddy() abgebrochen, Button existiert bereits.");
+        return; 
+    }
 
-        createButton();
-        monitorConsoleMessages();
-        monitorResetButton();
-        console.log('ContentBuddy initialized.');
-        initialized = true;
-        
-        // Nach erfolgter Initialisierung Observer deaktivieren, um mehrfaches Triggern zu vermeiden
-        observer.disconnect();
+    console.log('ContentBuddy wird initialisiert...');
+    
+    if (!document.querySelector('#contentBuddyButton')) {
+        console.log('ContentBuddy-Button existiert nicht – er wird nun erstellt.'); // NEU EINGEFÜGT
+    }
+
+    createButton();
+    monitorConsoleMessages();
+    monitorResetButton();
+    console.log('ContentBuddy initialized.');
+    initialized = true;
     }
 
     const observer = new MutationObserver((mutations) => {

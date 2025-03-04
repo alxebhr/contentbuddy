@@ -7,18 +7,17 @@
     let firstTime = true; // Track the first time the text is inserted
     let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
-    function insertTextAndSend(hauptkeyword, keyword, nebenkeywords,  proofkeywords || '', w_fragen, outlineText = "") {
+    function insertTextAndSend(hauptkeyword, keyword, nebenkeywords,  proofkeywords = '', w_fragen, outlineText = "") {
         // Versuche zuerst den Quill-Editor zu finden
         let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
-        console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
-
-        let textAreaElement;
-
-        // Falls der Quill-Editor nicht gefunden wird, suche das Textarea-Element
+        console.log('🔍 Suche nach Quill-Editor:', quillEditorContainer);
+        
         if (!quillEditorContainer) {
-            console.log('Erstes Element ".v-ql-textarea.ql-container" nicht gefunden. Versuche, "textarea.v-field__input" zu verwenden.');
-            textAreaElement = document.querySelector('textarea.v-field__input');
-            console.log('Versuche, "textarea.v-field__input" zu finden:', textAreaElement);
+            console.warn('⚠️ Quill-Editor nicht gefunden. Warte 1 Sekunde und versuche es erneut...');
+            setTimeout(() => {
+                let retryQuill = document.querySelector('.v-ql-textarea.ql-container');
+                console.log('🔄 Zweiter Versuch - Quill-Editor gefunden?', retryQuill);
+            }, 1000);
         }
 
         // Text für den Editor erstellen

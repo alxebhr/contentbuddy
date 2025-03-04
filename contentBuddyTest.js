@@ -875,27 +875,28 @@
     }
 
     function initializeContentBuddy() {
+    console.log('🚀 initializeContentBuddy() wird ausgeführt...');
+    
     if (initialized) {
-        console.log("initializeContentBuddy() abgebrochen, da schon initialized = true.");
+        console.log('⚠️ Abbruch: initializeContentBuddy() wurde bereits aufgerufen.');
         return;
     }
-    if (document.querySelector('#contentBuddyButton')) {
-        console.log("initializeContentBuddy() abgebrochen, Button existiert bereits.");
-        return; 
-    }
-
-    console.log('ContentBuddy wird initialisiert...');
     
-    if (!document.querySelector('#contentBuddyButton')) {
-        console.log('ContentBuddy-Button existiert nicht – er wird nun erstellt.'); // NEU EINGEFÜGT
+    if (document.querySelector('#contentBuddyButton')) {
+        console.log('⚠️ Abbruch: ContentBuddy-Button existiert bereits.');
+        return;
     }
 
+    console.log('🛠️ Erstelle ContentBuddy-Button...');
+    
     createButton();
     monitorConsoleMessages();
     monitorResetButton();
-    console.log('ContentBuddy initialized.');
+    
+    console.log('✅ ContentBuddy erfolgreich initialisiert.');
     initialized = true;
     }
+
 
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {

@@ -691,7 +691,7 @@
         inputContainer.appendChild(wFragenContainer);
 
         const aTextButton = document.createElement('button');
-        aTextButton.innerText = 'A-Text';
+        aTextButton.innerText = 'Premium-Text';
         aTextButton.style.width = '48%';
         aTextButton.style.padding = '10px';
         aTextButton.style.backgroundColor = '#333333';
@@ -704,7 +704,7 @@
         aTextButton.onmouseout = () => aTextButton.style.backgroundColor = '#333333';
 
         const bTextButton = document.createElement('button');
-        bTextButton.innerText = 'B-Text';
+        bTextButton.innerText = 'Basis-Text';
         bTextButton.style.width = '48%';
         bTextButton.style.padding = '10px';
         bTextButton.style.backgroundColor = '#555555';

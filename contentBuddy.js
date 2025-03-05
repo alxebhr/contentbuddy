@@ -7,23 +7,27 @@
     let firstTime = true; // Track the first time the text is inserted
     let initialized = false; // Neues Flag: verhindert mehrfache Initialisierung
 
-    function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, outlineText = false) {
+    function insertTextAndSend(hauptkeyword, keyword, nebenkeywords, proofkeywords, w_fragen, outlineText = "") {
         // Versuche zuerst den Quill-Editor zu finden
         let quillEditorContainer = document.querySelector('.v-ql-textarea.ql-container');
-        console.log('Versuche, ".v-ql-textarea.ql-container" zu finden:', quillEditorContainer);
-
-        let textAreaElement;
-
-        // Falls der Quill-Editor nicht gefunden wird, suche das Textarea-Element
+        console.log('🔍 Suche nach Quill-Editor:', quillEditorContainer);
+        
         if (!quillEditorContainer) {
-            console.log('Erstes Element ".v-ql-textarea.ql-container" nicht gefunden. Versuche, "textarea.v-field__input" zu verwenden.');
-            textAreaElement = document.querySelector('textarea.v-field__input');
-            console.log('Versuche, "textarea.v-field__input" zu finden:', textAreaElement);
+            console.warn('⚠️ Quill-Editor nicht gefunden. Warte 1 Sekunde und versuche es erneut...');
+            setTimeout(() => {
+                let retryQuill = document.querySelector('.v-ql-textarea.ql-container');
+                console.log('🔄 Zweiter Versuch - Quill-Editor gefunden?', retryQuill);
+            }, 1000);
         }
 
         // Text für den Editor erstellen
+        // Text für den Editor erstellen
         let text;
-        if (outlineText) {
+        if (outlineText === 'bText') {
+            text = window.promptBText;
+        } else if (outlineText === 'metaText') {  // 🆕 Meta-Daten Prompt hinzufügen
+            text = window.promptMetas;
+        } else if (outlineText === true) {
             text = window.promptTextOutline;
         } else {
             text = window.promptTextDefault;
@@ -59,7 +63,86 @@
             console.error('Kein passendes Editor-Container-Element oder Textarea gefunden.');
         }
     }
-
+    function createMetaDataButton() {
+        console.log("Erstelle Meta-Daten-Button...");
+    
+        // **Header-Container holen, wo auch der 🖋️✨-Button ist**
+        const header = document.querySelector('.text-buddy-content').previousElementSibling;
+    
+        if (!header) {
+            console.error("Header für Meta-Daten-Button nicht gefunden!");
+            return;
+        }
+    
+        // **Den 🖋️✨-Button suchen**
+        const generateTextButton = header.querySelector('button'); // Der erste Button im Header ist der 🖋️✨-Button
+    
+        // **Neuen Button erstellen**
+        const metaButton = document.createElement('button');
+        metaButton.innerText = 'Metas 🚀';
+        metaButton.style.width = 'auto';
+        metaButton.style.padding = '10px';
+        metaButton.style.backgroundColor = '#ffffff'; // 🆕 Weißer Hintergrund wie 🖋️✨
+        metaButton.style.color = '#333'; // Dunkle Schrift
+        metaButton.style.border = '1px solid #000000'; // Dünne schwarze Umrandung
+        metaButton.style.borderRadius = '50px';
+        metaButton.style.cursor = 'pointer';
+        metaButton.style.marginLeft = '10px';
+        metaButton.style.transition = 'background-color 0.3s';
+        metaButton.onmouseover = () => {
+            metaButton.style.backgroundColor = '#f0f0f0'; // Leichte Grau-Hervorhebung beim Hover
+        };
+        metaButton.onmouseout = () => {
+            metaButton.style.backgroundColor = '#ffffff';
+        };
+    
+        // **Click-Event für das Generieren der Meta-Daten**
+        metaButton.addEventListener('click', () => {
+            console.log("Meta-Daten-Button geklickt.");
+    
+            // **Haupt- & Nebenkeywords aus den Input-Feldern holen**
+            const hauptkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
+            const nebenkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
+            const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
+            const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
+                .map(input => input.value.trim())
+                .filter(value => value)
+                .join(', ');
+    
+            // **Sicherstellen, dass window.promptMetas existiert**
+            if (!window.promptMetas) {
+                console.error('window.promptMetas ist nicht definiert!');
+                return;
+            }
+    
+            // **Platzhalter im Prompt ersetzen**
+            let metaPrompt = window.promptMetas;
+            metaPrompt = metaPrompt.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+                                   .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+                                   .replace(/\$\{proofkeywords\}/g, proofkeywords)
+                                   .replace(/\$\{w_fragen\}/g, w_fragen);
+    
+            console.log('Metadaten-Prompt nach Platzhalter-Ersetzung:', metaPrompt);
+    
+            // **Prompt in den Editor einfügen**
+            insertTextAndSend(hauptkeyword, metaPrompt, nebenkeywords, proofkeywords, w_fragen, "metaText");
+        });
+    
+        // **Den Button erst einfügen, wenn er noch nicht existiert**
+        if (!document.querySelector('#metaDataButton')) {
+            metaButton.id = 'metaDataButton';
+            header.insertBefore(metaButton, generateTextButton); // Direkt neben 🖋️✨-Button einfügen
+            console.log("Meta-Daten-Button wurde eingefügt!");
+    
+            // 🆕 **🖋️✨-Button ausblenden**
+            if (generateTextButton && generateTextButton.innerText.includes("🖋️✨")) {
+                generateTextButton.style.display = 'none';
+                console.log("🖋️✨-Button wurde ausgeblendet.");
+            }
+        }
+    }
+    
+    
     // Funktion zum Einfügen von Text in die Textarea und Absenden
     function insertTextInTextareaAndSubmit(chatbox, text) {
         // Simuliere einen Klick auf die Textarea
@@ -80,8 +163,9 @@
 
         // Simuliere Enter-Taste nach einer kleinen Verzögerung
         setTimeout(() => {
-            simulateEnterPress(chatbox);
-        }, 10); // Kleine Verzögerung, um sicherzustellen, dass der Text zuerst eingefügt wird
+            createMetaDataButton();
+        }, 3000); // 🕒 3 Sekunden Verzögerung, damit es flüssig aussieht
+        
     }
 
     // Funktion zum Simulieren des Drückens der Enter-Taste
@@ -149,7 +233,7 @@
 
         headings.forEach((heading, index) => {
             const point = { title: '', content: [] };
-            console.log(`Verarbeite Überschrift Nr. ${index+1}: ${heading.innerText.trim()}`);
+            console.log(`Verarbeite Überschrift Nr. ${index + 1}: ${heading.innerText.trim()}`);
 
             // Extrahiere den Titel des <h3>-Tags
             point.title = heading.innerText.trim();
@@ -202,11 +286,11 @@
     function createOutlineBoxes(outline, container) {
         console.log("Erstelle Outline Boxes...");
         outline.forEach((point, index) => {
-            console.log(`Box #${index+1} wird erstellt mit Titel: "${point.title}"`);
+            console.log(`Box #${index + 1} wird erstellt mit Titel: "${point.title}"`);
             const box = document.createElement('div');
             box.style.position = 'relative';
             box.style.border = '1px solid #ddd';
-            box.style.padding = '40px 10px 10px 10px'; 
+            box.style.padding = '40px 10px 10px 10px';
             box.style.marginBottom = '10px';
             box.style.borderRadius = '5px';
             box.contentEditable = 'true';
@@ -287,7 +371,7 @@
             });
 
             container.appendChild(box);
-            console.log(`Box #${index+1} mit Titel "${point.title}" hinzugefügt`);
+            console.log(`Box #${index + 1} mit Titel "${point.title}" hinzugefügt`);
         });
 
         function updateMoveButtons(container) {
@@ -338,32 +422,45 @@
             generateTextButton.style.backgroundColor = '#ffffff';
         };
         generateTextButton.addEventListener('click', () => {
-            console.log("Button zum Generieren des Textes wurde geklickt.");
-            const allTextBoxes = Array.from(container.querySelectorAll('div[contenteditable="true"]'));
+            console.log("🖋️✨-Button zum Generieren des Textes wurde geklickt.");
+        
+            const allTextBoxes = Array.from(document.querySelectorAll('.text-buddy-content div[contenteditable="true"]'));
             const outlinePoints = allTextBoxes.map((box, i) => {
                 const titleText = box.querySelector('h4') ? box.querySelector('h4').innerText.trim() : '';
                 const paragraphs = box.querySelectorAll('p');
                 const contentText = Array.from(paragraphs).map(p => p.innerText.trim()).join(' ');
-                console.log(`Outline Box #${i+1} => Titel: "${titleText}", Inhalt: "${contentText}"`);
                 return `${titleText}\n${contentText}`;
             }).filter(text => text);
+        
             const outlineText = outlinePoints.join('\n\n');
             const proofkeywords = document.querySelector('input[placeholder="Proofkeyword eingeben"]').value.trim();
             const mainkeyword = document.querySelector('input[placeholder="Hauptkeyword eingeben"]').value.trim();
             const subkeywords = document.querySelector('input[placeholder="Nebenkeyword eingeben"]').value.trim();
-            const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input')).map(input => input.value.trim()).filter(value => value).join(', ');
+            const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
+                .map(input => input.value.trim())
+                .filter(value => value)
+                .join(', ');
+        
             console.log('Mainkeyword:', mainkeyword);
             console.log('Proofkeywords:', proofkeywords);
             console.log('Subkeywords:', subkeywords);
             console.log('W-Fragen:', w_fragen);
+        
+            // **Generierten Text in den Editor einfügen**
             insertTextAndSend(mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen, true);
             console.log('Text wurde eingefügt:', mainkeyword, outlineText, subkeywords, proofkeywords, w_fragen);
-
-            // Button deaktivieren, um mehrfache Eingaben zu vermeiden
+        
+            // **🖋️✨-Button deaktivieren, um doppelte Klicks zu verhindern**
             generateTextButton.style.backgroundColor = '#cccccc';
             generateTextButton.style.cursor = 'not-allowed';
             generateTextButton.disabled = true;
+        
+            // **🕒 Meta-Button mit Verzögerung anzeigen, NACHDEM die Textgenerierung abgeschlossen ist**
+            setTimeout(() => {
+                createMetaDataButton();
+            }, 3000); // ⏳ 3 Sekunden Verzögerung, um sicherzugehen, dass der Text im Editor ist
         });
+        
 
         header.insertBefore(generateTextButton, header.querySelector('button'));
         console.log('Button zum Generieren des Textes hinzugefügt');
@@ -593,25 +690,41 @@
         wFragenContainer.appendChild(addWFrageButton);
         inputContainer.appendChild(wFragenContainer);
 
-        const insertButton = document.createElement('button');
-        insertButton.innerText = 'Gliederung abfragen';
-        insertButton.style.width = '100%';
-        insertButton.style.padding = '10px';
-        insertButton.style.backgroundColor = '#333333';
-        insertButton.style.color = 'white';
-        insertButton.style.border = 'none';
-        insertButton.style.borderRadius = '5px';
-        insertButton.style.cursor = 'pointer';
-        insertButton.style.marginBottom = '10px';
-        insertButton.style.transition = 'background-color 0.3s';
-        insertButton.onmouseover = () => {
-            insertButton.style.backgroundColor = '#444444';
-        };
-        insertButton.onmouseout = () => {
-            insertButton.style.backgroundColor = '#333333';
-        };
-        insertButton.addEventListener('click', () => {
-            console.log("Gliederung abfragen geklickt.");
+        const aTextButton = document.createElement('button');
+        aTextButton.innerText = 'Premium-Text';
+        aTextButton.style.width = '48%';
+        aTextButton.style.padding = '10px';
+        aTextButton.style.backgroundColor = '#333333';
+        aTextButton.style.color = 'white';
+        aTextButton.style.border = 'none';
+        aTextButton.style.borderRadius = '5px';
+        aTextButton.style.cursor = 'pointer';
+        aTextButton.style.transition = 'background-color 0.3s';
+        aTextButton.onmouseover = () => aTextButton.style.backgroundColor = '#444444';
+        aTextButton.onmouseout = () => aTextButton.style.backgroundColor = '#333333';
+
+        const bTextButton = document.createElement('button');
+        bTextButton.innerText = 'Basis-Text';
+        bTextButton.style.width = '48%';
+        bTextButton.style.padding = '10px';
+        bTextButton.style.backgroundColor = '#555555';
+        bTextButton.style.color = 'white';
+        bTextButton.style.border = 'none';
+        bTextButton.style.borderRadius = '5px';
+        bTextButton.style.cursor = 'pointer';
+        bTextButton.style.transition = 'background-color 0.3s';
+        bTextButton.onmouseover = () => bTextButton.style.backgroundColor = '#666666';
+        bTextButton.onmouseout = () => bTextButton.style.backgroundColor = '#555555';
+
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.display = 'flex';
+        buttonContainer.style.justifyContent = 'space-between';
+        buttonContainer.appendChild(aTextButton);
+        buttonContainer.appendChild(bTextButton);
+        content.appendChild(buttonContainer);
+
+        aTextButton.addEventListener('click', () => {
+            console.log("A-Text angefordert.");
             const hauptkeyword = mainKeywordInput.value.trim();
             const nebenkeywords = subKeywordInput.value.trim();
             const proofkeywords = proofKeywordInput.value.trim();
@@ -619,23 +732,14 @@
                 .map(input => input.value.trim())
                 .filter(value => value)
                 .join(', ');
-
-            console.log("Hauptkeyword:", hauptkeyword);
-            console.log("Nebenkeywords:", nebenkeywords);
-            console.log("Proofkeywords:", proofkeywords);
-            console.log("W-Fragen:", w_fragen);
-
+        
             if (hauptkeyword) {
                 insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-                console.log("Prompt zum Generieren der Gliederung gesendet. Verberge Insert-Button und zeige Ladeindikator.");
-                insertButton.style.display = 'none'; // Button verschwinden lassen
-                createLoadingIndicator(content); // Ladeanimation anzeigen
-
-                // NUR JETZT startet der 10-Sekunden-Fallback
+                aTextButton.style.display = 'none';
+                bTextButton.style.display = 'none';
+                createLoadingIndicator(content);
                 setTimeout(() => {
-                    console.log("Fallback-Check nach 10 Sekunden ab KLICK auf 'Gliederung abfragen'...");
                     if (firstTime) {
-                        console.log("Erster Aufruf war noch nicht erfolgt. Führe extractOutline() jetzt aus...");
                         if (loadingIndicator) {
                             loadingIndicator.remove();
                         }
@@ -644,20 +748,46 @@
                             const container = document.querySelector('.text-buddy-content');
                             if (container) {
                                 createOutlineBoxes(outline, container);
-                            } else {
-                                console.log("Kein .text-buddy-content gefunden, kann Outline Boxes nicht erstellen.");
                             }
-                        } else {
-                            console.log("outline war null, also keine Boxes.");
                         }
                         firstTime = false;
-                    } else {
-                        console.log("Fallback nicht nötig, da firstTime bereits false ist.");
                     }
                 }, 10000);
+                
             }
         });
-        content.appendChild(insertButton);
+        
+
+        bTextButton.addEventListener('click', () => {
+            console.log("B-Text direkt generieren.");
+            const hauptkeyword = mainKeywordInput.value.trim();
+            const nebenkeywords = subKeywordInput.value.trim();
+            const proofkeywords = proofKeywordInput.value.trim();
+            const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
+                .map(input => input.value.trim())
+                .filter(value => value)
+                .join(', ');
+        
+            if (hauptkeyword) {
+                let bTextPrompt = window.promptBText;
+                bTextPrompt = bTextPrompt.replace(/\$\{hauptkeyword\}/g, hauptkeyword)
+                    .replace(/\$\{keyword\}/g, hauptkeyword)
+                    .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
+                    .replace(/\$\{proofkeywords\}/g, proofkeywords)
+                    .replace(/\$\{w_fragen\}/g, w_fragen);
+        
+                insertTextAndSend(hauptkeyword, bTextPrompt, nebenkeywords, proofkeywords, w_fragen, "bText");
+                setTimeout(() => {
+                    createMetaDataButton();
+                }, 2000); // 🕒 2 Sekunden Verzögerung für B-Text                
+        
+                // 🆕 Meta-Button einfügen (jetzt mit korrektem Prompt!)
+                createMetaDataButton(content, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
+            }
+        });
+        
+        
+                
 
         return overlay;
     }
@@ -696,6 +826,7 @@
         document.body.appendChild(button);
 
         const overlay = createOverlay(button);
+        document.body.appendChild(overlay);
     }
 
     /**
@@ -743,35 +874,45 @@
     }
 
     function initializeContentBuddy() {
-        // Stelle sicher, dass nur einmal initialisiert wird
-        if (initialized) {
-            console.log("initializeContentBuddy() abgebrochen, da schon initialized = true.");
-            return;
-        }
-        if (document.querySelector('#contentBuddyButton')) {
-            console.log("initializeContentBuddy() abgebrochen, Button existiert bereits.");
-            return; 
-        }
-
-        createButton();
-        monitorConsoleMessages();
-        monitorResetButton();
-        console.log('ContentBuddy initialized.');
-        initialized = true;
-        
-        // Nach erfolgter Initialisierung Observer deaktivieren, um mehrfaches Triggern zu vermeiden
-        observer.disconnect();
+    console.log('🚀 initializeContentBuddy() wird ausgeführt...');
+    
+    if (initialized) {
+        console.log('⚠️ Abbruch: initializeContentBuddy() wurde bereits aufgerufen.');
+        return;
+    }
+    
+    if (document.querySelector('#contentBuddyButton')) {
+        console.log('⚠️ Abbruch: ContentBuddy-Button existiert bereits.');
+        return;
     }
 
+    console.log('🛠️ Erstelle ContentBuddy-Button...');
+    
+    createButton();
+    monitorConsoleMessages();
+    monitorResetButton();
+    
+    console.log('✅ ContentBuddy erfolgreich initialisiert.');
+    initialized = true;
+    }
+
+
     const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                initializeContentBuddy();
-            }
-        });
+    let changesDetected = false;
+    mutations.forEach((mutation) => {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            changesDetected = true;
+        }
     });
 
+    if (changesDetected) {
+        console.log('🔄 MutationObserver hat Änderungen erkannt. Starte ContentBuddy...');
+        observer.disconnect(); // Stoppe den Observer, damit er nicht mehrfach feuert
+        setTimeout(() => initializeContentBuddy(), 500); // Warte 500ms, um doppelte Starts zu vermeiden
+    }
+    });
     observer.observe(document.body, { childList: true, subtree: true });
+
 
     initializeContentBuddy();
 

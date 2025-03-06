@@ -13,7 +13,7 @@ Folgene Nebenkeywords müssen zwingend im Text genannt werden: " \${nebenkeyword
 Achte darauf, die Nebenkeywords unbedingt effektiv in den Text zu integrieren, ohne den natürlichen Lesefluss zu stören. Baue die Nebenkeywords bitte grammatikalisch korrekt in den Text ein.  
 Die folgenden Wörter sind semantisch relevant und müssen unbedingt auch eingebaut werden: " \${proofkeywords}"
 Inhalt: 
-Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Jeder Satz muss dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu "$ \{hauptkeyword}" erteilst und jeden Tipp, jede Information speziell auf "$ \{hauptkeyword}" abstimmst. Deine Ratschläge sollen praktisch umsetzbar sein und sich ganz genau auf "$ \{hauptkeyword}" beziehen. Vermeide allgemein anwendbare Ratschläge sowie Füllsätze ohne Informationsgehalt oder Mehrwert. Solltest du auf Qualitäten und Materialien eingehen, dann nenne auch deren spezielle Eigenschaften.  
+Thematisch dreht sich der Text um eine Produktkategorie aus dem Modesegment. Jeder Satz muss dem Leser echten Mehrwert bieten, indem du spezifische Tipps und Ratschläge zu "\${hauptkeyword}" erteilst und jeden Tipp, jede Information speziell auf "\${hauptkeyword}" abstimmst. Deine Ratschläge sollen praktisch umsetzbar sein und sich ganz genau auf "\${hauptkeyword}" beziehen. Vermeide allgemein anwendbare Ratschläge sowie Füllsätze ohne Informationsgehalt oder Mehrwert. Solltest du auf Qualitäten und Materialien eingehen, dann nenne auch deren spezielle Eigenschaften.  
 
 Struktur:
 Orientiere dich an folgender Gliederung: " \${keyword}"

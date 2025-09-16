@@ -204,8 +204,8 @@
     function extractOutline() {
         console.log("extractOutline() wurde aufgerufen. Versuche die Gliederung zu extrahieren...");
         // HIER MUSS MEISTENS DAS ELEMENT INNERHALB DES DIV AUSGETAUSCHT WERDEN
-        const elements = document.querySelectorAll('div[data-v-6c13a930].v-col-md-10.v-col-12.px-0.pt-0.content');
-        console.log(`Gefundene Elemente data-v-6c13a930: ${elements.length}`);
+        const elements = document.querySelectorAll('div[data-v-544d22b4].v-col-md-10.v-col-12.px-0.pt-0.content');
+        console.log(`Gefundene Elemente data-v-544d22b4: ${elements.length}`);
 
         let sourceElement;
         if (elements.length >= 3) {

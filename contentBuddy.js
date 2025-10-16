@@ -1,10 +1,58 @@
+// ==UserScript==
+// @name         ContentBuddy – robust send & outline flow
+// @namespace    contentbuddy.witt
+// @version      1.1.1
+// @description  Fügt Prompts ein, sendet sie zuverlässig und verhindert Re-Insert nach dem Absenden. Erstellt Outline-UI und Meta-Button.
+// @match        *://*/*
+// @run-at       document-idle
+// @grant        none
+// ==/UserScript==
+
 (function () {
   'use strict';
 
   console.log('ContentBuddy script is running');
 
+  /* ==========================================================
+   *   Globale Guards / Signatur-Tools (gegen Re-Insert)
+   * ========================================================== */
+  let isSending = false;   // verhindert Inserts während Send
+  let lastSentSig = null;  // Merker der zuletzt gesendeten Textsignatur
+
+  const normalizeText = (s) => (s || '').replace(/\s+/g, ' ').trim();
+  const sigOf = (s) => {
+    const t = normalizeText(s);
+    let h = 0;
+    for (let i = 0; i < t.length; i++) h = ((h << 5) - h) + t.charCodeAt(i) | 0;
+    return String(h) + ':' + t.length;
+  };
+
+  // Beobachtet den Editor kurz nach dem Senden und leert ihn,
+  // falls exakt derselbe Text erneut eingespeist wird.
+  function postSendCleanup(editorEl, sig, { windowMs = 3000 } = {}) {
+    const deadline = Date.now() + windowMs;
+    let cleared = false;
+
+    const step = () => {
+      if (cleared || Date.now() > deadline) { isSending = false; return; }
+      const cur = normalizeText(editorEl.innerText || editorEl.textContent || editorEl.value || '');
+      if (cur && sigOf(cur) === sig) {
+        editorEl.innerHTML = '';
+        try {
+          editorEl.dispatchEvent(new InputEvent('input', { bubbles: true }));
+        } catch (_) {
+          editorEl.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        cleared = true;
+      }
+      requestAnimationFrame(step);
+    };
+
+    requestAnimationFrame(step);
+  }
+
   /* ================================
-   *   Neue Helpers für Editor & Send
+   *   Helpers für Editor & Send
    * ================================ */
 
   // Bevorzugt den Editor im Footer (#editor), Fallback auf beliebiges contenteditable
@@ -19,23 +67,22 @@
   // Fügt HTML/Text in ein contenteditable ein und triggert Framework-Events
   function setContentEditable(el, html) {
     if (!el) return false;
+    if (isSending) { console.warn('[Guard] Noch im Send-Prozess – Insert übersprungen.'); return false; }
+
     el.focus();
     document.execCommand('selectAll', false, null);
-    const ok = document.execCommand('insertHTML', false, html);
+
+    let ok = document.execCommand('insertHTML', false, html);
     if (!ok) {
       document.execCommand('insertText', false, html);
-      if (el.innerHTML !== html) el.innerHTML = html; // letzter Notnagel
+      if ((el.innerHTML || '').trim() !== html.trim()) el.innerHTML = html; // Notnagel
     }
+
     try {
-      el.dispatchEvent(
-        new InputEvent('input', {
-          bubbles: true,
-          cancelable: true,
-          inputType: 'insertFromPaste',
-          data: html,
-        })
-      );
-    } catch (e) {
+      el.dispatchEvent(new InputEvent('input', {
+        bubbles: true, cancelable: true, inputType: 'insertFromPaste', data: html
+      }));
+    } catch (_) {
       el.dispatchEvent(new Event('input', { bubbles: true }));
     }
     el.dispatchEvent(new Event('change', { bubbles: true }));
@@ -64,27 +111,22 @@
 
   function sendMessage() {
     const btn = findSendButton();
-    if (!btn) {
-      console.warn('Send-Button nicht gefunden.');
-      return false;
-    }
+    if (!btn) { console.warn('Send-Button nicht gefunden.'); return false; }
+
+    isSending = true;
     btn.click();
+
+    // kurze Doppelklick-Dämpfung
+    try { btn.disabled = true; setTimeout(() => (btn.disabled = false), 4000); } catch (_) {}
     return true;
   }
 
   /* ==========================================================
    *   Robuster Klassen-Wait (ohne hartes "send/stop"-Wissen)
-   * ==========================================================
-   * Idee:
-   *  - Baseline = "Glyph-Signatur" des Icons im Send-Button (z. B. die eine "mdi-*" / "fa-*" / "ri-*" Klasse)
-   *  - Start erkannt, wenn Glyph != Baseline
-   *  - Fertig erkannt, wenn Glyph zurück zur Baseline und für stableForMs stabil
-   *  - Re-Render tolerant (Icon wird jedes Mal neu gesucht)
-   */
+   * ========================================================== */
   function findButtonIconEl() {
     const btn = findSendButton();
     if (!btn) return null;
-    // Bevorzugt typische Icon-Tags/Klassen
     return (
       btn.querySelector('i, svg, [class*="mdi-"], [class*="fa-"], [class*="ri-"]') ||
       btn.querySelector('[class*="icon"]') ||
@@ -95,13 +137,11 @@
   function extractGlyphSignature(iconEl) {
     if (!iconEl) return '';
     const cls = Array.from((iconEl.classList || []));
-    // Versuch: primär die "Glyph"-Klasse nehmen
     const glyph =
       cls.find((c) => c.startsWith('mdi-') && c !== 'mdi') ||
       cls.find((c) => c.startsWith('fa-')) ||
       cls.find((c) => c.startsWith('ri-'));
     if (glyph) return glyph;
-    // Fallback: sortierte Klassenliste als Signatur
     return cls.sort().join('.');
   }
 
@@ -117,53 +157,32 @@
     let icon = findButtonIconEl();
     const tAppear = Date.now();
     while (!icon) {
-      if (Date.now() - tAppear > appearTimeoutMs) {
-        throw new Error('Icon-Element nicht gefunden');
-      }
+      if (Date.now() - tAppear > appearTimeoutMs) throw new Error('Icon-Element nicht gefunden');
       await new Promise((r) => setTimeout(r, 80));
       icon = findButtonIconEl();
     }
     let baseGlyph = extractGlyphSignature(icon);
-    if (!baseGlyph) {
-      // Wenn keine Klassen, nimm (zur Not) outerHTML-Hash-ähnliche Signatur
-      baseGlyph = (icon.outerHTML || '').slice(0, 200);
-    }
+    if (!baseGlyph) baseGlyph = (icon.outerHTML || '').slice(0, 200);
     logf('Baseline glyph:', baseGlyph);
 
     // 2) Auf Start (Glyph != Baseline) warten
     const tStartMax = Date.now();
-    let started = false;
     while (true) {
       const fresh = findButtonIconEl() || icon;
       icon = fresh;
       const g = extractGlyphSignature(icon);
-      if (g && g !== baseGlyph) {
-        started = true;
-        logf('Start erkannt. Current glyph:', g);
-        break;
-      }
-      if (Date.now() - tStartMax > appearTimeoutMs) {
-        logf('Start-Änderung nicht gesehen – fahre dennoch fort.');
-        break; // nicht hart abbrechen, ggf. reichte schon die Baseline
-      }
+      if (g && g !== baseGlyph) { logf('Start erkannt. Current glyph:', g); break; }
+      if (Date.now() - tStartMax > appearTimeoutMs) { logf('Start nicht gesehen – fahre fort.'); break; }
       await new Promise((r) => setTimeout(r, 80));
     }
 
     // 3) Auf Rückkehr zur Baseline + Stabilität warten
     const tFinishMax = Date.now();
     let stableSince = null;
-
-    // Zusätzlich: MutationObserver am Button/Icon, um "Änderung" schneller zu schnappen
     const watchTarget = (findSendButton() || document.body);
     let lastMutation = Date.now();
-    const mo = new MutationObserver(() => {
-      lastMutation = Date.now();
-    });
-    try {
-      mo.observe(watchTarget, { attributes: true, childList: true, subtree: true });
-    } catch (_) {
-      // ignore
-    }
+    const mo = new MutationObserver(() => { lastMutation = Date.now(); });
+    try { mo.observe(watchTarget, { attributes: true, childList: true, subtree: true }); } catch (_) {}
 
     while (true) {
       const fresh = findButtonIconEl() || icon;
@@ -172,7 +191,6 @@
 
       if (glyph === baseGlyph) {
         if (stableSince == null) stableSince = Date.now();
-        // Stabil, wenn seit stableForMs keine Mutation am Button/Icon
         const noDomChangeFor = Date.now() - lastMutation;
         const stableFor = Date.now() - stableSince;
         if (stableFor >= stableForMs && noDomChangeFor >= Math.min(stableForMs, 500)) {
@@ -181,7 +199,7 @@
           break;
         }
       } else {
-        stableSince = null; // zurücksetzen, wenn wieder "laufend"
+        stableSince = null;
       }
 
       if (Date.now() - tFinishMax > finishTimeoutMs) {
@@ -191,7 +209,6 @@
       }
       await new Promise((r) => setTimeout(r, 100));
     }
-
     return true;
   }
 
@@ -203,7 +220,7 @@
   let initialized = false;
 
   /* ================================
-   *   Hauptfunktion: Prompt einfügen + (optional) senden
+   *   Hauptfunktion: Prompt einfügen + senden
    * ================================ */
   function insertTextAndSend(
     hauptkeyword,
@@ -214,42 +231,35 @@
     outlineFlag = '',
     autoSend = true
   ) {
+    // Template wählen
     let text =
-      outlineFlag === 'bText'
-        ? window.promptBText
-        : outlineFlag === 'metaText'
-        ? window.promptMetas
-        : outlineFlag === true
-        ? window.promptTextOutline
-        : window.promptTextDefault;
+      outlineFlag === 'bText'    ? window.promptBText :
+      outlineFlag === 'metaText' ? window.promptMetas :
+      outlineFlag === true       ? window.promptTextOutline :
+                                   window.promptTextDefault;
 
-    if (!text) {
-      console.error('Prompt-Text fehlt. Prüfe, ob die Prompt-Dateien korrekt geladen wurden.');
-      return;
-    }
+    if (!text) { console.error('Prompt-Template fehlt (window.prompt*).'); return; }
 
+    // Platzhalter ersetzen
     text = text
       .replace(/\$\{hauptkeyword\}/g, hauptkeyword || '')
-      .replace(/\$\{keyword\}/g, keyword || '')
+      .replace(/\$\{keyword\}/g,      keyword || '')
       .replace(/\$\{nebenkeywords\}/g, nebenkeywords || '')
       .replace(/\$\{proofkeywords\}/g, proofkeywords || '')
-      .replace(/\$\{w_fragen\}/g, w_fragen || '');
+      .replace(/\$\{w_fragen\}/g,     w_fragen || '');
 
     console.log('Text, der eingefügt werden soll:', text);
 
     const editorEl = getEditorEl();
-    if (!editorEl) {
-      console.error('Kein contenteditable-Editor gefunden (#editor).');
-      return;
-    }
-    const ok = setContentEditable(editorEl, text);
-    if (!ok) {
-      console.error('Einfügen in den Editor fehlgeschlagen.');
-      return;
-    }
+    if (!editorEl) { console.error('Kein contenteditable-Editor gefunden (#editor).'); return; }
+
+    if (!setContentEditable(editorEl, text)) return;
 
     if (autoSend) {
-      setTimeout(() => sendMessage(), 50);
+      lastSentSig = sigOf(text);
+      setTimeout(() => {
+        if (sendMessage()) postSendCleanup(editorEl, lastSentSig, { windowMs: 3000 });
+      }, 50);
     }
   }
 
@@ -260,10 +270,7 @@
     console.log('Erstelle Meta-Daten-Button...');
 
     const header = document.querySelector('.text-buddy-content')?.previousElementSibling;
-    if (!header) {
-      console.error('Header für Meta-Daten-Button nicht gefunden!');
-      return;
-    }
+    if (!header) { console.error('Header für Meta-Daten-Button nicht gefunden!'); return; }
 
     const generateTextButton = header.querySelector('button');
 
@@ -296,21 +303,8 @@
         .filter(Boolean)
         .join(', ');
 
-      if (!window.promptMetas) {
-        console.error('window.promptMetas ist nicht definiert!');
-        return;
-      }
-
-      let metaPrompt = window.promptMetas;
-      metaPrompt = metaPrompt
-        .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-        .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-        .replace(/\$\{proofkeywords\}/g, proofkeywords)
-        .replace(/\$\{w_fragen\}/g, w_fragen);
-
-      console.log('Metadaten-Prompt nach Platzhalter-Ersetzung:', metaPrompt);
-
-      insertTextAndSend(hauptkeyword, metaPrompt, nebenkeywords, proofkeywords, w_fragen, 'metaText');
+      // Wichtig: wir nutzen das Template window.promptMetas via outlineFlag='metaText'
+      insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen, 'metaText');
     });
 
     if (!document.querySelector('#metaDataButton')) {
@@ -339,9 +333,7 @@
    *   Reset, Outline, UI
    * ================================ */
 
-  function reloadPage() {
-    location.reload();
-  }
+  function reloadPage() { location.reload(); }
 
   function monitorResetButton() {
     const resetButton = document.querySelector('.v-btn.v-btn--size-x-large');
@@ -353,42 +345,24 @@
     }
   }
 
-  /** Robuste Auswahl des Outline-Containers:
-   *  - hole #chat-messages
-   *  - nimm bevorzugt das 2. direkte Kindelement (index 1)
-   *  - wenn das keine h3/ul enthält, nimm das erste Kind mit h3/ul
-   *  - finaler Fallback: erstes Kindelement
-   */
+  /** Robuste Auswahl des Outline-Containers */
   function pickOutlineSourceFromChatMessages() {
     const chat = document.querySelector('#chat-messages');
-    if (!chat) {
-      console.error('#chat-messages nicht gefunden.');
-      return null;
-    }
+    if (!chat) { console.error('#chat-messages nicht gefunden.'); return null; }
 
     const kids = Array.from(chat.children).filter(
       (el) => el.nodeType === 1 && el.tagName !== 'SCRIPT' && el.tagName !== 'STYLE'
     );
     console.log(
       `Kinder unter #chat-messages: ${kids.length}`,
-      kids.map((el, i) => ({
-        idx: i,
-        tag: el.tagName.toLowerCase(),
-        id: el.id || null,
-        classes: Array.from(el.classList).join(' '),
-      }))
+      kids.map((el, i) => ({ idx: i, tag: el.tagName.toLowerCase(), id: el.id || null, classes: Array.from(el.classList).join(' ') }))
     );
 
-    // 1) Bevorzugt das zweite Kindelement
     let source = kids[1] || null;
-
-    // 2) Wenn das zweite keine Struktur hat, nimm das erste Kind mit h3/ul
     if (!source || !source.querySelector('h3, ul')) {
       const withHeadings = kids.find((el) => el.querySelector('h3, ul, h2, h4'));
       if (withHeadings) source = withHeadings;
     }
-
-    // 3) Fallback auf erstes Kindelement
     if (!source) source = kids[0] || null;
 
     console.log('Gewähltes Outline-Source-Element:', source);
@@ -399,22 +373,13 @@
     console.log('extractOutline() gestartet …');
 
     const sourceElement = pickOutlineSourceFromChatMessages();
-    if (!sourceElement) {
-      console.error('Kein geeignetes Outline-Element gefunden.');
-      return null;
-    }
+    if (!sourceElement) { console.error('Kein geeignetes Outline-Element gefunden.'); return null; }
 
     let headings = sourceElement.querySelectorAll('h3');
-    if (headings.length === 0) {
-      // kleiner Fallback
-      headings = sourceElement.querySelectorAll('h2, h4');
-    }
+    if (headings.length === 0) headings = sourceElement.querySelectorAll('h2, h4');
     console.log(`Gefundene Überschriften (h2/h3/h4): ${headings.length}`);
 
-    if (headings.length === 0) {
-      console.error('Keine Überschriften im gewählten Element gefunden.');
-      return null;
-    }
+    if (headings.length === 0) { console.error('Keine Überschriften im gewählten Element gefunden.'); return null; }
 
     const outline = [];
     headings.forEach((heading) => {
@@ -423,11 +388,8 @@
       console.log(`Überschrift: ${titleText}`);
       point.title = titleText;
 
-      // Nächstes UL nach der Überschrift finden
       let nextElement = heading.nextElementSibling;
-      while (nextElement && nextElement.tagName !== 'UL') {
-        nextElement = nextElement.nextElementSibling;
-      }
+      while (nextElement && nextElement.tagName !== 'UL') nextElement = nextElement.nextElementSibling;
 
       if (nextElement && nextElement.tagName === 'UL') {
         const processList = (ulEl) => {
@@ -597,9 +559,7 @@
         .map((box) => {
           const titleText = box.querySelector('h4') ? box.querySelector('h4').innerText.trim() : '';
           const paragraphs = box.querySelectorAll('p');
-          const contentText = Array.from(paragraphs)
-            .map((p) => p.innerText.trim())
-            .join(' ');
+          const contentText = Array.from(paragraphs).map((p) => p.innerText.trim()).join(' ');
           return `${titleText}\n${contentText}`.trim();
         })
         .filter(Boolean);
@@ -646,7 +606,7 @@
     loadingIndicator.style.transform = 'translate(-50%, -50%)';
     loadingIndicator.style.zIndex = '1001';
     loadingIndicator.style.backgroundColor = '#ffffff';
-    loadingIndicator.style.border = '1px solid #ddd';
+    loadingIndicator.style.border = '1px solid #ddd'; // ✅ FIX
     loadingIndicator.style.padding = '20px';
     loadingIndicator.style.borderRadius = '5px';
     loadingIndicator.style.display = 'flex';
@@ -848,10 +808,7 @@
       removeWFrageButton.style.border = 'none';
       removeWFrageButton.style.cursor = 'pointer';
       removeWFrageButton.style.fontSize = '14px';
-      removeWFrageButton.onclick = () => {
-        console.log('W-Frage entfernt.');
-        wFrageBox.remove();
-      };
+      removeWFrageButton.onclick = () => { console.log('W-Frage entfernt.'); wFrageBox.remove(); };
       wFrageBox.appendChild(removeWFrageButton);
 
       wFragenContainer.appendChild(wFrageBox);
@@ -859,6 +816,7 @@
     wFragenContainer.appendChild(addWFrageButton);
 
     inputContainer.appendChild(wFragenContainer);
+    overlay.appendChild(content); // content hängt schon; nur zur Klarheit
     content.appendChild(inputContainer);
 
     const aTextButton = document.createElement('button');
@@ -901,9 +859,7 @@
       const nebenkeywords = subKeywordInput.value.trim();
       const proofkeywords = proofKeywordInput.value.trim();
       const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
-        .map((input) => input.value.trim())
-        .filter(Boolean)
-        .join(', ');
+        .map((input) => input.value.trim()).filter(Boolean).join(', ');
 
       if (hauptkeyword) {
         insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
@@ -939,23 +895,12 @@
       const nebenkeywords = subKeywordInput.value.trim();
       const proofkeywords = proofKeywordInput.value.trim();
       const w_fragen = Array.from(document.querySelectorAll('.w-frage-box input'))
-        .map((input) => input.value.trim())
-        .filter(Boolean)
-        .join(', ');
+        .map((input) => input.value.trim()).filter(Boolean).join(', ');
 
       if (hauptkeyword) {
-        let bTextPrompt = window.promptBText || '';
-        bTextPrompt = bTextPrompt
-          .replace(/\$\{hauptkeyword\}/g, hauptkeyword)
-          .replace(/\$\{keyword\}/g, hauptkeyword)
-          .replace(/\$\{nebenkeywords\}/g, nebenkeywords)
-          .replace(/\$\{proofkeywords\}/g, proofkeywords)
-          .replace(/\$\{w_fragen\}/g, w_fragen);
-
-        insertTextAndSend(hauptkeyword, bTextPrompt, nebenkeywords, proofkeywords, w_fragen, 'bText');
-
+        // Template window.promptBText via outlineFlag='bText'
+        insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen, 'bText');
         setTimeout(() => createMetaDataButton(), 2000);
-        createMetaDataButton(content, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
       }
     });
 
@@ -982,6 +927,7 @@
     button.style.borderRadius = '5px';
     button.style.cursor = 'pointer';
     button.style.transition = 'background-color 0.3s';
+    let overlay; // wird unten befüllt
     button.onmouseover = () => (button.style.backgroundColor = '#444444');
     button.onmouseout = () => (button.style.backgroundColor = '#333333');
     button.onclick = () => {
@@ -995,8 +941,8 @@
     };
     document.body.appendChild(button);
 
-    const overlay = createOverlay(button);
-    document.body.appendChild(overlay);
+    overlay = createOverlay(button);
+    // overlay wird in createOverlay bereits an body angehängt -> kein zweites append
   }
 
   function monitorConsoleMessages() {
@@ -1018,9 +964,7 @@
             firstTime = false;
           }
         }
-      } catch (e) {
-        // ignore
-      }
+      } catch (e) { /* ignore */ }
       return Function.prototype.apply.call(originalConsoleLog, console, arguments);
     };
   }
@@ -1028,13 +972,9 @@
   function initializeContentBuddy() {
     console.log('🚀 initializeContentBuddy() wird ausgeführt...');
 
-    if (initialized) {
-      console.log('⚠️ Abbruch: initializeContentBuddy() wurde bereits aufgerufen.');
-      return;
-    }
+    if (initialized) { console.log('⚠️ Abbruch: initializeContentBuddy() wurde bereits aufgerufen.'); return; }
     if (document.querySelector('#contentBuddyButton')) {
-      console.log('⚠️ Abbruch: ContentBuddy-Button existiert bereits.');
-      return;
+      console.log('⚠️ Abbruch: ContentBuddy-Button existiert bereits.'); return;
     }
 
     console.log('🛠️ Erstelle ContentBuddy-Button...');

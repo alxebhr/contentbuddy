@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ContentBuddy – robust send & outline flow
 // @namespace    contentbuddy.witt
-// @version      1.1.1
+// @version      1.1.2
 // @description  Fügt Prompts ein, sendet sie zuverlässig und verhindert Re-Insert nach dem Absenden. Erstellt Outline-UI und Meta-Button.
 // @match        *://*/*
 // @run-at       document-idle
@@ -27,14 +27,65 @@
     return String(h) + ':' + t.length;
   };
 
-  // Beobachtet den Editor kurz nach dem Senden und leert ihn,
-  // falls exakt derselbe Text erneut eingespeist wird.
+  /* ==========================================================
+   *   Netzwerk-Sniffer: erkennt echte Chat-Requests
+   * ========================================================== */
+  (function setupCbNetSniffer(){
+    if (window.__cbNetSnifferInstalled) return;
+    window.__cbNetSnifferInstalled = true;
+
+    const isChatUrl = (url) => {
+      try {
+        const u = typeof url === 'string' ? new URL(url, location.href) : new URL(url.url || url, location.href);
+        // TODO: Falls bekannt, hier den echten Endpoint schärfen (z. B. /api/chat)
+        return /chat|completion|generate|message/i.test(u.pathname);
+      } catch { return false; }
+    };
+
+    window.__cbLastChatRequestAt = 0;
+
+    // fetch hook
+    const _fetch = window.fetch;
+    window.fetch = async function(...args){
+      const [url, opts] = args;
+      if (isChatUrl(url) && (!opts || (opts && String(opts.method||'POST').toUpperCase()==='POST'))) {
+        window.__cbLastChatRequestAt = Date.now();
+      }
+      return _fetch.apply(this, args);
+    };
+
+    // XHR hook
+    const _open = XMLHttpRequest.prototype.open;
+    const _send = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.open = function(method, url, ...rest){
+      this.__cbIsChat = isChatUrl(url) && String(method||'POST').toUpperCase()==='POST';
+      return _open.call(this, method, url, ...rest);
+    };
+    XMLHttpRequest.prototype.send = function(...args){
+      if (this.__cbIsChat) window.__cbLastChatRequestAt = Date.now();
+      return _send.apply(this, args);
+    };
+  })();
+
+  /* ==========================================================
+   *   NUR nach erkanntem Request räumen (Fix)
+   * ========================================================== */
   function postSendCleanup(editorEl, sig, { windowMs = 3000 } = {}) {
+    if (window.CB_DISABLE_CLEANUP) { isSending = false; return; }
+
     const deadline = Date.now() + windowMs;
     let cleared = false;
 
     const step = () => {
       if (cleared || Date.now() > deadline) { isSending = false; return; }
+
+      // Erst räumen, wenn wirklich ein Chat-Request abging
+      const requestHappened = (Date.now() - (window.__cbLastChatRequestAt||0)) < 4000;
+      if (!requestHappened) {
+        requestAnimationFrame(step);
+        return;
+      }
+
       const cur = normalizeText(editorEl.innerText || editorEl.textContent || editorEl.value || '');
       if (cur && sigOf(cur) === sig) {
         editorEl.innerHTML = '';
@@ -64,28 +115,50 @@
     return document.querySelector('[contenteditable="true"]');
   }
 
-  // Fügt HTML/Text in ein contenteditable ein und triggert Framework-Events
+  // Robustes Einfügen in contenteditable + Event-Kaskade
   function setContentEditable(el, html) {
     if (!el) return false;
     if (isSending) { console.warn('[Guard] Noch im Send-Prozess – Insert übersprungen.'); return false; }
 
     el.focus();
-    document.execCommand('selectAll', false, null);
 
-    let ok = document.execCommand('insertHTML', false, html);
-    if (!ok) {
-      document.execCommand('insertText', false, html);
-      if ((el.innerHTML || '').trim() !== html.trim()) el.innerHTML = html; // Notnagel
-    }
-
+    // a) Range-API
     try {
-      el.dispatchEvent(new InputEvent('input', {
-        bubbles: true, cancelable: true, inputType: 'insertFromPaste', data: html
-      }));
-    } catch (_) {
-      el.dispatchEvent(new Event('input', { bubbles: true }));
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.deleteContents();
+      const frag = range.createContextualFragment(html);
+      range.insertNode(frag);
+      // Cursor ans Ende
+      sel.removeAllRanges();
+      const r2 = document.createRange();
+      r2.selectNodeContents(el);
+      r2.collapse(false);
+      sel.addRange(r2);
+    } catch (e) {
+      // b) Fallback execCommand
+      try {
+        document.execCommand('selectAll', false, null);
+        if (!document.execCommand('insertHTML', false, html)) {
+          document.execCommand('insertText', false, html);
+        }
+      } catch {
+        // c) Notnagel
+        el.innerHTML = html;
+      }
     }
-    el.dispatchEvent(new Event('change', { bubbles: true }));
+
+    // Event-Kaskade (viele Frameworks erwarten das)
+    try {
+      el.dispatchEvent(new InputEvent('input', {bubbles:true, cancelable:true, inputType:'insertFromPaste', data: html}));
+    } catch {}
+    el.dispatchEvent(new Event('input', {bubbles:true}));
+    el.dispatchEvent(new Event('change', {bubbles:true}));
+    el.dispatchEvent(new KeyboardEvent('keyup', {bubbles:true, key:'Unidentified'}));
+    try {
+      el.dispatchEvent(new CompositionEvent('compositionend', {bubbles:true}));
+    } catch {}
     return true;
   }
 
@@ -109,15 +182,52 @@
     return btn || null;
   }
 
+  // Enter-Fallback, wenn Button-Klick nicht verdrahtet ist
+  function sendViaEnter(editorEl){
+    if (!editorEl) return false;
+    let ok = false;
+    ['keydown','keypress','keyup'].forEach((type)=>{
+      const evt = new KeyboardEvent(type, {bubbles:true, cancelable:true, key:'Enter', code:'Enter'});
+      const res = editorEl.dispatchEvent(evt);
+      ok = ok || res;
+    });
+    return ok;
+  }
+
+  // Senden mit Klick + Enter-Fallback + Request-Erkennung
   function sendMessage() {
     const btn = findSendButton();
-    if (!btn) { console.warn('Send-Button nicht gefunden.'); return false; }
-
     isSending = true;
-    btn.click();
 
-    // kurze Doppelklick-Dämpfung
-    try { btn.disabled = true; setTimeout(() => (btn.disabled = false), 4000); } catch (_) {}
+    // 1) Versuche Button-Klick
+    if (btn) {
+      btn.click();
+      try { btn.disabled = true; setTimeout(() => (btn.disabled = false), 4000); } catch {}
+    } else {
+      console.warn('Send-Button nicht gefunden – versuche Enter auf dem Editor.');
+    }
+
+    // 2) Prüfe kurz, ob ein Chat-POST losging; wenn nicht → Enter-Fallback
+    const editorEl = getEditorEl();
+    let triedEnter = false;
+
+    const started = () => (Date.now() - (window.__cbLastChatRequestAt||0)) < 1200; // <1.2s
+    const t0 = Date.now();
+
+    function decideNext(){
+      if (started()) return true; // Request erkannt
+      if (!triedEnter) {
+        triedEnter = true;
+        sendViaEnter(editorEl);
+        setTimeout(decideNext, 300);
+        return;
+      }
+      // nach Button & Enter immer noch kein Request → melden
+      if (!started() && Date.now() - t0 > 1200) {
+        console.warn('Kein Chat-Request erkannt (Button & Enter wirkten nicht).');
+      }
+    }
+    setTimeout(decideNext, 300);
     return true;
   }
 
@@ -606,7 +716,7 @@
     loadingIndicator.style.transform = 'translate(-50%, -50%)';
     loadingIndicator.style.zIndex = '1001';
     loadingIndicator.style.backgroundColor = '#ffffff';
-    loadingIndicator.style.border = '1px solid #ddd'; // ✅ FIX
+    loadingIndicator.style.border = '1px solid #ddd';
     loadingIndicator.style.padding = '20px';
     loadingIndicator.style.borderRadius = '5px';
     loadingIndicator.style.display = 'flex';
@@ -974,9 +1084,7 @@
 
     if (initialized) { console.log('⚠️ Abbruch: initializeContentBuddy() wurde bereits aufgerufen.'); return; }
     if (document.querySelector('#contentBuddyButton')) {
-      console.log('⚠️ Abbruch: ContentBuddy-Button existiert bereits.'); return;
-    }
-
+      console.log('⚠️ Abbruch: ContentBuddy-Button existiert bereits.'); return; }
     console.log('🛠️ Erstelle ContentBuddy-Button...');
     createButton();
     monitorConsoleMessages();

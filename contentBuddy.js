@@ -365,10 +365,48 @@
     }
   }
 
+  function getBotMessages() {
+    return Array.from(document.querySelectorAll('#chat-messages [data-testid="message-container-bot"]'));
+  }
+
+  function getMarkdownRoot(messageEl) {
+    if (!messageEl) return null;
+    return messageEl.querySelector('.markdown') || messageEl;
+  }
+
+  function hasOutlineMarkup(el) {
+    return !!el && !!el.querySelector('h1, h2, h3, h4, h5, h6, ul, ol');
+  }
+
+  function hasCompletedBotMessageAfter(initialBotCount = 0) {
+    const bots = getBotMessages();
+    if (bots.length <= initialBotCount) return null;
+
+    const latestBot = bots[bots.length - 1];
+    const isComplete = !!latestBot.querySelector(
+      '[data-testid="chat-message-actions-bot-footer"], [data-testid="copy-btn"], [data-testid="regenerate-btn"]'
+    );
+
+    return isComplete ? latestBot : null;
+  }
+
   /** Robuste Auswahl des Outline-Containers */
-  function pickOutlineSourceFromChatMessages() {
+  function pickOutlineSourceFromChatMessages(preferredMessage = null) {
     const chat = document.querySelector('#chat-messages');
     if (!chat) { console.error('#chat-messages nicht gefunden.'); return null; }
+
+    const preferredRoot = getMarkdownRoot(preferredMessage);
+    if (hasOutlineMarkup(preferredRoot)) {
+      console.log('Gewähltes Outline-Source-Element aus neuer Bot-Nachricht:', preferredRoot);
+      return preferredRoot;
+    }
+
+    const botRoots = getBotMessages().map(getMarkdownRoot).filter(Boolean).reverse();
+    const botWithOutline = botRoots.find(hasOutlineMarkup);
+    if (botWithOutline) {
+      console.log('Gewähltes Outline-Source-Element aus letzter Bot-Nachricht:', botWithOutline);
+      return botWithOutline;
+    }
 
     const kids = Array.from(chat.children).filter(
       (el) => el.nodeType === 1 && el.tagName !== 'SCRIPT' && el.tagName !== 'STYLE'
@@ -379,8 +417,8 @@
     );
 
     let source = kids[1] || null;
-    if (!source || !source.querySelector('h3, ul')) {
-      const withHeadings = kids.find((el) => el.querySelector('h3, ul, h2, h4'));
+    if (!hasOutlineMarkup(source)) {
+      const withHeadings = kids.find(hasOutlineMarkup);
       if (withHeadings) source = withHeadings;
     }
     if (!source) source = kids[0] || null;
@@ -389,15 +427,14 @@
     return source || null;
   }
 
-  function extractOutline() {
+  function extractOutline(sourceElementOverride = null) {
     console.log('extractOutline() gestartet …');
 
-    const sourceElement = pickOutlineSourceFromChatMessages();
+    const sourceElement = sourceElementOverride || pickOutlineSourceFromChatMessages();
     if (!sourceElement) { console.error('Kein geeignetes Outline-Element gefunden.'); return null; }
 
-    let headings = sourceElement.querySelectorAll('h3');
-    if (headings.length === 0) headings = sourceElement.querySelectorAll('h2, h4');
-    console.log(`Gefundene Überschriften (h2/h3/h4): ${headings.length}`);
+    const headings = sourceElement.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    console.log(`Gefundene Überschriften (h1-h6): ${headings.length}`);
 
     if (headings.length === 0) { console.error('Keine Überschriften im gewählten Element gefunden.'); return null; }
 
@@ -409,14 +446,22 @@
       point.title = titleText;
 
       let nextElement = heading.nextElementSibling;
-      while (nextElement && nextElement.tagName !== 'UL') nextElement = nextElement.nextElementSibling;
+      while (
+        nextElement &&
+        !['UL', 'OL'].includes(nextElement.tagName) &&
+        !/^H[1-6]$/.test(nextElement.tagName)
+      ) {
+        nextElement = nextElement.nextElementSibling;
+      }
 
-      if (nextElement && nextElement.tagName === 'UL') {
-        const processList = (ulEl) => {
+      if (nextElement && ['UL', 'OL'].includes(nextElement.tagName)) {
+        const processList = (listEl) => {
           const items = [];
-          ulEl.querySelectorAll(':scope > li').forEach((li) => {
-            let text = (li.firstChild?.textContent || '').trim();
-            const nested = li.querySelector(':scope > ul');
+          listEl.querySelectorAll(':scope > li').forEach((li) => {
+            const clone = li.cloneNode(true);
+            clone.querySelectorAll('ul, ol').forEach((nestedList) => nestedList.remove());
+            let text = normalizeText(clone.innerText || clone.textContent || '');
+            const nested = li.querySelector(':scope > ul, :scope > ol');
             if (nested) {
               const nestedItems = processList(nested);
               if (nestedItems.length) text = `${text}: ${nestedItems.join(' ')}`;
@@ -427,7 +472,7 @@
         };
         point.content.push(...processList(nextElement));
       } else {
-        console.warn(`Kein <ul> nach "${point.title}" gefunden.`);
+        console.warn(`Keine Liste nach "${point.title}" gefunden.`);
       }
 
       if (point.content.length) outline.push(point);
@@ -437,8 +482,8 @@
     return outline;
   }
 
-  function renderOutlineIfAvailable() {
-    const outline = extractOutline();
+  function renderOutlineIfAvailable(sourceElementOverride = null) {
+    const outline = extractOutline(sourceElementOverride);
     if (!outline || outline.length === 0) {
       console.warn('Noch keine extrahierbare Gliederung gefunden.');
       return false;
@@ -491,7 +536,7 @@
 
     const hasSendIcon = !!footer.querySelector('.mdi-send');
     const hasBusyIcon = !!footer.querySelector(
-      '.mdi-stop, .mdi-square, .mdi-close, .mdi-cancel, .mdi-loading, .v-progress-circular, [role="progressbar"]'
+      '.mdi-stop, .mdi-square, .mdi-close, .mdi-cancel, .mdi-loading, .v-progress-circular'
     );
     const label = signature.toLowerCase();
     const labelLooksIdle = /(^|[^a-z])(send|senden|absenden|abschicken)([^a-z]|$)/.test(label);
@@ -509,14 +554,26 @@
     stopOutlineExtractionWatcher();
     if (!firstTime) return;
 
-    const chat = document.querySelector('#chat-messages');
     const footer = document.querySelector('#chat-footer');
     const initialSignature = getChatActionSignature();
+    const initialBotCount = getBotMessages().length;
     let sawGenerationState = false;
 
     const tryExtract = (source) => {
       if (!firstTime) {
         stopOutlineExtractionWatcher();
+        return;
+      }
+
+      const completedBot = hasCompletedBotMessageAfter(initialBotCount);
+      if (completedBot) {
+        console.log('[Outline-Watcher] Neue Bot-Antwort ist abgeschlossen:', source);
+        if (renderOutlineIfAvailable(getMarkdownRoot(completedBot))) stopOutlineExtractionWatcher();
+        return;
+      }
+
+      if (!document.querySelector('#chat-messages')) {
+        console.log('[Outline-Watcher] #chat-messages noch nicht vorhanden, warte weiter:', source);
         return;
       }
 
@@ -527,28 +584,23 @@
         return;
       }
 
-      if ((sawGenerationState && state.idle) || (!initialSignature && source === 'chat')) {
+      if (sawGenerationState && state.idle && getBotMessages().length > initialBotCount) {
         console.log('[Outline-Watcher] Versuche Gliederung zu extrahieren:', source, state);
         if (renderOutlineIfAvailable()) stopOutlineExtractionWatcher();
         return;
       }
-
-      if (!sawGenerationState && source === 'chat' && state.idle) {
-        console.log('[Outline-Watcher] Chat-Mutation im Idle-State, versuche Gliederung zu extrahieren.', state);
-        if (renderOutlineIfAvailable()) stopOutlineExtractionWatcher();
-      }
     };
 
     outlineExtractionObserver = new MutationObserver((mutations) => {
-      const source = mutations.some((m) => chat && (m.target === chat || chat.contains(m.target))) ? 'chat' : 'footer';
+      const chat = document.querySelector('#chat-messages');
+      const source = mutations.some((m) => chat && (m.target === chat || chat.contains(m.target))) ? 'chat' : 'page';
       tryExtract(source);
     });
 
-    if (chat) outlineExtractionObserver.observe(chat, { childList: true, subtree: true });
+    outlineExtractionObserver.observe(document.body, { childList: true, subtree: true });
     if (footer) outlineExtractionObserver.observe(footer, { attributes: true, childList: true, subtree: true });
-    if (!chat && !footer) outlineExtractionObserver.observe(document.body, { attributes: true, childList: true, subtree: true });
 
-    console.log('[Outline-Watcher] gestartet.', { initialSignature });
+    console.log('[Outline-Watcher] gestartet.', { initialSignature, initialBotCount });
   }
 
   function finishOutlineExtraction(source = 'trigger') {
@@ -996,7 +1048,7 @@
     buttonContainer.appendChild(bTextButton);
     content.appendChild(buttonContainer);
 
-    // Premium-Text: Extraktion erfolgt erst, wenn der LLM-Stream wirklich geschlossen ist.
+    // Premium-Text: Extraktion erfolgt erst, wenn die neue Bot-Antwort im Chat abgeschlossen ist.
     aTextButton.addEventListener('click', () => {
       console.log('A-Text angefordert.');
       const hauptkeyword = mainKeywordInput.value.trim();

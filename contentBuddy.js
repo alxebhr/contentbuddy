@@ -237,6 +237,7 @@
   let loadingIndicator;
   let firstTime = true;
   let initialized = false;
+  let outlineExtractionObserver = null;
 
   /* ================================
    *   Hauptfunktion: Prompt einfügen + senden
@@ -453,6 +454,111 @@
     createOutlineBoxes(outline, container);
     firstTime = false;
     return true;
+  }
+
+  function stopOutlineExtractionWatcher() {
+    if (!outlineExtractionObserver) return;
+    outlineExtractionObserver.disconnect();
+    outlineExtractionObserver = null;
+  }
+
+  function getChatActionSignature() {
+    const footer = document.querySelector('#chat-footer');
+    if (!footer) return '';
+
+    const button =
+      footer.querySelector('.input-panel .v-btn.bg-primary') ||
+      findSendButton() ||
+      footer.querySelector('button');
+
+    if (!button) return '';
+
+    const icon = button.querySelector('i, svg, [class*="mdi-"], [class*="fa-"], [class*="ri-"], [class*="icon"]');
+    const iconClasses = icon ? Array.from(icon.classList || []).sort().join('.') : '';
+    const label = normalizeText([
+      button.textContent || '',
+      button.getAttribute('aria-label') || '',
+      button.getAttribute('title') || '',
+    ].join(' ')).toLowerCase();
+
+    return `${label}|${iconClasses}`;
+  }
+
+  function getChatActionState(initialSignature = '') {
+    const footer = document.querySelector('#chat-footer');
+    const signature = getChatActionSignature();
+    if (!footer) return { signature, idle: false, busy: false };
+
+    const hasSendIcon = !!footer.querySelector('.mdi-send');
+    const hasBusyIcon = !!footer.querySelector(
+      '.mdi-stop, .mdi-square, .mdi-close, .mdi-cancel, .mdi-loading, .v-progress-circular, [role="progressbar"]'
+    );
+    const label = signature.toLowerCase();
+    const labelLooksIdle = /(^|[^a-z])(send|senden|absenden|abschicken)([^a-z]|$)/.test(label);
+    const labelLooksBusy = /stop|stopp|cancel|abbrechen|unterbrechen|generating|loading|lade/.test(label);
+    const matchesInitial = !!initialSignature && signature === initialSignature;
+    const changedFromInitial = !!initialSignature && !!signature && signature !== initialSignature;
+
+    const idle = hasSendIcon || labelLooksIdle || matchesInitial;
+    const busy = hasBusyIcon || labelLooksBusy || (changedFromInitial && !idle);
+
+    return { signature, idle, busy };
+  }
+
+  function startOutlineExtractionWatcher() {
+    stopOutlineExtractionWatcher();
+    if (!firstTime) return;
+
+    const chat = document.querySelector('#chat-messages');
+    const footer = document.querySelector('#chat-footer');
+    const initialSignature = getChatActionSignature();
+    let sawGenerationState = false;
+
+    const tryExtract = (source) => {
+      if (!firstTime) {
+        stopOutlineExtractionWatcher();
+        return;
+      }
+
+      const state = getChatActionState(initialSignature);
+      if (!sawGenerationState && state.busy) {
+        sawGenerationState = true;
+        console.log('[Outline-Watcher] Generierung erkannt:', source, state);
+        return;
+      }
+
+      if ((sawGenerationState && state.idle) || (!initialSignature && source === 'chat')) {
+        console.log('[Outline-Watcher] Versuche Gliederung zu extrahieren:', source, state);
+        if (renderOutlineIfAvailable()) stopOutlineExtractionWatcher();
+        return;
+      }
+
+      if (!sawGenerationState && source === 'chat' && state.idle) {
+        console.log('[Outline-Watcher] Chat-Mutation im Idle-State, versuche Gliederung zu extrahieren.', state);
+        if (renderOutlineIfAvailable()) stopOutlineExtractionWatcher();
+      }
+    };
+
+    outlineExtractionObserver = new MutationObserver((mutations) => {
+      const source = mutations.some((m) => chat && (m.target === chat || chat.contains(m.target))) ? 'chat' : 'footer';
+      tryExtract(source);
+    });
+
+    if (chat) outlineExtractionObserver.observe(chat, { childList: true, subtree: true });
+    if (footer) outlineExtractionObserver.observe(footer, { attributes: true, childList: true, subtree: true });
+    if (!chat && !footer) outlineExtractionObserver.observe(document.body, { attributes: true, childList: true, subtree: true });
+
+    console.log('[Outline-Watcher] gestartet.', { initialSignature });
+  }
+
+  function finishOutlineExtraction(source = 'trigger') {
+    if (!firstTime) {
+      stopOutlineExtractionWatcher();
+      return;
+    }
+
+    console.log('[Outline-Watcher] Abschluss-Trigger:', source);
+    if (renderOutlineIfAvailable()) stopOutlineExtractionWatcher();
   }
 
   function createOutlineBoxes(outline, container) {
@@ -900,6 +1006,7 @@
         .map((input) => input.value.trim()).filter(Boolean).join(', ');
 
       if (hauptkeyword) {
+        startOutlineExtractionWatcher();
         insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
         aTextButton.style.display = 'none';
         bTextButton.style.display = 'none';
@@ -964,21 +1071,33 @@
   }
 
   function monitorConsoleMessages() {
-    const originalConsoleLog = console.log;
-    originalConsoleLog('monitorConsoleMessages() gestartet.');
+    const originalConsole = {
+      log: console.log,
+      info: console.info,
+      debug: console.debug,
+      warn: console.warn,
+    };
 
-    console.log = function () {
+    originalConsole.log('monitorConsoleMessages() gestartet.');
+
+    const handleConsoleMessage = (args) => {
       try {
-        const msg = arguments[0];
+        const msg = args[0];
         if (typeof msg === 'string' && msg.includes('llm generation stream closed')) {
-          originalConsoleLog('[monitorConsoleMessages] - Intercepted:', msg);
+          originalConsole.log('[monitorConsoleMessages] - Intercepted:', msg);
           if (firstTime) {
-            renderOutlineIfAvailable();
+            finishOutlineExtraction('console');
           }
         }
       } catch (e) { /* ignore */ }
-      return Function.prototype.apply.call(originalConsoleLog, console, arguments);
     };
+
+    Object.keys(originalConsole).forEach((method) => {
+      console[method] = function () {
+        handleConsoleMessage(arguments);
+        return Function.prototype.apply.call(originalConsole[method], console, arguments);
+      };
+    });
   }
 
   function initializeContentBuddy() {

@@ -231,97 +231,6 @@
     return true;
   }
 
-  /* ==========================================================
-   *   Robuster Klassen-Wait (ohne hartes "send/stop"-Wissen)
-   * ========================================================== */
-  function findButtonIconEl() {
-    const btn = findSendButton();
-    if (!btn) return null;
-    return (
-      btn.querySelector('i, svg, [class*="mdi-"], [class*="fa-"], [class*="ri-"]') ||
-      btn.querySelector('[class*="icon"]') ||
-      btn
-    );
-  }
-
-  function extractGlyphSignature(iconEl) {
-    if (!iconEl) return '';
-    const cls = Array.from((iconEl.classList || []));
-    const glyph =
-      cls.find((c) => c.startsWith('mdi-') && c !== 'mdi') ||
-      cls.find((c) => c.startsWith('fa-')) ||
-      cls.find((c) => c.startsWith('ri-'));
-    if (glyph) return glyph;
-    return cls.sort().join('.');
-  }
-
-  async function waitForLLMByClassChange({
-    appearTimeoutMs = 60000,
-    finishTimeoutMs = 180000,
-    stableForMs = 800,
-    log = true,
-  } = {}) {
-    const logf = (...a) => log && console.log('[CLASS-WAIT]', ...a);
-
-    // 1) Icon-Element erscheinen lassen
-    let icon = findButtonIconEl();
-    const tAppear = Date.now();
-    while (!icon) {
-      if (Date.now() - tAppear > appearTimeoutMs) throw new Error('Icon-Element nicht gefunden');
-      await new Promise((r) => setTimeout(r, 80));
-      icon = findButtonIconEl();
-    }
-    let baseGlyph = extractGlyphSignature(icon);
-    if (!baseGlyph) baseGlyph = (icon.outerHTML || '').slice(0, 200);
-    logf('Baseline glyph:', baseGlyph);
-
-    // 2) Auf Start (Glyph != Baseline) warten
-    const tStartMax = Date.now();
-    while (true) {
-      const fresh = findButtonIconEl() || icon;
-      icon = fresh;
-      const g = extractGlyphSignature(icon);
-      if (g && g !== baseGlyph) { logf('Start erkannt. Current glyph:', g); break; }
-      if (Date.now() - tStartMax > appearTimeoutMs) { logf('Start nicht gesehen – fahre fort.'); break; }
-      await new Promise((r) => setTimeout(r, 80));
-    }
-
-    // 3) Auf Rückkehr zur Baseline + Stabilität warten
-    const tFinishMax = Date.now();
-    let stableSince = null;
-    const watchTarget = (findSendButton() || document.body);
-    let lastMutation = Date.now();
-    const mo = new MutationObserver(() => { lastMutation = Date.now(); });
-    try { mo.observe(watchTarget, { attributes: true, childList: true, subtree: true }); } catch (_) {}
-
-    while (true) {
-      const fresh = findButtonIconEl() || icon;
-      icon = fresh;
-      const glyph = extractGlyphSignature(icon);
-
-      if (glyph === baseGlyph) {
-        if (stableSince == null) stableSince = Date.now();
-        const noDomChangeFor = Date.now() - lastMutation;
-        const stableFor = Date.now() - stableSince;
-        if (stableFor >= stableForMs && noDomChangeFor >= Math.min(stableForMs, 500)) {
-          mo.disconnect();
-          logf('Baseline (stabil) erreicht.');
-          break;
-        }
-      } else {
-        stableSince = null;
-      }
-
-      if (Date.now() - tFinishMax > finishTimeoutMs) {
-        mo.disconnect();
-        logf('Timeout beim Zurückkehren zur Baseline – fahre fort.');
-        break;
-      }
-      await new Promise((r) => setTimeout(r, 100));
-    }
-    return true;
-  }
-
   /* ================================
    *   State / Flags
    * ================================ */
@@ -525,6 +434,25 @@
 
     console.log('Extrahierte Gliederung:', outline);
     return outline;
+  }
+
+  function renderOutlineIfAvailable() {
+    const outline = extractOutline();
+    if (!outline || outline.length === 0) {
+      console.warn('Noch keine extrahierbare Gliederung gefunden.');
+      return false;
+    }
+
+    const container = document.querySelector('.text-buddy-content');
+    if (!container) {
+      console.error('.text-buddy-content nicht gefunden.');
+      return false;
+    }
+
+    if (loadingIndicator) loadingIndicator.remove();
+    createOutlineBoxes(outline, container);
+    firstTime = false;
+    return true;
   }
 
   function createOutlineBoxes(outline, container) {
@@ -962,8 +890,8 @@
     buttonContainer.appendChild(bTextButton);
     content.appendChild(buttonContainer);
 
-    // Premium-Text: Klassen-Wait (generisch) mit 25s-Fallback
-    aTextButton.addEventListener('click', async () => {
+    // Premium-Text: Extraktion erfolgt erst, wenn der LLM-Stream wirklich geschlossen ist.
+    aTextButton.addEventListener('click', () => {
       console.log('A-Text angefordert.');
       const hauptkeyword = mainKeywordInput.value.trim();
       const nebenkeywords = subKeywordInput.value.trim();
@@ -976,26 +904,6 @@
         aTextButton.style.display = 'none';
         bTextButton.style.display = 'none';
         createLoadingIndicator(content);
-
-        const FALLBACK_MS = 25000;
-        try {
-          await Promise.race([
-            waitForLLMByClassChange({ appearTimeoutMs: 60000, finishTimeoutMs: 180000, stableForMs: 800 }),
-            new Promise((res) => setTimeout(res, FALLBACK_MS)),
-          ]);
-        } catch (e) {
-          console.warn('[Premium-Text] Class-Wait Fehler/Timeout:', e?.message || e);
-        }
-
-        if (firstTime) {
-          if (loadingIndicator) loadingIndicator.remove();
-          const outline = extractOutline();
-          if (outline) {
-            const ctn = document.querySelector('.text-buddy-content');
-            if (ctn) createOutlineBoxes(outline, ctn);
-          }
-          firstTime = false;
-        }
       }
     });
 
@@ -1065,13 +973,7 @@
         if (typeof msg === 'string' && msg.includes('llm generation stream closed')) {
           originalConsoleLog('[monitorConsoleMessages] - Intercepted:', msg);
           if (firstTime) {
-            if (loadingIndicator) loadingIndicator.remove();
-            const outline = extractOutline();
-            if (outline) {
-              const container = document.querySelector('.text-buddy-content');
-              if (container) createOutlineBoxes(outline, container);
-            }
-            firstTime = false;
+            renderOutlineIfAvailable();
           }
         }
       } catch (e) { /* ignore */ }

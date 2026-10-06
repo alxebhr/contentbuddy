@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ContentBuddy – robust send & outline flow
 // @namespace    contentbuddy.witt
-// @version      1.1.2
+// @version      1.2.1
 // @description  Fügt Prompts ein, sendet sie zuverlässig und verhindert Re-Insert nach dem Absenden. Erstellt Outline-UI und Meta-Button.
 // @match        *://*/*
 // @run-at       document-idle
@@ -11,13 +11,18 @@
 (function () {
   'use strict';
 
+  if (window.__cbRuntimeInstalled) return;
+  window.__cbRuntimeInstalled = true;
+
   console.log('ContentBuddy script is running');
 
   /* ==========================================================
    *   Globale Guards / Signatur-Tools (gegen Re-Insert)
    * ========================================================== */
   let isSending = false;   // verhindert Inserts während Send
-  let lastSentSig = null;  // Merker der zuletzt gesendeten Textsignatur
+  let sendAttempt = 0;
+  let lastInsertError = '';
+  const sentChatPrompts = new Map();
 
   const normalizeText = (s) => (s || '').replace(/\s+/g, ' ').trim();
   const sigOf = (s) => {
@@ -30,65 +35,164 @@
   /* ==========================================================
    *   Netzwerk-Sniffer: erkennt echte Chat-Requests
    * ========================================================== */
-  (function setupCbNetSniffer(){
-    if (window.__cbNetSnifferInstalled) return;
-    window.__cbNetSnifferInstalled = true;
+  function isChatStreamRequest(input, options = {}) {
+    try {
+      const url = new URL(input instanceof Request ? input.url : String(input), location.href);
+      const method = String(options.method || (input instanceof Request ? input.method : 'GET')).toUpperCase();
+      return method === 'POST' && /\/api\/chat\/stream\/?$/.test(url.pathname);
+    } catch { return false; }
+  }
 
-    const isChatUrl = (url) => {
-      try {
-        const u = typeof url === 'string' ? new URL(url, location.href) : new URL(url.url || url, location.href);
-        // TODO: Falls bekannt, hier den echten Endpoint schärfen (z. B. /api/chat)
-        return /chat|completion|generate|message/i.test(u.pathname);
-      } catch { return false; }
-    };
+  async function readChatStreamPayload(input, options = {}) {
+    let body = options.body;
+    if (body === undefined && input instanceof Request) body = await input.clone().text();
+    if (typeof body !== 'string') return null;
+    try { return JSON.parse(body); } catch { return null; }
+  }
 
-    window.__cbLastChatRequestAt = 0;
+  function getChatStreamPrompt(payload) {
+    const parts = payload?.conversation?.message;
+    if (!Array.isArray(parts)) return '';
+    return parts.filter((part) => part && part.type === 'text' && typeof part.content === 'string')
+      .map((part) => part.content).join('\n');
+  }
 
-    // fetch hook
-    const _fetch = window.fetch;
-    window.fetch = async function(...args){
-      const [url, opts] = args;
-      if (isChatUrl(url) && (!opts || (opts && String(opts.method||'POST').toUpperCase()==='POST'))) {
-        window.__cbLastChatRequestAt = Date.now();
+  function recordChatStreamPrompt(payload, sequence) {
+    const prompt = getChatStreamPrompt(payload);
+    if (!prompt) return;
+    sentChatPrompts.set(sigOf(prompt), sequence);
+    if (sentChatPrompts.size > 20) sentChatPrompts.delete(sentChatPrompts.keys().next().value);
+  }
+
+  function claimOutlineRequest(job, payload) {
+    if (!job || activeOutlineJob !== job || job.started || !payload?.chat_id) return false;
+    const prompt = getChatStreamPrompt(payload);
+    if (normalizeText(prompt) !== job.prompt) return false;
+
+    job.started = true;
+    job.chatId = String(payload.chat_id);
+    clearTimeout(job.timeout);
+    job.timeout = setTimeout(() => failOutlineExtraction(job,
+      'Die Gliederung wurde nicht rechtzeitig abgeschlossen. Bitte prüfe den Chat und versuche es erneut.'), 300000);
+    return true;
+  }
+
+  function cancelOutlineReader(reader) {
+    // Ein geklonter Stream-Zweig darf den nativen Leser nicht blockieren.
+    if (reader) { try { reader.cancel().catch(() => {}); } catch {} }
+  }
+
+  (function setupCbNetSniffer() {
+    window.__cbChatRequestSequence = 0;
+    const originalFetch = window.fetch;
+    window.fetch = function(input, options = {}) {
+      const isStream = isChatStreamRequest(input, options);
+      const job = isStream ? activeOutlineJob : null;
+      const sequence = isStream ? ++window.__cbChatRequestSequence : 0;
+      const matches = isStream ? readChatStreamPayload(input, options).then((payload) => {
+        recordChatStreamPrompt(payload, sequence);
+        return claimOutlineRequest(job, payload);
+      }, () => false) : null;
+
+      let result;
+      try { result = Reflect.apply(originalFetch, this, arguments); }
+      catch (error) {
+        if (job && matches) matches.then((matched) => {
+          if (matched) failOutlineExtraction(job, 'Die Gliederung konnte nicht angefordert werden. Bitte versuche es erneut.');
+        });
+        throw error;
       }
-      return _fetch.apply(this, args);
+
+      if (job && matches) Promise.resolve(result).then((response) => {
+        // Vor dem nativen Consumer klonen; niemals auf den Antworttext warten.
+        let clone;
+        try { clone = response.clone(); }
+        catch {
+          matches.then((matched) => {
+            if (matched) failOutlineExtraction(job, 'Die Chat-Antwort konnte nicht gelesen werden. Bitte lade ogGPT neu.');
+          });
+          return;
+        }
+        matches.then((matched) => {
+          if (matched && activeOutlineJob === job) observeOutlineResponse(clone, job);
+          else if (clone.body) cancelOutlineReader(clone.body.getReader());
+        });
+      }, () => matches.then((matched) => {
+        if (matched) failOutlineExtraction(job, 'Die Generierung wurde abgebrochen oder die Verbindung unterbrochen. Bitte versuche es erneut.');
+      }));
+      return result;
     };
 
-    // XHR hook
-    const _open = XMLHttpRequest.prototype.open;
-    const _send = XMLHttpRequest.prototype.send;
-    XMLHttpRequest.prototype.open = function(method, url, ...rest){
-      this.__cbIsChat = isChatUrl(url) && String(method||'POST').toUpperCase()==='POST';
-      return _open.call(this, method, url, ...rest);
+    const originalOpen = XMLHttpRequest.prototype.open;
+    const originalSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+      this.__cbIsChatStream = isChatStreamRequest(url, { method });
+      return originalOpen.call(this, method, url, ...rest);
     };
-    XMLHttpRequest.prototype.send = function(...args){
-      if (this.__cbIsChat) window.__cbLastChatRequestAt = Date.now();
-      return _send.apply(this, args);
+    XMLHttpRequest.prototype.send = function(body) {
+      let watchedJob = null;
+      if (this.__cbIsChatStream) {
+        window.__cbChatRequestSequence += 1;
+        let payload;
+        try { payload = JSON.parse(body); } catch {}
+        recordChatStreamPrompt(payload, window.__cbChatRequestSequence);
+        const job = activeOutlineJob;
+        if (claimOutlineRequest(job, payload)) {
+          watchedJob = job;
+          const finish = () => {
+            if (activeOutlineJob !== job) return;
+            if (this.status < 200 || this.status >= 300) {
+              failOutlineExtraction(job, 'Die Generierung ist fehlgeschlagen oder wurde abgebrochen. Bitte versuche es erneut.');
+              return;
+            }
+            try {
+              const response = new Response(this.responseText, {
+                status: this.status, headers: { 'Content-Type': this.getResponseHeader('Content-Type') || '' },
+              });
+              observeOutlineResponse(response, job);
+            } catch {
+              failOutlineExtraction(job, 'Die Chat-Antwort konnte nicht gelesen werden. Bitte lade ogGPT neu.');
+            }
+          };
+          this.addEventListener('loadend', finish, { once: true });
+        }
+      }
+      try { return originalSend.apply(this, arguments); }
+      catch (error) {
+        if (watchedJob) {
+          failOutlineExtraction(watchedJob, 'Die Gliederung konnte nicht angefordert werden. Bitte versuche es erneut.');
+        }
+        throw error;
+      }
     };
   })();
 
   /* ==========================================================
    *   NUR nach erkanntem Request räumen (Fix)
    * ========================================================== */
-  function postSendCleanup(editorEl, sig, { windowMs = 3000 } = {}) {
+  function postSendCleanup(editorEl, sig, { windowMs = 3000, requestSequence = 0, attempt = sendAttempt } = {}) {
     if (window.CB_DISABLE_CLEANUP) { isSending = false; return; }
 
     const deadline = Date.now() + windowMs;
     let cleared = false;
+    // requestAnimationFrame pausiert in Hintergrund-Tabs; der Guard muss trotzdem enden.
+    setTimeout(() => { if (attempt === sendAttempt) isSending = false; }, windowMs);
 
     const step = () => {
+      if (attempt !== sendAttempt) return;
       if (cleared || Date.now() > deadline) { isSending = false; return; }
 
       // Erst räumen, wenn wirklich ein Chat-Request abging
-      const requestHappened = (Date.now() - (window.__cbLastChatRequestAt||0)) < 4000;
+      const requestHappened = (sentChatPrompts.get(sig) || 0) > requestSequence;
       if (!requestHappened) {
         requestAnimationFrame(step);
         return;
       }
 
-      const cur = normalizeText(editorEl.innerText || editorEl.textContent || editorEl.value || '');
+      const cur = normalizeText(getEditorText(editorEl));
       if (cur && sigOf(cur) === sig) {
-        editorEl.innerHTML = '';
+        if (isValueEditor(editorEl)) setEditorValue(editorEl, '');
+        else editorEl.replaceChildren();
         try {
           editorEl.dispatchEvent(new InputEvent('input', { bubbles: true }));
         } catch (_) {
@@ -106,80 +210,126 @@
    *   Helpers für Editor & Send
    * ================================ */
 
-  // Bevorzugt den Editor im Footer (#editor), Fallback auf beliebiges contenteditable
-  function getEditorEl() {
-    let el = document.querySelector('#editor[contenteditable="true"]');
-    if (el) return el;
-    el = document.querySelector('#chat-footer [contenteditable="true"]');
-    if (el) return el;
-    return document.querySelector('[contenteditable="true"]');
+  function isValueEditor(el) {
+    return el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement;
   }
 
-  // Robustes Einfügen in contenteditable + Event-Kaskade
-  function setContentEditable(el, html) {
+  function getEditorText(el) {
+    return isValueEditor(el) ? el.value : (el.innerText || el.textContent || '');
+  }
+
+  function isVisibleNativeElement(el) {
+    if (!el?.isConnected || el.closest('#contentBuddyOverlay, .text-buddy-content, [hidden], [inert], [aria-hidden="true"]')) return false;
+    const style = getComputedStyle(el);
+    return el.getClientRects().length > 0 && style.visibility !== 'hidden' && style.visibility !== 'collapse';
+  }
+
+  // Das native UI kann textarea, Rich-Text-Editor oder plaintext-only verwenden.
+  function getEditorEl() {
+    const selectors = [
+      '.chat-footer .prompt-input textarea[aria-label="Chat prompt"]',
+      '.chat-footer textarea, .chat-footer [contenteditable]',
+      '#editor',
+      '#chat-footer textarea, #chat-footer [contenteditable], #chat-footer input[role="textbox"]',
+      '[data-testid="chat-input"] textarea, textarea[data-testid="chat-input"], [data-testid="chat-input"][contenteditable]',
+      '[data-testid="chat-composer"] textarea, [data-testid="chat-composer"] [contenteditable]',
+      '.ProseMirror[contenteditable], .tiptap[contenteditable]',
+      'textarea, [role="textbox"][contenteditable], input[role="textbox"], [contenteditable]',
+    ];
+    for (const selector of selectors) {
+      const candidate = Array.from(document.querySelectorAll(selector)).find((el) => {
+        if (!isVisibleNativeElement(el) || el.disabled || el.readOnly || el.getAttribute('aria-disabled') === 'true') return false;
+        if (el instanceof HTMLInputElement && el.type !== 'text') return false;
+        if (!isValueEditor(el) && !el.isContentEditable) return false;
+        const label = [el.getAttribute('placeholder'), el.getAttribute('aria-label'), el.getAttribute('type')].join(' ');
+        return !/search|suche|suchen|filter/i.test(label);
+      });
+      if (candidate) return candidate;
+    }
+    return null;
+  }
+
+  function setEditorValue(el, text) {
+    if (el instanceof HTMLInputElement) text = text.replace(/\r\n?|\n/g, ' ');
+    const prototype = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+    const setter = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
+    if (setter) setter.call(el, text);
+    else el.value = text;
+  }
+
+  // Als Text einfügen; die nativen Input-Events aktualisieren den Frontend-State.
+  function setContentEditable(el, text) {
     if (!el) return false;
-    if (isSending) { console.warn('[Guard] Noch im Send-Prozess – Insert übersprungen.'); return false; }
+    if (isSending) {
+      lastInsertError = 'Eine Nachricht wird gerade gesendet. Bitte warte kurz und versuche es erneut.';
+      console.warn('[ContentBuddy] ' + lastInsertError);
+      return false;
+    }
 
     el.focus();
 
-    // a) Range-API
-    try {
+    if (isValueEditor(el)) {
+      setEditorValue(el, text);
+      try { el.setSelectionRange(text.length, text.length); } catch {}
+    } else {
       const sel = window.getSelection();
       const range = document.createRange();
       range.selectNodeContents(el);
-      range.deleteContents();
-      const frag = range.createContextualFragment(html);
-      range.insertNode(frag);
-      // Cursor ans Ende
       sel.removeAllRanges();
-      const r2 = document.createRange();
-      r2.selectNodeContents(el);
-      r2.collapse(false);
-      sel.addRange(r2);
-    } catch (e) {
-      // b) Fallback execCommand
-      try {
-        document.execCommand('selectAll', false, null);
-        if (!document.execCommand('insertHTML', false, html)) {
-          document.execCommand('insertText', false, html);
-        }
-      } catch {
-        // c) Notnagel
-        el.innerHTML = html;
+      sel.addRange(range);
+      // Bevorzugt die native Editieroperation, damit Rich-Text-Editoren sie mitbekommen.
+      try { document.execCommand('insertText', false, text); } catch {}
+      if (normalizeText(getEditorText(el)) !== normalizeText(text)) {
+        range.selectNodeContents(el);
+        range.deleteContents();
+        const fragment = document.createDocumentFragment();
+        text.split('\n').forEach((line, index) => {
+          if (index) fragment.appendChild(document.createElement('br'));
+          fragment.appendChild(document.createTextNode(line));
+        });
+        range.insertNode(fragment);
+        range.selectNodeContents(el);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
       }
     }
 
-    // Event-Kaskade (viele Frameworks erwarten das)
     try {
-      el.dispatchEvent(new InputEvent('input', {bubbles:true, cancelable:true, inputType:'insertFromPaste', data: html}));
-    } catch {}
-    el.dispatchEvent(new Event('input', {bubbles:true}));
-    el.dispatchEvent(new Event('change', {bubbles:true}));
-    el.dispatchEvent(new KeyboardEvent('keyup', {bubbles:true, key:'Unidentified'}));
-    try {
-      el.dispatchEvent(new CompositionEvent('compositionend', {bubbles:true}));
-    } catch {}
+      el.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertFromPaste', data: text }));
+    } catch {
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+    el.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, key: 'Unidentified' }));
+    if (normalizeText(getEditorText(el)) !== normalizeText(text)) {
+      lastInsertError = 'Der Prompt wurde vom Chat-Eingabefeld nicht übernommen. Bitte lade ogGPT neu und versuche es erneut.';
+      return false;
+    }
     return true;
   }
 
-  // Findet den Senden-Button
-  function findSendButton() {
-    const icon = document.querySelector('#chat-footer .input-panel .mdi-send');
-    if (icon) {
-      const btn = icon.closest('button');
-      if (btn) return btn;
+  // Den Senden-Button beim gefundenen Editor suchen, auch ohne alten Footer.
+  function findSendButton(editorEl = getEditorEl()) {
+    const scopes = [];
+    const composer = editorEl?.closest('.prompt-input, .chat-prompt-input, [data-testid="chat-composer"], form');
+    if (composer) scopes.push(composer);
+    const footer = editorEl?.closest('#chat-footer, .chat-footer');
+    if (footer && editorEl && footer.contains(editorEl)) scopes.push(footer);
+    for (let el = editorEl?.parentElement; el && el !== document.body && scopes.length < 6; el = el.parentElement) {
+      scopes.push(el);
     }
-    const primary = document.querySelector('#chat-footer .input-panel .v-btn.bg-primary');
-    if (primary) return primary;
-
-    const btn = Array.from(
-      document.querySelectorAll('#chat-footer .input-panel button, #chat-footer button')
-    ).find((b) => {
-      const t = (b.textContent || '').toLowerCase();
-      const a = (b.getAttribute('aria-label') || '').toLowerCase();
-      return /senden|send|abschicken|absenden/.test(t + a) || b.type === 'submit';
-    });
-    return btn || null;
+    for (const scope of scopes) {
+      const buttons = Array.from(scope.querySelectorAll('button')).filter(isVisibleNativeElement);
+      const send = buttons.find((button) => {
+        const label = [button.textContent, button.getAttribute('aria-label'), button.getAttribute('title')].join(' ');
+        return /senden|send|abschicken|absenden/i.test(label) || button.querySelector('.mdi-send, [data-testid="send-icon"]');
+      });
+      if (send) return send;
+      const submit = buttons.find((button) => button.getAttribute('type') === 'submit');
+      if (submit) return submit;
+    }
+    return null;
   }
 
   // Enter-Fallback, wenn Button-Klick nicht verdrahtet ist
@@ -195,14 +345,15 @@
   }
 
   // Senden mit Klick + Enter-Fallback + Request-Erkennung
-  function sendMessage() {
+  function sendMessage(attempt, sig) {
     const btn = findSendButton();
+    if (btn?.disabled || btn?.getAttribute('aria-disabled') === 'true') return false;
+    const requestSequence = window.__cbChatRequestSequence;
     isSending = true;
 
     // 1) Versuche Button-Klick
     if (btn) {
       btn.click();
-      try { btn.disabled = true; setTimeout(() => (btn.disabled = false), 4000); } catch {}
     } else {
       console.warn('Send-Button nicht gefunden – versuche Enter auf dem Editor.');
     }
@@ -211,12 +362,14 @@
     const editorEl = getEditorEl();
     let triedEnter = false;
 
-    const started = () => (Date.now() - (window.__cbLastChatRequestAt||0)) < 1200; // <1.2s
+    const started = () => (sentChatPrompts.get(sig) || 0) > requestSequence;
     const t0 = Date.now();
 
     function decideNext(){
+      if (attempt !== sendAttempt) return;
       if (started()) return true; // Request erkannt
       if (!triedEnter) {
+        if (btn?.disabled) return;
         triedEnter = true;
         sendViaEnter(editorEl);
         setTimeout(decideNext, 300);
@@ -227,7 +380,7 @@
         console.warn('Kein Chat-Request erkannt (Button & Enter wirkten nicht).');
       }
     }
-    setTimeout(decideNext, 300);
+    setTimeout(decideNext, 1000);
     return true;
   }
 
@@ -237,7 +390,8 @@
   let loadingIndicator;
   let firstTime = true;
   let initialized = false;
-  let outlineExtractionObserver = null;
+  let activeOutlineJob = null;
+  let outlineActionButtons = [];
 
   /* ================================
    *   Hauptfunktion: Prompt einfügen + senden
@@ -251,6 +405,7 @@
     outlineFlag = '',
     autoSend = true
   ) {
+    lastInsertError = '';
     // Template wählen
     let text =
       outlineFlag === 'bText'    ? window.promptBText :
@@ -258,7 +413,11 @@
       outlineFlag === true       ? window.promptTextOutline :
                                    window.promptTextDefault;
 
-    if (!text) { console.error('Prompt-Template fehlt (window.prompt*).'); return; }
+    if (!text) {
+      lastInsertError = 'Die Prompt-Vorlage fehlt. Bitte starte Content Buddy über den Loader und lade die Seite neu.';
+      console.error('Prompt-Template fehlt (window.prompt*).');
+      return false;
+    }
 
     // Platzhalter ersetzen
     text = text
@@ -271,16 +430,29 @@
     console.log('Text, der eingefügt werden soll:', text);
 
     const editorEl = getEditorEl();
-    if (!editorEl) { console.error('Kein contenteditable-Editor gefunden (#editor).'); return; }
+    if (!editorEl) {
+      lastInsertError = 'Das Chat-Eingabefeld wurde nicht gefunden. Bitte öffne einen normalen ogGPT-Chat und versuche es erneut.';
+      console.error('[ContentBuddy] ' + lastInsertError);
+      return false;
+    }
 
-    if (!setContentEditable(editorEl, text)) return;
+    if (!setContentEditable(editorEl, text)) return false;
 
     if (autoSend) {
-      lastSentSig = sigOf(text);
+      const job = firstTime && outlineFlag === '' ? startOutlineExtraction(text) : null;
+      const sig = sigOf(text);
+      const attempt = ++sendAttempt;
+      isSending = true;
       setTimeout(() => {
-        if (sendMessage()) postSendCleanup(editorEl, lastSentSig, { windowMs: 3000 });
+        if (attempt !== sendAttempt) return;
+        if (job && activeOutlineJob !== job) return;
+        const requestSequence = window.__cbChatRequestSequence;
+        if (sendMessage(attempt, sig)) postSendCleanup(editorEl, sig, { windowMs: 3000, requestSequence, attempt });
+        else if (job) failOutlineExtraction(job, 'Der Chat ist noch beschäftigt. Bitte warte auf die laufende Antwort und versuche es erneut.');
+        else isSending = false;
       }, 50);
     }
+    return true;
   }
 
   /* ================================
@@ -365,252 +537,190 @@
     }
   }
 
-  function getBotMessages() {
-    return Array.from(document.querySelectorAll('#chat-messages [data-testid="message-container-bot"]'));
+  function stopOutlineExtraction() {
+    const job = activeOutlineJob;
+    activeOutlineJob = null;
+    if (!job) return;
+    clearTimeout(job.timeout);
+    cancelOutlineReader(job.reader);
   }
 
-  function getMarkdownRoot(messageEl) {
-    if (!messageEl) return null;
-    return messageEl.querySelector('.markdown') || messageEl;
-  }
-
-  function hasOutlineMarkup(el) {
-    return !!el && !!el.querySelector('h1, h2, h3, h4, h5, h6, ul, ol');
-  }
-
-  function hasCompletedBotMessageAfter(initialBotCount = 0) {
-    const bots = getBotMessages();
-    if (bots.length <= initialBotCount) return null;
-
-    const latestBot = bots[bots.length - 1];
-    const isComplete = !!latestBot.querySelector(
-      '[data-testid="chat-message-actions-bot-footer"], [data-testid="copy-btn"], [data-testid="regenerate-btn"]'
-    );
-
-    return isComplete ? latestBot : null;
-  }
-
-  /** Robuste Auswahl des Outline-Containers */
-  function pickOutlineSourceFromChatMessages(preferredMessage = null) {
-    const chat = document.querySelector('#chat-messages');
-    if (!chat) { console.error('#chat-messages nicht gefunden.'); return null; }
-
-    const preferredRoot = getMarkdownRoot(preferredMessage);
-    if (hasOutlineMarkup(preferredRoot)) {
-      console.log('Gewähltes Outline-Source-Element aus neuer Bot-Nachricht:', preferredRoot);
-      return preferredRoot;
-    }
-
-    const botRoots = getBotMessages().map(getMarkdownRoot).filter(Boolean).reverse();
-    const botWithOutline = botRoots.find(hasOutlineMarkup);
-    if (botWithOutline) {
-      console.log('Gewähltes Outline-Source-Element aus letzter Bot-Nachricht:', botWithOutline);
-      return botWithOutline;
-    }
-
-    const kids = Array.from(chat.children).filter(
-      (el) => el.nodeType === 1 && el.tagName !== 'SCRIPT' && el.tagName !== 'STYLE'
-    );
-    console.log(
-      `Kinder unter #chat-messages: ${kids.length}`,
-      kids.map((el, i) => ({ idx: i, tag: el.tagName.toLowerCase(), id: el.id || null, classes: Array.from(el.classList).join(' ') }))
-    );
-
-    let source = kids[1] || null;
-    if (!hasOutlineMarkup(source)) {
-      const withHeadings = kids.find(hasOutlineMarkup);
-      if (withHeadings) source = withHeadings;
-    }
-    if (!source) source = kids[0] || null;
-
-    console.log('Gewähltes Outline-Source-Element:', source);
-    return source || null;
-  }
-
-  function extractOutline(sourceElementOverride = null) {
-    console.log('extractOutline() gestartet …');
-
-    const sourceElement = sourceElementOverride || pickOutlineSourceFromChatMessages();
-    if (!sourceElement) { console.error('Kein geeignetes Outline-Element gefunden.'); return null; }
-
-    const headings = sourceElement.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    console.log(`Gefundene Überschriften (h1-h6): ${headings.length}`);
-
-    if (headings.length === 0) { console.error('Keine Überschriften im gewählten Element gefunden.'); return null; }
-
-    const outline = [];
-    headings.forEach((heading) => {
-      const point = { title: '', content: [] };
-      const titleText = (heading.innerText || heading.textContent || '').trim();
-      console.log(`Überschrift: ${titleText}`);
-      point.title = titleText;
-
-      let nextElement = heading.nextElementSibling;
-      while (
-        nextElement &&
-        !['UL', 'OL'].includes(nextElement.tagName) &&
-        !/^H[1-6]$/.test(nextElement.tagName)
-      ) {
-        nextElement = nextElement.nextElementSibling;
-      }
-
-      if (nextElement && ['UL', 'OL'].includes(nextElement.tagName)) {
-        const processList = (listEl) => {
-          const items = [];
-          listEl.querySelectorAll(':scope > li').forEach((li) => {
-            const clone = li.cloneNode(true);
-            clone.querySelectorAll('ul, ol').forEach((nestedList) => nestedList.remove());
-            let text = normalizeText(clone.innerText || clone.textContent || '');
-            const nested = li.querySelector(':scope > ul, :scope > ol');
-            if (nested) {
-              const nestedItems = processList(nested);
-              if (nestedItems.length) text = `${text}: ${nestedItems.join(' ')}`;
-            }
-            if (text) items.push(text);
-          });
-          return items;
-        };
-        point.content.push(...processList(nextElement));
-      } else {
-        console.warn(`Keine Liste nach "${point.title}" gefunden.`);
-      }
-
-      if (point.content.length) outline.push(point);
-    });
-
-    console.log('Extrahierte Gliederung:', outline);
-    return outline;
-  }
-
-  function renderOutlineIfAvailable(sourceElementOverride = null) {
-    const outline = extractOutline(sourceElementOverride);
-    if (!outline || outline.length === 0) {
-      console.warn('Noch keine extrahierbare Gliederung gefunden.');
-      return false;
-    }
-
+  function showOutlineError(message) {
+    if (loadingIndicator) { loadingIndicator.remove(); loadingIndicator = null; }
     const container = document.querySelector('.text-buddy-content');
-    if (!container) {
-      console.error('.text-buddy-content nicht gefunden.');
-      return false;
+    if (container) {
+      container.querySelector('.cb-outline-error')?.remove();
+      const error = document.createElement('div');
+      error.className = 'cb-outline-error';
+      error.setAttribute('role', 'alert');
+      error.textContent = message;
+      error.style.padding = '12px';
+      error.style.marginBottom = '10px';
+      error.style.backgroundColor = '#fff0f0';
+      error.style.color = '#8a1c1c';
+      container.appendChild(error);
     }
-
-    if (loadingIndicator) loadingIndicator.remove();
-    createOutlineBoxes(outline, container);
-    firstTime = false;
-    return true;
+    outlineActionButtons.forEach((button) => { button.style.display = ''; });
   }
 
-  function stopOutlineExtractionWatcher() {
-    if (!outlineExtractionObserver) return;
-    outlineExtractionObserver.disconnect();
-    outlineExtractionObserver = null;
+  function failOutlineExtraction(job, message) {
+    if (activeOutlineJob !== job) return;
+    stopOutlineExtraction();
+    isSending = false;
+    showOutlineError(message);
+    console.warn('[ContentBuddy] ' + message);
   }
 
-  function getChatActionSignature() {
-    const footer = document.querySelector('#chat-footer');
-    if (!footer) return '';
-
-    const button =
-      footer.querySelector('.input-panel .v-btn.bg-primary') ||
-      findSendButton() ||
-      footer.querySelector('button');
-
-    if (!button) return '';
-
-    const icon = button.querySelector('i, svg, [class*="mdi-"], [class*="fa-"], [class*="ri-"], [class*="icon"]');
-    const iconClasses = icon ? Array.from(icon.classList || []).sort().join('.') : '';
-    const label = normalizeText([
-      button.textContent || '',
-      button.getAttribute('aria-label') || '',
-      button.getAttribute('title') || '',
-    ].join(' ')).toLowerCase();
-
-    return `${label}|${iconClasses}`;
+  function startOutlineExtraction(prompt) {
+    stopOutlineExtraction();
+    document.querySelector('.cb-outline-error')?.remove();
+    const job = { prompt: normalizeText(prompt), started: false, chatId: null, reader: null, timeout: null };
+    activeOutlineJob = job;
+    job.timeout = setTimeout(() => failOutlineExtraction(job,
+      'Es wurde keine passende Chat-Antwort gestartet. Bitte prüfe, ob der Prompt gesendet wurde, und versuche es erneut.'), 15000);
+    return job;
   }
 
-  function getChatActionState(initialSignature = '') {
-    const footer = document.querySelector('#chat-footer');
-    const signature = getChatActionSignature();
-    if (!footer) return { signature, idle: false, busy: false };
-
-    const hasSendIcon = !!footer.querySelector('.mdi-send');
-    const hasBusyIcon = !!footer.querySelector(
-      '.mdi-stop, .mdi-square, .mdi-close, .mdi-cancel, .mdi-loading, .v-progress-circular'
-    );
-    const label = signature.toLowerCase();
-    const labelLooksIdle = /(^|[^a-z])(send|senden|absenden|abschicken)([^a-z]|$)/.test(label);
-    const labelLooksBusy = /stop|stopp|cancel|abbrechen|unterbrechen|generating|loading|lade/.test(label);
-    const matchesInitial = !!initialSignature && signature === initialSignature;
-    const changedFromInitial = !!initialSignature && !!signature && signature !== initialSignature;
-
-    const idle = hasSendIcon || labelLooksIdle || matchesInitial;
-    const busy = hasBusyIcon || labelLooksBusy || (changedFromInitial && !idle);
-
-    return { signature, idle, busy };
+  function plainMarkdown(text) {
+    return normalizeText(text
+      .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/(\*\*|__)(.*?)\1/g, '$2')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/\\([\\`*_{}\[\]()#+.!>\-])/g, '$1'));
   }
 
-  function startOutlineExtractionWatcher() {
-    stopOutlineExtractionWatcher();
-    if (!firstTime) return;
+  function extractOutlineFromMarkdown(markdown) {
+    let text = String(markdown || '').replace(/\r\n?/g, '\n').trim();
+    // Manche Modelle liefern die gesamte Gliederung in einem Markdown-Codeblock.
+    const fenced = /^(`{3,}|~{3,})(?:markdown|md)?\s*\n([\s\S]*?)\n\1\s*$/i.exec(text);
+    if (fenced) text = fenced[2];
+    const lines = text.split('\n');
+    const outline = [];
+    let point = null, paragraphBreak = true, codeFence = null;
 
-    const footer = document.querySelector('#chat-footer');
-    const initialSignature = getChatActionSignature();
-    const initialBotCount = getBotMessages().length;
-    let sawGenerationState = false;
-
-    const tryExtract = (source) => {
-      if (!firstTime) {
-        stopOutlineExtractionWatcher();
-        return;
+    for (let index = 0; index < lines.length; index++) {
+      const line = lines[index];
+      const fence = /^\s{0,3}(`{3,}|~{3,})/.exec(line);
+      if (fence) {
+        if (!codeFence) codeFence = fence[1];
+        else if (fence[1][0] === codeFence[0] && fence[1].length >= codeFence.length) codeFence = null;
+        continue;
       }
-
-      const completedBot = hasCompletedBotMessageAfter(initialBotCount);
-      if (completedBot) {
-        console.log('[Outline-Watcher] Neue Bot-Antwort ist abgeschlossen:', source);
-        if (renderOutlineIfAvailable(getMarkdownRoot(completedBot))) stopOutlineExtractionWatcher();
-        return;
+      if (codeFence) continue;
+      let heading = /^\s{0,3}#{1,6}[ \t]+(.+)$/.exec(line)?.[1]?.replace(/[ \t]+#+[ \t]*$/, '').trim();
+      if (!heading && line.trim() && !/^\s*(?:[-+*]|\d+[.)])\s+/.test(line) &&
+        /^\s{0,3}(?:=+|-+)\s*$/.test(lines[index + 1] || '')) {
+        heading = line.trim();
+        index += 1;
       }
-
-      if (!document.querySelector('#chat-messages')) {
-        console.log('[Outline-Watcher] #chat-messages noch nicht vorhanden, warte weiter:', source);
-        return;
+      if (!heading) heading = /^\s*(?:\d+[.)]\s+)?\*\*(.+?)\*\*\s*$/.exec(line)?.[1];
+      if (heading) {
+        point = { title: plainMarkdown(heading), content: [] };
+        outline.push(point);
+        paragraphBreak = true;
+        continue;
       }
-
-      const state = getChatActionState(initialSignature);
-      if (!sawGenerationState && state.busy) {
-        sawGenerationState = true;
-        console.log('[Outline-Watcher] Generierung erkannt:', source, state);
-        return;
-      }
-
-      if (sawGenerationState && state.idle && getBotMessages().length > initialBotCount) {
-        console.log('[Outline-Watcher] Versuche Gliederung zu extrahieren:', source, state);
-        if (renderOutlineIfAvailable()) stopOutlineExtractionWatcher();
-        return;
-      }
-    };
-
-    outlineExtractionObserver = new MutationObserver((mutations) => {
-      const chat = document.querySelector('#chat-messages');
-      const source = mutations.some((m) => chat && (m.target === chat || chat.contains(m.target))) ? 'chat' : 'page';
-      tryExtract(source);
-    });
-
-    outlineExtractionObserver.observe(document.body, { childList: true, subtree: true });
-    if (footer) outlineExtractionObserver.observe(footer, { attributes: true, childList: true, subtree: true });
-
-    console.log('[Outline-Watcher] gestartet.', { initialSignature, initialBotCount });
+      if (!line.trim()) { paragraphBreak = true; continue; }
+      if (!point || /^\s*(?:-{3,}|\*{3,}|_{3,})\s*$/.test(line)) continue;
+      const bullet = /^\s*(?:[-+*]|\d+[.)])\s+(.+)$/.exec(line);
+      const content = plainMarkdown(bullet ? bullet[1] : line.trim());
+      if (!content) continue;
+      if (bullet || paragraphBreak || !point.content.length) point.content.push(content);
+      else point.content[point.content.length - 1] += ' ' + content;
+      paragraphBreak = false;
+    }
+    return outline.filter((item) => item.title && item.content.length);
   }
 
-  function finishOutlineExtraction(source = 'trigger') {
-    if (!firstTime) {
-      stopOutlineExtractionWatcher();
+  function finishOutlineExtraction(job, markdown) {
+    if (activeOutlineJob !== job || !firstTime) return;
+    const outline = extractOutlineFromMarkdown(markdown);
+    if (!outline.length) {
+      failOutlineExtraction(job, 'Die Antwort enthält keine lesbare Gliederung. Bitte prüfe die Antwort im Chat und versuche es erneut.');
       return;
     }
+    const container = document.querySelector('.text-buddy-content');
+    if (!container) {
+      failOutlineExtraction(job, 'Das Content-Buddy-Fenster wurde nicht gefunden. Bitte lade die Seite neu.');
+      return;
+    }
+    createOutlineBoxes(outline, container);
+    firstTime = false;
+    stopOutlineExtraction();
+    if (loadingIndicator) { loadingIndicator.remove(); loadingIndicator = null; }
+    console.log('[ContentBuddy] Vollständige Gliederung aus dem Chat-Stream übernommen.', { points: outline.length });
+  }
 
-    console.log('[Outline-Watcher] Abschluss-Trigger:', source);
-    if (renderOutlineIfAvailable()) stopOutlineExtractionWatcher();
+  async function observeOutlineResponse(response, job) {
+    let reader = null, reachedEnd = false;
+    try {
+      if (!response.ok) throw new Error('Die Generierung ist fehlgeschlagen (HTTP ' + response.status + '). Bitte versuche es erneut.');
+      if (!response.body || !/text\/event-stream/i.test(response.headers.get('Content-Type') || '')) {
+        throw new Error('Die Chat-Antwort hat ein unerwartetes Format. Bitte lade ogGPT neu.');
+      }
+      if (activeOutlineJob !== job) return;
+      reader = response.body.getReader();
+      job.reader = reader;
+      const decoder = new TextDecoder();
+      let buffer = '', markdown = '', bytes = 0;
+      const failed = (value) => /(^|[._-])(error|failed|failure|cancelled|canceled|aborted)([._-]|$)/i.test(String(value || ''));
+      const processFrame = (frame) => {
+        let event = 'message';
+        const data = [];
+        frame.split(/\r\n|\n|\r/).forEach((line) => {
+          if (line.startsWith('event:')) event = line.slice(6).trim().toLowerCase();
+          if (line.startsWith('data:')) data.push(line.slice(5).replace(/^ /, ''));
+        });
+        if (!data.length) return;
+        const raw = data.join('\n');
+        if (raw.trim() === '[DONE]') return;
+        let payload;
+        try { payload = JSON.parse(raw); }
+        catch {
+          if (event === 'token' || failed(event)) throw new Error('Die Chat-Antwort konnte nicht vollständig verarbeitet werden. Bitte versuche es erneut.');
+          return;
+        }
+        if (failed(event) || (event !== 'token' && payload && typeof payload === 'object' &&
+          (payload.error || failed(payload.kind) || failed(payload.type) || failed(payload.status)))) {
+          throw new Error('Die Generierung ist fehlgeschlagen oder wurde abgebrochen. Bitte versuche es erneut.');
+        }
+        // Tool-, Status- und Reasoning-Events gehören nicht zum Antworttext.
+        if (event !== 'token') return;
+        if (typeof payload !== 'string') throw new Error('Die Chat-Antwort hat ein unerwartetes Textformat. Bitte versuche es erneut.');
+        markdown += payload;
+      };
+
+      while (activeOutlineJob === job) {
+        const { done, value } = await reader.read();
+        if (activeOutlineJob !== job) return;
+        bytes += value?.byteLength || 0;
+        if (bytes > 2 * 1024 * 1024) throw new Error('Die Chat-Antwort ist zu groß. Bitte versuche es mit einer kürzeren Gliederung erneut.');
+        buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+        let separator;
+        while ((separator = /\r\n\r\n|\n\n|\r\r/.exec(buffer))) {
+          processFrame(buffer.slice(0, separator.index));
+          buffer = buffer.slice(separator.index + separator[0].length);
+        }
+        if (done) {
+          if (buffer.trim()) processFrame(buffer);
+          reachedEnd = true;
+          job.reader = null;
+          finishOutlineExtraction(job, markdown);
+          break;
+        }
+      }
+    } catch (error) {
+      const message = error.name === 'AbortError' || error instanceof TypeError
+        ? 'Die Generierung wurde abgebrochen oder die Verbindung unterbrochen. Bitte versuche es erneut.'
+        : error.message;
+      failOutlineExtraction(job, message);
+    } finally {
+      if (job.reader === reader) job.reader = null;
+      if (reader) {
+        if (!reachedEnd) cancelOutlineReader(reader);
+        try { reader.releaseLock(); } catch {}
+      }
+    }
   }
 
   function createOutlineBoxes(outline, container) {
@@ -834,6 +944,7 @@
   function createOverlay(button) {
     console.log('Erstelle Overlay...');
     const overlay = document.createElement('div');
+    overlay.id = 'contentBuddyOverlay';
     overlay.style.position = 'fixed';
     overlay.style.right = '0';
     overlay.style.top = '0';
@@ -1048,7 +1159,9 @@
     buttonContainer.appendChild(bTextButton);
     content.appendChild(buttonContainer);
 
-    // Premium-Text: Extraktion erfolgt erst, wenn die neue Bot-Antwort im Chat abgeschlossen ist.
+    outlineActionButtons = [aTextButton, bTextButton];
+
+    // Premium-Text: Den passenden BFF-Stream bis zum Abschluss lesen.
     aTextButton.addEventListener('click', () => {
       console.log('A-Text angefordert.');
       const hauptkeyword = mainKeywordInput.value.trim();
@@ -1058,11 +1171,13 @@
         .map((input) => input.value.trim()).filter(Boolean).join(', ');
 
       if (hauptkeyword) {
-        startOutlineExtractionWatcher();
-        insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen);
-        aTextButton.style.display = 'none';
-        bTextButton.style.display = 'none';
         createLoadingIndicator(content);
+        if (insertTextAndSend(hauptkeyword, hauptkeyword, nebenkeywords, proofkeywords, w_fragen)) {
+          aTextButton.style.display = 'none';
+          bTextButton.style.display = 'none';
+        } else {
+          showOutlineError(lastInsertError || 'Der Prompt konnte nicht eingefügt werden. Bitte lade ogGPT neu und versuche es erneut.');
+        }
       }
     });
 
@@ -1122,36 +1237,6 @@
     // overlay wird in createOverlay bereits an body angehängt -> kein zweites append
   }
 
-  function monitorConsoleMessages() {
-    const originalConsole = {
-      log: console.log,
-      info: console.info,
-      debug: console.debug,
-      warn: console.warn,
-    };
-
-    originalConsole.log('monitorConsoleMessages() gestartet.');
-
-    const handleConsoleMessage = (args) => {
-      try {
-        const msg = args[0];
-        if (typeof msg === 'string' && msg.includes('llm generation stream closed')) {
-          originalConsole.log('[monitorConsoleMessages] - Intercepted:', msg);
-          if (firstTime) {
-            finishOutlineExtraction('console');
-          }
-        }
-      } catch (e) { /* ignore */ }
-    };
-
-    Object.keys(originalConsole).forEach((method) => {
-      console[method] = function () {
-        handleConsoleMessage(arguments);
-        return Function.prototype.apply.call(originalConsole[method], console, arguments);
-      };
-    });
-  }
-
   function initializeContentBuddy() {
     console.log('🚀 initializeContentBuddy() wird ausgeführt...');
 
@@ -1160,7 +1245,6 @@
       console.log('⚠️ Abbruch: ContentBuddy-Button existiert bereits.'); return; }
     console.log('🛠️ Erstelle ContentBuddy-Button...');
     createButton();
-    monitorConsoleMessages();
     monitorResetButton();
 
     console.log('✅ ContentBuddy erfolgreich initialisiert.');
